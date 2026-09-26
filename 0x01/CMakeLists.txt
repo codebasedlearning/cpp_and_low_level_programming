@@ -1,0 +1,24 @@
+# (C) A.Voß, a.voss@fh-aachen.de, info@codebasedlearning.dev
+
+add_executable(a_helloworld i_preparation/a_helloworld.cpp)
+add_executable(b_helloworld_dive i_preparation/b_helloworld_dive.cpp)
+add_executable(c_helloworld_codebook i_preparation/c_helloworld_codebook.cpp)
+add_executable(d_var_init i_preparation/d_var_init.cpp)
+
+add_executable(a_var_init_dive ii_session/a_var_init_dive.cpp)
+add_executable(b_var_init_string ii_session/b_var_init_string.cpp)
+add_executable(c_control_flow ii_session/c_control_flow.cpp)
+add_executable(d_functions ii_session/d_functions.cpp)
+
+add_executable(must_control_flow iii_follow_up/must_control_flow.cpp)
+add_executable(must_string iii_follow_up/must_string.cpp)
+add_executable(must_assert iii_follow_up/must_assert.cpp)
+add_executable(may_int8 iii_follow_up/may_int8.cpp)
+add_executable(may_goto iii_follow_up/may_goto.cpp)
+
+add_executable(westrosecliff_one_solution iv_solutions/westrosecliff_one_solution.cpp)
+add_executable(echovalley_one_solution iv_solutions/echovalley_one_solution.cpp)
+add_executable(littleharbor_one_solution iv_solutions/littleharbor_one_solution.cpp)
+add_executable(bluecanyon_one_solution iv_solutions/bluecanyon_one_solution.cpp)
+add_executable(beverlyhollow_one_solution iv_solutions/beverlyhollow_one_solution.cpp)
+add_executable(pinepoint_one_solution iv_solutions/pinepoint_one_solution.cpp)
