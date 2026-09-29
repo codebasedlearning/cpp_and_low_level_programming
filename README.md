@@ -8,10 +8,25 @@ This course is designed for programmers who:
 
 - Already have programming experience.
 - Know another object-oriented language (Java, C#, Python, etc.).
-- Want to learn C++ implementation techniques.
+- Want to learn C++ - and understand what their programs do on the machine.
 
 The course assumes familiarity with fundamental programming concepts like classes and loops. Instead, it focuses on
-C++-specific features and language constructs, explaining their practical applications and use cases.
+C++-specific features and language constructs, and follows every one of them one level down: what the compiler makes
+of it, where the bytes go, when an object lives and dies. Two threads, one course.
+
+## Why C++
+
+Underneath any program are bytes, addresses, lifetimes, and owners. Most languages hide them, and for good reasons.
+C++ hides the least while still offering the abstractions that make the gap visible: a `std::string` is a class, and
+three words on the stack, and a block on the heap - all in one line of code, and all of it can be looked at.
+
+That makes C++ a good place to learn both at once. Java, C#, and Python hide the machine behind a runtime: no `sizeof`,
+no address, no moment at which an object dies. C shows the bytes but has little to contrast them with. Rust shows
+ownership, but its borrow checker refuses exactly the programs whose failure is instructive. C++ lets you write them,
+run them, and see what happens - in the debugger, in the memory view, in the symbol table.
+
+So this is a C++ course, and a course on what programs are made of; each topic is taught with both in view. What has
+a machine-level story is in the sessions, what is C++ for its own sake goes to the `study_` and `tinker_` files.
 
 ## Working with this repository
 
