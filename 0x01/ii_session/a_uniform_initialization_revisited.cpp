@@ -9,6 +9,14 @@
  * - Sizes and ranges of the integer types, and why braces reject narrowing.
  */
 
+/* --- Warm-up ---
+ * Did you work through the preparation? Answer without looking it up.
+ * - What does `main` return?
+ * - `'\n'` or `endl` - what is the difference, and which one do we use?
+ * - What does `int v3{};` contain? And what does `bool b{true};` print?
+ * - Why does `float f{1.2f};` need the `f`?
+ */
+
 #include <iostream>
 #include <cstdlib>
 #include <cstddef>                          // for `size_t`

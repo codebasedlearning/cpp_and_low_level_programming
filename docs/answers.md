@@ -93,117 +93,76 @@ reorder by default.
 
 ---
 
-# Questionnaires
+# Comprehension Check
 
-Answers to the questionnaires at the end of the tasks, and our results for the AI warm-ups. Try first, then read. The
-outputs were checked with gcc on Linux; where your platform may differ, it says so.
+What you should be able to say for each point of the Comprehension Check at the end of the tasks, and our results for
+the AI warm-ups. Try first, then read. The outputs were checked with gcc on Linux; where your platform may differ, it
+says so.
 
-## Unit 0x01 <a id="questionnaire-0x01"></a>
+## Unit 0x01 <a id="check-0x01"></a>
 
-### `assert`
+**I can create, build and run a C++ program, with CMake and with `make`.**
 
-**Activate the failing `assert`. What does the program print, and what is its exit status?**
+The compiler translates each source file into an object file, the linker joins the object files and the libraries
+into an executable, and the operating system runs it, starting at `main`. `g++ hello.cpp -o hello` does compiling and
+linking in one go. `make` rebuilds only what changed, driven by a `makefile`; CMake generates such build files from a
+`CMakeLists.txt`, and CLion runs it for you. A typo is a compiler error, an `undefined reference` a linker error.
 
-It prints program name, file, line, function and the condition, e.g. `...: Assertion 'is_even(3)' failed.`, and aborts.
-On Linux and macOS the shell reports 134 = 128 + 6, the signal number of `SIGABRT`. Windows shows a dialog or a message,
-with exit code 3.
+**I can define and initialize variables, and I know why we prefer `{}`.**
 
-**Build it with `-DNDEBUG`, or as 'Release', and run it again.**
+`int v{42};` works for every type, `int v{};` gives the default value 0, and braces reject conversions that lose
+information: `int b{1.2};` does not compile, `int a = 1.2;` silently gives 1.
 
-Every `assert` is gone: the failing one does nothing, the program ends normally with 0, and `disable_asserts_in_release`
-reports that `NDEBUG` is defined. CLion's 'Release' configuration passes `-DNDEBUG`.
+**I can explain what an uninitialized variable contains and why reading it is UB.**
 
-**Why is `assert(++count < 10);` a bad idea?**
+Whatever was in that memory before - often a value left behind in the stack frame of an earlier call. Reading it is
+undefined behavior: the standard promises nothing, and the optimizer may assume it never happens, so Debug (`-O0`) and
+Release (`-O2`) can show completely different results.
 
-The increment is part of the `assert` and disappears with it in a release build - the program then behaves differently
-in Debug and Release. An `assert` may only check, never do work the program needs.
+**I know that the sizes of types depend on the platform, and how to find them out.**
 
-### Control flow
+The standard only fixes minimum sizes and their order; `long`, for example, has 8 bytes on Linux and macOS, but 4 on
+Windows. `sizeof(T)` gives the size, `std::numeric_limits<T>::max()` the largest value. If the number of bits matters,
+use the fixed-width types from `<cstdint>`, e.g. `std::int64_t`.
 
-**In `skip_and_leave_loops`: what changes if you swap the two `if`s?**
+**I know where the characters of a `string` live.**
 
-Then `i >= 10` is checked before the output: for `i == 10` the loop is left before printing. The output is 5 ... 9
-instead of 5 ... 10.
+The `string` object has a fixed size (32 bytes with gcc, 24 with Apple clang) and sits where the variable is, e.g. on
+the stack. A short text fits into the object itself (small string optimization, up to 15 or 22 characters), a longer
+one lives on the heap. `c_str()` shows where. When a string grows beyond its capacity, the characters move: an
+allocation and a copy you do not see in the code.
 
-**In `branch_with_switch`: remove the `break` after `case 3` and set `n` to 3.**
+**I know the difference between `s[i]` and `s.at(i)`, and what `string::npos` means.**
 
-Both `case 3` and `case 4` are printed - execution falls through into the next `case` until the next `break`. With
-`-Wextra` gcc warns: "this statement may fall through".
+`s[i]` does not check the index - out of range it is undefined behavior. `s.at(i)` checks and throws
+`std::out_of_range`; you pay for the check only if you ask for it. `find` returns a position, or `string::npos` for
+"not found": the largest value of the unsigned size type, 18446744073709551615 = 2^64 - 1 on a 64-bit system - no valid
+position can have it.
 
-**What does `if (int n2 = n * n > 500)` do instead?**
+**I can declare and define functions, and I know what a call does on the stack.**
 
-`>` binds tighter than `=`, so it means `int n2 = (n * n > 500)`: `n2` is the `bool` result converted to `int`, i.e.
-`1`. The condition is still right, but the output says "n^2=1". The init-statement form `if (int n2{n * n}; n2 > 500)`
-avoids exactly this.
+A declaration gives the signature, which is enough to call the function; the definition adds the body, exactly once.
+Every call gets its own stack frame with its parameters and local variables, which is released when the function
+returns - recursion makes that visible: `factorial(5)` means five frames, and too deep a recursion runs out of stack.
 
-**Why is `switch` on a `string` not allowed?**
+**I can predict what happens on integer overflow.**
 
-`switch` works on integral and enumeration values, and the `case` labels must be constants - the compiler turns it into
-comparisons or a jump table. A `string` is a class type, its comparison is a function call. Use `if`/`else`, or map
-strings to numbers first.
+Signed overflow is undefined behavior: no error, no exception - usually a wrong value, but the optimizer may also
+assume it never happens, and then e.g. a loop does not end. Unsigned types wrap around, well-defined: 255 + 1 is 0 in
+8 bits. Checking before is possible without overflowing: `if (result > max / b)`.
 
-### Strings
+**I know the control structures `if`, `for`, `while`, `do`-`while` and `switch` - and what a `switch` without `break`
+does.**
 
-**Line 2 in `search_strings` prints a huge number. Why that one?**
+They work as in Java; C++ adds `if (init; condition)`, whose variable lives only inside the `if`/`else`. `switch`
+works on integral and enumeration values with constant labels - not on a `string`. Without `break`, execution falls
+through into the next `case`; `[[fallthrough]]` marks it as intended.
 
-`string::npos` is the largest value of the unsigned `size_type`, i.e. `-1` converted to unsigned: 18446744073709551615 =
-2^64 - 1 on a 64-bit system. No valid position can have that value, so it serves as "not found".
+**I can test with `assert`, and I know why an `assert` must never do work the program needs.**
 
-**What does `s[42]` print instead of `s.at(42)`? Is that an answer?**
-
-Whatever lies in memory there - a strange character, nothing, or a crash. It is undefined behavior, so no output is an
-answer. `s.at(42)` throws `std::out_of_range`; uncaught, the program ends with a message like
-`basic_string::at: __n (which is 42) >= this->size() (which is 7)` and exit status 134.
-
-### `goto` (optional)
-
-**How different are `loop_with_for` and `loop_with_goto` in the assembly?**
-
-Hardly: both are a compare, a conditional jump and a jump back (`cmp`/`jle`/`jmp` on x86, `cmp`/`ble`/`b` on ARM), with
-almost the same number of instructions. The small differences come from `i++ < 10` versus `++i` and `i <= 10`, not from
-`goto`.
-
-**Rewrite `loop_with_goto` with `while`. Which version is easier to read?**
-
-`int i{5}; while (i <= 10) { cout << ...; ++i; }` - the condition is at the top, where a reader looks for it, and the
-body is a block.
-
-**A third way out of nested loops is a `bool` flag.**
-
-`bool found{false};` and `for (int i{1}; i <= 9 && !found; ++i)` for both loops, `found = true;` instead of the `goto`.
-It works, but the flag has to be checked in every loop condition. Most people prefer the function with `return`: the
-search gets a name, and the loops end at once.
-
-**Java has `break outer;`. Why might that be less of a loss than it seems?**
-
-Nested loops that need a labeled break are usually a search - and a search is best a function of its own, left with
-`return`. For the rare remaining cases, `goto` to a label right after the loops does the same.
-
-**What problem does `goto cleanup;` solve in C?**
-
-Releasing resources on every error path: all paths jump to one place at the end that frees memory and closes files in
-reverse order. C++ does this with destructors (RAII), which run automatically on every way out of a scope - including
-exceptions.
-
-### Integer types (optional)
-
-**`long double` has 16 bytes on x86-64 Linux, but only 8 on Windows and Apple Silicon. What does that mean for a file?**
-
-A binary file that stores one is not portable: written on Linux, 16 bytes in x87 extended format (10 bytes used); read
-on Windows or a Mac, 8 bytes of an IEEE `double` are expected - the result is garbage. Binary formats need types of
-fixed size and format, e.g. `double`, or text.
-
-**Why is "a byte" and "a small number" the same type in C++?**
-
-History: in C, `char` is the smallest addressable unit - used for characters and for raw bytes alike - and
-`int8_t`/`uint8_t` are just other names for `signed char`/`unsigned char`. Hence streams print them as characters. C++17
-added `std::byte` for bytes that are neither characters nor numbers.
-
-**What happens with `uint8_t u{255}; ++u;`? And with `int8_t i{127}; ++i;`?**
-
-`u` becomes 0, `i` becomes -128. Neither is an overflow: the arithmetic happens in `int` (256 and 128), and only the
-conversion back to the small type wraps around. For unsigned types that is always defined (modulo 256), for signed ones
-since C++20.
+`assert(condition)` does nothing if the condition holds; otherwise it prints file, line and condition and aborts -
+exit status 134 on Linux and macOS. In a release build (`NDEBUG` defined) every `assert` disappears, including the
+code inside it: `assert(++count < 10);` counts in Debug and not in Release.
 
 ### 'AI' - Two Opinions <a id="ai-0x01"></a>
 
@@ -230,129 +189,67 @@ Answer B:
 B is more useful - it names the real problem - but both sound equally sure of themselves, and both contain a wrong
 statement. That is the point: fluency is not correctness.
 
-## Unit 0x02 <a id="questionnaire-0x02"></a>
+## Unit 0x02 <a id="check-0x02"></a>
 
-### `auto`
+**I can explain what a reference is, and why it is not a copy.**
 
-**In `deduce_references`, replace `auto&` by `auto` in the first loop.**
+A reference is a second name for an existing object: same object, same address (`&m == &n`), no copy. It must be
+initialized and cannot be rebound - an assignment through it changes the object. Where a reference must exist at
+runtime, as a parameter or a member, the compiler usually implements it as an address.
 
-The loop multiplies copies, the vector stays `{1, 2, 3}` - the second loop prints 1, 2, 3 instead of 10, 20, 30.
+**I can choose between passing by value, by reference and by `const&` - and justify it.**
 
-**What type does `auto x{v.size()};` have?**
+By value copies the argument into the function's stack frame: fine for small types like `int`, `double` or a small
+`struct`, expensive for a `vector` or a long `string`. `const&` passes the object itself, read-only - the default for
+anything bigger that is only read. `&` only if the function should change the argument. By value is also right when
+the function needs its own copy anyway.
 
-`std::vector<int>::size_type`, i.e. `std::size_t` - an unsigned 64-bit type on 64-bit systems (`unsigned long` on Linux
-and macOS, `unsigned long long` on Windows). Comparing it with an `int` gives the signed/unsigned warning.
+**I can say where the elements of a `std::array` and of a `std::vector` live.**
 
-**Why is `for (const auto& x : v)` a good default, and when is plain `auto` just as good?**
+A `std::array` is its elements - `sizeof` is exactly their size, and a local array lies completely on the stack. A
+`std::vector` object (24 bytes: where, how many, how many fit) sits on the stack, its elements on the heap; `data()`
+gives their address. A `vector` has no small buffer - even three elements are on the heap.
 
-It never copies and never changes the element, whatever its type - a `string`, a `struct`, a `vector`. For small,
-cheap-to-copy types like `int`, `double` or a pointer, `auto` is just as good and possibly a little faster: the value
-lands in a register, with no address to follow.
+**I can explain `size` and `capacity`, and why a reference into a `vector` can dangle.**
 
-### Exceptions
+`size` is the number of elements, `capacity` the number that fit into the memory already reserved. When it is full,
+`push_back` reserves a larger block (by a factor of about 1.5 or 2), copies the elements over and releases the old
+block. Every reference, pointer or iterator into the old block then dangles - reading through it is undefined
+behavior. `reserve` avoids the moves if you know the size in advance.
 
-**Swap the first two `catch` blocks in `catch_in_order`. Does it change anything?**
+**I can estimate the memory of a `struct`, including padding.**
 
-No: `load` throws a `runtime_error`, and `out_of_range` is not related to it (it derives from `logic_error`). The order
-only matters when one type is a base of the other - then the first matching `catch` wins, so the more specific one must
-come first.
+The members lie in declaration order, each at an address that is a multiple of its alignment (for the primitive types
+usually their size). Gaps between them are padding, and the whole `struct` is padded to a multiple of its largest
+alignment, so that in an array the next element is aligned, too. `char, double, char` needs 24 bytes, `double, char,
+char` only 16 - order the members from large to small. `offsetof` shows where each member starts.
 
-**Remove the outer `try` in `rethrow`. What happens, and what is the exit status?**
+**I can measure the cost of a copy instead of guessing it.**
 
-The rethrown exception is not caught anywhere, so `std::terminate` is called:
-`terminate called after throwing an instance of 'std::runtime_error' what(): file not found`, then abort - exit status
-134 on Linux and macOS.
+Put a `stopwatch` around the work, build as Release (`-O2`) - otherwise you measure the missing optimization -, repeat
+the work often enough to get more than a few milliseconds, and use the result, e.g. print it, so the optimizer cannot
+drop it. Then compare, e.g. passing a big `vector` by value and by `const&`.
 
-**In C++ you can `throw 42;`. Why is that still a bad idea?**
+**I know what `auto`, `auto&` and `const auto&` deduce, especially in a range-based `for`.**
 
-An `int` carries no message and no meaning, `catch (const std::exception& e)` does not catch it, and there is no
-`what()`. Callers would need `catch (int)` - and would have to know about it. Throw types derived from `std::exception`,
-e.g. `std::runtime_error`.
+`auto` deduces the type from the initializer and drops references and top-level `const`: it always makes a copy.
+`auto&` refers to the element and may change it, `const auto&` refers to it read-only - the good default in a
+range-based `for`, except for small types like `int`, where a copy is just as cheap. `auto x{v.size()};` is a
+`std::size_t`, not an `int`.
 
-### String conversion
+**I can throw, catch and rethrow standard exceptions, and I know why the order of the `catch` blocks matters.**
 
-**Why does `stoi("12abc")` not throw? How could you find out that there was more text?**
+Throw objects of types derived from `std::exception`, e.g. `throw std::runtime_error{"file not found"};`, and catch
+them by `const&`. The `catch` blocks are tried from top to bottom, and the first matching one wins - so a derived type
+must come before its base, otherwise the base catches everything. `throw;` passes the same exception on. An exception
+that nobody catches ends the program with `std::terminate` - exit status 134 on Linux and macOS.
 
-`stoi` converts as many characters as it can and throws only if there is no number at the start at all. The second
-parameter tells how many characters were used: `std::size_t used{}; const int n{stoi(s, &used)};` gives `used == 2` - if
-`used != s.size()`, there was more text.
+**I can convert between text and numbers with `stoi`, `stod` and `to_string`, and handle what goes wrong.**
 
-**`to_string(1.5)` gives "1.500000". Where do the zeros come from?**
-
-`to_string` for floating-point numbers is specified like `printf("%f")`, which always prints six decimal places.
-`std::format("{}", 1.5)` gives the shortest exact form, "1.5". (C++26 changes `to_string` to that behavior.)
-
-### Reading with a check (optional)
-
-**What happens if you enter a number that is too large for an `int`?**
-
-The read fails: `fail()` is true, and since C++11 `n` is set to the largest (or smallest) `int`, 2147483647. So check
-the stream, not the value.
-
-**Why is the error state sticky? Compare with `errno` in C.**
-
-Once the stream has failed, every further read fails at once, until `clear()` - so you can read several values and check
-once at the end, and no error gets lost. The bad input is still in the buffer, hence `ignore`. `errno` is a global
-number that failing C functions set and nobody resets - it has to be checked right after the call, and it blocks
-nothing.
-
-### `const` and `constexpr` (optional)
-
-**Look at the assembly (`g++ -S`): is there a call to `times4` for `b`? And for `m`?**
-
-For `b` never: a `constexpr` variable must be computed by the compiler, `12` is in the code. For `m` there is a call at
-`-O0` (`call` on x86, `bl` on ARM); at `-O2` it is inlined and the call is gone.
-
-**Why can `std::array<int, n>` not take a plain `const int n` that comes from `cin`?**
-
-The size is part of the type, and types must be known at compile time. `const` only means "does not change after
-initialization" - a value read at runtime is still unknown to the compiler. `constexpr` is the promise "known at compile
-time".
-
-### `format` and `println` (optional)
-
-**`printf("%d\n", 3.14);` compiles in C. What does it print, and why is that dangerous?**
-
-Garbage, a different number on every run: `%d` makes `printf` read an `int`, but a `double` was passed - on x86-64 and
-ARM even in a different register. It is undefined behavior; `printf` cannot check its arguments, only compilers warn
-(`-Wformat`). `std::format` checks the format string against the arguments at compile time.
-
-**Why do we still use `cout` in this course?**
-
-It works with every compiler the students use - `std::format` and `std::println` need a recent standard library, which
-is why the snippet asks for the feature-test macros. And streams are where `operator<<` for your own types comes in
-later.
-
-### Trailing return types (optional)
-
-**Some style guides use `auto f() -> type` for every function. What speaks for it?**
-
-The function names line up in one column, the style is the same as for lambdas and for return types that depend on the
-parameters, and in a member function defined outside the class the return type can use the class's names without
-qualification.
-
-**What is `decltype(2 * 1.5f)`?**
-
-`float`: the `int` is converted to `float` before the multiplication (usual arithmetic conversions).
-
-### `vector` vs. `list` (optional)
-
-**How many `int`s of the `vector` come with one 64-byte cache line - and how many of the `list`?**
-
-16 of the `vector` - 64 / 4, and the next ones are loaded ahead. Of the `list` usually one: each node is a separate
-allocation somewhere on the heap, and the next element is only known after the current node was loaded.
-
-**How much memory does one `list` element need, compared to one `vector` element?**
-
-A `vector` element needs 4 bytes (plus spare capacity). A `list` node holds two pointers and the `int` - 24 bytes with
-padding - plus the allocator's bookkeeping: with gcc on Linux, consecutive nodes lie 32 bytes apart. So about 8 times as
-much.
-
-**When would you still choose a `list`?**
-
-When elements must never move - pointers and references to them stay valid on insert and erase -, when you insert and
-erase in the middle a lot with an iterator in hand, or to splice elements between lists without copying. In practice
-rare: a `vector` usually wins, even for inserts in the middle of moderate sizes.
+`stoi` and `stod` read a number from the start of a string: they throw `std::invalid_argument` if there is none and
+`std::out_of_range` if it does not fit, and they stop at the first character that does not fit - `stoi("12abc")` is 12;
+the optional second parameter tells how many characters were used. `to_string` goes the other way, for a `double` with
+six decimal places: `to_string(1.5)` is "1.500000".
 
 ### 'AI' - Two Opinions <a id="ai-0x02"></a>
 

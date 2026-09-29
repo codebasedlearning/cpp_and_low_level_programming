@@ -53,8 +53,9 @@ namespace {
         cout << " 1| i=" << i << ", type unsigned int\n";
         cout << " 2| j=" << j << ", type signed int\n";
 
-        // A 'longer' integer, at least 64 bit.
-        long long ll{123456789012345};
+        // A 'longer' integer, at least 64 bit. Long literals are easier to read with `'` as digit separator (C++14) -
+        // the compiler ignores it, `123'456'789'012'345` is the same number.
+        long long ll{123'456'789'012'345};
         cout << " 3| ll=" << ll << ", type long long\n";
 
         // A single character, in single quotes.

@@ -230,53 +230,16 @@ Our results: [answers](../docs/answers.md#ai-0x01).
 
 ## Comprehension Check
 
+Answers: [comprehension check 0x01](../docs/answers.md#check-0x01).
+
 - I can create, build and run a C++ program, with CMake and with `make`.
 - I can define and initialize variables, and I know why we prefer `{}`.
 - I can explain what an uninitialized variable contains and why reading it is UB.
 - I know that the sizes of types depend on the platform, and how to find them out.
 - I know where the characters of a `string` live.
+- I know the difference between `s[i]` and `s.at(i)`, and what `string::npos` means.
 - I can declare and define functions, and I know what a call does on the stack.
 - I can predict what happens on integer overflow.
-- I know the control structures `if`, `for`, `while`, `do`-`while` and `switch`.
-
-<hr>
-
-## Questionnaire
-
-Questions to the follow-up material - predict first, then try. Topics marked *optional* belong to the `tinker_` files.
-Answers: [questionnaire 0x01](../docs/answers.md#questionnaire-0x01).
-
-### `assert`
-
-- Activate the failing `assert` in the study snippet. What does the program print, and what is its exit status
-  (`echo $?` right after running it)?
-- Build it with `-DNDEBUG`, or as 'Release' in CLion, and run it again.
-- Why is `assert(++count < 10);` a bad idea?
-
-### Control flow
-
-- In `skip_and_leave_loops`: what changes if you swap the two `if`s?
-- In `branch_with_switch`: remove the `break` after `case 3` and set `n` to 3.
-- `if` with init from the session: what does `if (int n2 = n * n > 500)` do instead? Hint: operator precedence.
-- Why is `switch` on a `string` not allowed?
-
-### Strings
-
-- Line 2 in `search_strings` prints a huge number. Why that one? Hint: what is the largest value an unsigned type can
-  hold?
-- What does `s[42]` print instead of `s.at(42)`? Is that an answer?
-
-### `goto` (optional)
-
-- How different are `loop_with_for` and `loop_with_goto` in the assembly?
-- Rewrite `loop_with_goto` with `while`. Which version is easier to read?
-- A third way out of nested loops is a `bool` flag. Write it - which of the three versions do you prefer, and why?
-- Java has `break outer;` for exactly this case. C++ does not. Why might that be less of a loss than it seems?
-- What problem does `goto cleanup;` solve in C?
-
-### Integer types (optional)
-
-- `long double` has 16 bytes on x86-64 Linux, but only 8 on Windows and on Apple Silicon. What does that mean for a
-  file that stores one?
-- Why is "a byte" and "a small number" the same type in C++?
-- What happens with `uint8_t u{255}; ++u;`? And with `int8_t i{127}; ++i;`?
+- I know the control structures `if`, `for`, `while`, `do`-`while` and `switch` - and what a `switch` without `break`
+  does.
+- I can test with `assert`, and I know why an `assert` must never do work the program needs.

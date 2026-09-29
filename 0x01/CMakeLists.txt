@@ -13,6 +13,7 @@ add_executable(d_functions ii_session/d_functions.cpp)
 add_executable(study_control_flow iii_follow_up/study_control_flow.cpp)
 add_executable(study_string iii_follow_up/study_string.cpp)
 add_executable(study_assert iii_follow_up/study_assert.cpp)
+add_executable(study_console_io iii_follow_up/study_console_io.cpp)
 add_executable(tinker_int8 iii_follow_up/tinker_int8.cpp)
 add_executable(tinker_goto iii_follow_up/tinker_goto.cpp)
 

@@ -1,0 +1,26 @@
+# (C) A.Voß, a.voss@fh-aachen.de, info@codebasedlearning.dev
+
+add_executable(a_recap_episode i_preparation/a_recap_episode.cpp)
+add_executable(b_structs_and_containers i_preparation/b_structs_and_containers.cpp)
+add_executable(c_stopwatch i_preparation/c_stopwatch.cpp)
+
+add_executable(a_pointers_and_references ii_session/a_pointers_and_references.cpp)
+add_executable(b_value_or_reference ii_session/b_value_or_reference.cpp)
+add_executable(c_array_and_vector ii_session/c_array_and_vector.cpp)
+add_executable(d_structs_in_memory ii_session/d_structs_in_memory.cpp)
+
+add_executable(study_auto iii_follow_up/study_auto.cpp)
+add_executable(study_exceptions iii_follow_up/study_exceptions.cpp)
+add_executable(study_string_conversion iii_follow_up/study_string_conversion.cpp)
+add_executable(tinker_constexpr iii_follow_up/tinker_constexpr.cpp)
+add_executable(tinker_cin_state iii_follow_up/tinker_cin_state.cpp)
+add_executable(tinker_println iii_follow_up/tinker_println.cpp)
+add_executable(tinker_vector_vs_list iii_follow_up/tinker_vector_vs_list.cpp)
+
+add_executable(bakerriver_one_solution iv_solutions/bakerriver_one_solution.cpp)
+add_executable(sanborncliff_one_solution iv_solutions/sanborncliff_one_solution.cpp)
+add_executable(elkford_one_solution iv_solutions/elkford_one_solution.cpp)
+add_executable(harshire_one_solution iv_solutions/harshire_one_solution.cpp)
+add_executable(stretchford_one_solution iv_solutions/stretchford_one_solution.cpp)
+add_executable(packwood_one_solution iv_solutions/packwood_one_solution.cpp)
+add_executable(copley_one_solution iv_solutions/copley_one_solution.cpp)

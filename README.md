@@ -26,7 +26,7 @@ Every unit follows the same pattern — before, during and after the live sessio
 
 | Folder / file            | What it is                                                                   |
 |:-------------------------|:-----------------------------------------------------------------------------|
-| `README.md`              | what the unit is about, and its goals                                        |
+| `README.md`              | what the unit is about                                                       |
 | `i_preparation/`         | preparation before the session – read and run, nothing to hand in            |
 | `ii_session/`            | the material of the live session/lecture                                     |
 | `iii_follow_up/study_*`  | required study – not discussed in the session, but assumed in tasks and exam |
