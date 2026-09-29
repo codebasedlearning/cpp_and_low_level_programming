@@ -2,9 +2,6 @@
 
 /* ---- Preamble ----
  *
- * Kind: required study - not discussed in the session, but assumed in the
- * tasks and the exam.
- *
  * Teaching Focus
  * - The everyday `string` operations: access, search, modify.
  * - `[]` vs. `at()`: without and with bounds check.
@@ -13,8 +10,8 @@
 
 #include <iostream>
 #include <string>
-#include <cstdlib>                          // for EXIT_SUCCESS
-#include <cbl/printing.hpp>                 // for `print_function_header`
+#include <cstdlib>
+#include <cbl/printing.hpp>
 
 using std::cout, std::string;
 
@@ -25,8 +22,8 @@ namespace {
 
     /* --- `access_characters` ---
      * `[]` does not check the index - a wrong one is undefined behaviour.
-     * `at()` checks it and stops the program with an exception (more on
-     * exceptions later). You pay for the check only if you ask for it.
+     * `at()` checks it and stops the program with an exception (more on exceptions later). You pay for the check only
+     * if you ask for it.
      * - !![#undefined-behavior]
      */
     void access_characters() {
@@ -40,11 +37,11 @@ namespace {
         // cout << s.at(42);                // throws an exception - try it
     }
 
-    /* --- `search` ---
-     * `find` searches from the front, `rfind` from the back. Both return the
-     * position - or `string::npos` if there is nothing to find.
+    /* --- `search_strings` ---
+     * `find` searches from the front, `rfind` from the back. Both return the position - or `string::npos` if there is
+     * nothing to find.
      */
-    void search() {
+    void search_strings() {
         print_function_header();
 
         const string s{"Example"};
@@ -59,8 +56,8 @@ namespace {
         cout << " 3| rfind(\"e\"): pos=" << pos << '\n';
     }
 
-    /* --- `modify` --- `replace`, `erase`, `insert` and `append` change the string itself. */
-    void modify() {
+    /* --- `modify_strings` --- `replace`, `erase`, `insert` and `append` change the string itself. */
+    void modify_strings() {
         print_function_header();
 
         string s{"Example!"};
@@ -80,17 +77,11 @@ namespace {
 
 }
 
-/* --- Check yourself ---
- * - Line 2 in `search` prints a huge number. Why that one? Hint: what
- *   is the largest value an unsigned type can hold?
- * - What does `s[42]` print instead of `s.at(42)`? Is that an answer?
- */
-
 /* --- `main` --- */
 int main() {
     access_characters();
-    search();
-    modify();
+    search_strings();
+    modify_strings();
 
     return EXIT_SUCCESS;
 }

@@ -20,9 +20,8 @@ using std::cout;
 namespace {
 
     /* --- `define_variables` ---
-     * A variable has a type, a name and a value. C++ has several ways to
-     * initialize it - in this course we prefer braces `{}`, because they work
-     * for every type.
+     * A variable has a type, a name and a value. C++ has several ways to initialize it - in this course we prefer
+     * braces `{}`, because they work for every type.
      * - !![#declaration-vs-definition]
      * - !![#uniform-initialization]
      */
@@ -42,11 +41,10 @@ namespace {
         cout << " 3| v3=" << v3 << '\n';
     }
 
-    /* --- `primitive_types` ---
-     * A first overview. Sizes, ranges and what happens at the limits follow
-     * in the session.
+    /* --- `use_primitive_types` ---
+     * A first overview. Sizes, ranges and what happens at the limits follow in the session.
      */
-    void primitive_types() {
+    void use_primitive_types() {
         print_function_header();
 
         // Integers are signed by default.
@@ -67,8 +65,7 @@ namespace {
         bool b{true};
         cout << " 5| b=" << b << ", type bool\n";
 
-        // Floating point, single precision - note the `f` suffix,
-        // without it `1.2` is a `double` literal.
+        // Floating point, single precision - note the `f` suffix, without it `1.2` is a `double` literal.
         float f{1.2f};
         cout << " 6| f=" << f << ", type float\n";
 
@@ -77,12 +74,12 @@ namespace {
         cout << " 7| d=" << d << ", type double\n";
     }
 
-    /* --- `const_variables` ---
-     * A `const` variable cannot be changed after initialization, so it must be
-     * initialized. Rule of thumb: make it `const` unless it has to change.
+    /* --- `define_const_variables` ---
+     * A `const` variable cannot be changed after initialization, so it must be initialized.
+     * Rule of thumb: make it `const` unless it has to change.
      * - !![#const-correctness]
      */
-    void const_variables() {
+    void define_const_variables() {
         print_function_header();
 
         int i{1};                           // modifiable
@@ -99,8 +96,8 @@ namespace {
 /* --- `main` --- Calls the functions above, one topic after the other. */
 int main() {
     define_variables();
-    primitive_types();
-    const_variables();
+    use_primitive_types();
+    define_const_variables();
 
     return EXIT_SUCCESS;
 }

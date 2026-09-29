@@ -30,8 +30,8 @@ int main() {
     }
     cout << '\n';
 
-    // extension: there are 78498 primes below 1'000'000. Measure `time ./pinepoint` yourself,
-    // once built with -O0 and once with -O2 - the factor depends on your machine.
+    // extension: there are 78498 primes below 1'000'000. Measure `time ./pinepoint` yourself, once built with -O0 and
+    // once with -O2 - the factor depends on your machine.
 
     return EXIT_SUCCESS;
 }

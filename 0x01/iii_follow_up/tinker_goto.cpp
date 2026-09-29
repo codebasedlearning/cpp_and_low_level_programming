@@ -2,18 +2,15 @@
 
 /* ---- Preamble ----
  *
- * Kind: optional study - for the curious, not exam-relevant.
- *
  * Teaching Focus
  * - `goto` - so that you recognize it, not so that you use it.
  * - Every loop ends up as jumps in the machine code.
- * - Leaving nested loops: the one case where `goto` is defensible - and
- *   the usual alternative.
+ * - Leaving nested loops: the one case where `goto` is defensible - and the usual alternative.
  */
 
 #include <iostream>
-#include <cstdlib>                          // for EXIT_SUCCESS
-#include <cbl/printing.hpp>                 // for `print_function_header`
+#include <cstdlib>
+#include <cbl/printing.hpp>
 
 using std::cout;
 
@@ -32,9 +29,8 @@ namespace {
     }
 
     /* --- `loop_with_goto` ---
-     * `goto` jumps to a label. The compiler turns every loop into exactly such
-     * jumps, so `goto` is not less powerful - it is harder to read and to
-     * maintain. That is why we do not use it. You will meet it in old C code
+     * `goto` jumps to a label. The compiler turns every loop into exactly such jumps, so `goto` is not less powerful -
+     * it is harder to read and to maintain. That is why we do not use it. You will meet it in old C code
      * (`goto cleanup;`); C++ has better tools for that, which come later.
      */
     void loop_with_goto() {
@@ -49,10 +45,9 @@ namespace {
 
         /* -- .Look at the machine code. --
          * Let the compiler stop after translating to assembly:
-         *     g++ -std=c++23 -S -O0 -I ../../utils may_goto.cpp
-         * and open `may_goto.s`. Find both functions (their names look strange,
-         * that is called name mangling) and the jump instructions in them -
-         * `jmp`, `jle`, ... on x86, `b`, `ble`, ... on ARM.
+         *     g++ -std=c++23 -S -O0 -I ../../utils tinker_goto.cpp
+         * and open `tinker_goto.s`. Find both functions (their names look strange, that is called name mangling) and
+         * the jump instructions in them - `jmp`, `jle`, ... on x86, `b`, `ble`, ... on ARM.
          */
     }
 
@@ -103,16 +98,6 @@ namespace {
     }
 
 }
-
-/* --- Open questions ---
- * - How different are `loop_with_for` and `loop_with_goto` in `may_goto.s`?
- * - Rewrite `loop_with_goto` with `while`. Which version is easier to read?
- * - A third way out of nested loops is a `bool` flag. Write it - which of
- *   the three versions do you prefer, and why?
- * - Java has `break outer;` for exactly this case. C++ does not. Why might
- *   that be less of a loss than it seems?
- * - What problem does `goto cleanup;` solve in C?
- */
 
 /* --- `main` --- */
 int main() {

@@ -19,8 +19,8 @@ int main() {
         s += 'x';
     }
 
-    // The object stays where it is. The characters lie inside it (a few bytes above `&s`)
-    // up to a threshold, then they jump to the heap - at the same moment the capacity grows.
+    // The object stays where it is. The characters lie inside it (a few bytes above `&s`) up to a threshold, then they
+    // jump to the heap - at the same moment the capacity grows.
     // gcc (libstdc++): up to 15 characters inside the object, clang (libc++): up to 22.
 
     return EXIT_SUCCESS;

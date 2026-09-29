@@ -2,8 +2,6 @@
 
 /* ---- Preamble ----
  *
- * Kind: optional study - for the curious, not exam-relevant.
- *
  * Teaching Focus
  * - More integer types: `short`, `long long` and the fixed-width types.
  * - `int8_t` is a byte - and `cout` prints it as a character.
@@ -12,8 +10,8 @@
 
 #include <iostream>
 #include <cstdint>                          // for the fixed-width types
-#include <cstdlib>                          // for EXIT_SUCCESS
-#include <cbl/printing.hpp>                 // for `print_function_header`
+#include <cstdlib>
+#include <cbl/printing.hpp>
 
 using std::cout;
 using std::int8_t, std::uint16_t, std::int32_t, std::uint64_t;
@@ -23,8 +21,8 @@ using std::int8_t, std::uint16_t, std::int32_t, std::uint64_t;
 
 namespace {
 
-    /* --- `more_integers` --- `short` and `long long`, both signed by default. */
-    void more_integers() {
+    /* --- `use_more_integers` --- `short` and `long long`, both signed by default. */
+    void use_more_integers() {
         print_function_header();
 
         short sh{1};
@@ -33,12 +31,13 @@ namespace {
         cout << " 2| ll=" << ll << ", sizeof(long long)=" << sizeof(long long) << '\n';
     }
 
-    /* --- `fixed_width` ---
-     * `int` is "some reasonable size". When the number of bits is part of the
-     * contract - file formats, network protocols, hardware registers - say so:
+    /* --- `use_fixed_width_types` ---
+     * `int` is "some reasonable size". When the number of bits is part of the contract - file formats, network
+     * protocols, hardware registers - say so:
      * `int8_t` ... `int64_t`, and `uint8_t` ... `uint64_t` for unsigned.
+     * - !![#primitive-types]
      */
-    void fixed_width() {
+    void use_fixed_width_types() {
         print_function_header();
 
         uint16_t u2{4};
@@ -54,8 +53,8 @@ namespace {
         cout << " 4| i1=" << i1 << " or " << +i1 << ", sizeof(int8_t)=" << sizeof(int8_t) << '\n';
     }
 
-    /* --- `long_double` --- At least as precise as `double`, but how big? */
-    void long_double() {
+    /* --- `show_long_double` --- At least as precise as `double`, but how big? */
+    void show_long_double() {
         print_function_header();
 
         long double ld{1.0L};
@@ -64,18 +63,11 @@ namespace {
 
 }
 
-/* --- Open questions ---
- * - `long double` has 16 bytes on x86-64 Linux, but only 8 on Windows and
- *   on Apple Silicon. What does that mean for a file that stores one?
- * - Why is "a byte" and "a small number" the same type in C++?
- * - What happens with `uint8_t u{255}; ++u;`? And with `int8_t i{127}; ++i;`?
- */
-
 /* --- `main` --- */
 int main() {
-    more_integers();
-    fixed_width();
-    long_double();
+    use_more_integers();
+    use_fixed_width_types();
+    show_long_double();
 
     return EXIT_SUCCESS;
 }

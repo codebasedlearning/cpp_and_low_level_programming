@@ -5,13 +5,12 @@
  * Teaching Focus
  * - Loops and `if` work as in Java - a quick look for completeness.
  * - `if` with an init-statement: a variable that lives only as long as needed.
- * - `while`, `do`-`while`, `break`, `continue` and `switch` are in
- *   `iii_follow_up/must_control_flow.cpp`.
+ * - `while`, `do`-`while`, `break`, `continue` and `switch`: see future snippets.
  */
 
 #include <iostream>
-#include <cstdlib>                          // for EXIT_SUCCESS
-#include <cbl/printing.hpp>                 // for `print_function_header`
+#include <cstdlib>
+#include <cbl/printing.hpp>
 
 using std::cout;
 
@@ -20,8 +19,8 @@ using std::cout;
 
 namespace {
 
-    /* --- `simple_loop` --- The classic `for`: init; condition; increment. */
-    void simple_loop() {
+    /* --- `loop_with_for` --- The classic `for`: init; condition; increment. */
+    void loop_with_for() {
         print_function_header();
 
         int sum{0};
@@ -32,8 +31,8 @@ namespace {
         // cout << i;                       // compiler error: `i` exists only inside the loop
     }
 
-    /* --- `simple_if` --- As in Java; the `else` part is optional. */
-    void simple_if() {
+    /* --- `branch_with_if` --- As in Java; the `else` part is optional. */
+    void branch_with_if() {
         print_function_header();
 
         const int n{23};
@@ -45,13 +44,12 @@ namespace {
         }
     }
 
-    /* --- `if_with_init` ---
-     * In `if (init; condition)` the variable `n2` exists only inside the
-     * `if`/`else`. Scope and lifetime go together: once the `if` is done,
-     * the stack slot of `n2` can be reused. Compare with `simple_if`.
+    /* --- `branch_with_if_init` ---
+     * In `if (init; condition)` the variable `n2` exists only inside the `if`/`else`. Scope and lifetime go together:
+     * once the `if` is done, the stack slot of `n2` can be reused. Compare with `branch_with_if`.
      * - !![#scope]
      */
-    void if_with_init() {
+    void branch_with_if_init() {
         print_function_header();
 
         const int n{23};
@@ -67,9 +65,9 @@ namespace {
 
 /* --- `main` --- */
 int main() {
-    simple_loop();
-    simple_if();
-    if_with_init();
+    loop_with_for();
+    branch_with_if();
+    branch_with_if_init();
 
     return EXIT_SUCCESS;
 }

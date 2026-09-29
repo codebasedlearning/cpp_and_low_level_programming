@@ -2,9 +2,6 @@
 
 /* ---- Preamble ----
  *
- * Kind: required study - not discussed in the session, but assumed in the
- * tasks and the exam.
- *
  * Teaching Focus
  * - `assert` checks a condition at runtime - a simple way to test your code.
  * - A failing `assert` stops the program at once, with a non-zero exit status.
@@ -13,8 +10,8 @@
 
 #include <iostream>
 #include <cassert>                          // for `assert`
-#include <cstdlib>                          // for EXIT_SUCCESS
-#include <cbl/printing.hpp>                 // for `print_function_header`
+#include <cstdlib>
+#include <cbl/printing.hpp>
 
 using std::cout;
 
@@ -29,9 +26,9 @@ namespace {
     }
 
     /* --- `test_with_assert` ---
-     * `assert(condition)` does nothing if the condition is true. If it is
-     * false, it prints file, line and condition, and aborts the program -
-     * no exception, no clean-up, just the end.
+     * `assert(condition)` does nothing if the condition is true. If it is false, it prints file, line and condition,
+     * and aborts the program - no exception, no clean-up, just the end.
+     * - !![#assert]
      */
     void test_with_assert() {
         print_function_header();
@@ -43,15 +40,14 @@ namespace {
         assert(is_even(0));
         cout << " 2| all tests passed\n";
 
-        // assert(is_even(3));              // fails - try it, then check `echo $?`
+        // assert(is_even(3));              // fails - try it, then check `echo $?` (if on terminal)
     }
 
-    /* --- `release_builds` ---
-     * If the macro `NDEBUG` is defined, as in a typical release build, every
-     * `assert` disappears - including the code inside it. So never put work
-     * into an `assert` that the program needs.
+    /* --- `disable_asserts_in_release` ---
+     * If the macro `NDEBUG` is defined, as in a typical release build, every `assert` disappears - including the code
+     * inside it. So never put work into an `assert` that the program needs.
      */
-    void release_builds() {
+    void disable_asserts_in_release() {
         print_function_header();
 
         // `#ifdef` asks the preprocessor whether a macro is defined.
@@ -64,17 +60,10 @@ namespace {
 
 }
 
-/* --- Check yourself ---
- * - Activate the failing `assert` above. What does the program print, and
- *   what is its exit status (`echo $?` right after running it)?
- * - Build it with `-DNDEBUG`, or as 'Release' in CLion, and run it again.
- * - Why is `assert(++count < 10);` a bad idea?
- */
-
 /* --- `main` --- */
 int main() {
     test_with_assert();
-    release_builds();
+    disable_asserts_in_release();
 
     return EXIT_SUCCESS;
 }

@@ -26,8 +26,8 @@ int main() {
     cout << "'" << c << "' is " << (is_c_uppercase ? "" : "not ") << "an uppercase letter\n";
 
     // extension: `std::isupper` takes an `int`, because it must also accept EOF (-1).
-    // Passing a negative `char` (possible for non-ASCII characters) is undefined behavior,
-    // so the usual idiom converts to `unsigned char` first.
+    // Passing a negative `char` (possible for non-ASCII characters) is undefined behavior, so the usual idiom converts
+    // to `unsigned char` first.
 
     return EXIT_SUCCESS;
 }

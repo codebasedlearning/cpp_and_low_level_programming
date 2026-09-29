@@ -24,8 +24,8 @@ int main() {
 
     // extension: for b=2, n=31 is the first wrong result - 2^31 does not fit into an `int`
     // (max 2^31-1). Signed overflow is undefined behavior, so there is no error message;
-    // usually the result is simply wrong (often negative). With `unsigned int` overflow is
-    // well-defined: the result wraps around modulo 2^32, so 2^32 gives 0.
+    // usually the result is simply wrong (often negative). With `unsigned int` overflow is well-defined: the result
+    // wraps around modulo 2^32, so 2^32 gives 0.
 
     return EXIT_SUCCESS;
 }

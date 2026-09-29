@@ -26,9 +26,8 @@ int main() {
     // `int` is enough up to f_46 = 1836311903; f_47 = 2971215073 is larger than 2^31-1.
     // `uint64_t` is enough up to f_93 = 12200160415121876738; f_94 no longer fits into 64 bits.
     //
-    // Extension: the recursive `fib` in `d_functions` needs 2,692,537 calls for fib(30),
-    // each with its own stack frame. The loop needs 30 steps - that is the difference,
-    // not "recursion is slow" in general.
+    // Extension: the recursive `fib` in `d_functions` needs 2,692,537 calls for fib(30), each with its own stack frame.
+    // The loop needs 30 steps - that is the difference, not "recursion is slow" in general.
 
     return EXIT_SUCCESS;
 }

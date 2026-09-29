@@ -17,14 +17,14 @@ CPPFLAGS = -I../../utils
 .PHONY: all clean
 
 # says what to build and because it's the first target it's the default goal.
-all: a_helloworld.out b_helloworld_dive.out c_helloworld_codebook.out d_var_init.out
+all: a_helloworld.out b_helloworld_revisited.out c_helloworld_codebook.out d_var_init.out
 
 # explicit rule
 a_helloworld.out: a_helloworld.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) a_helloworld.cpp $(LDFLAGS) -o a_helloworld.out
 
-# b_helloworld_dive.out: b_helloworld_dive.cpp
-#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) b_helloworld_dive.cpp $(LDFLAGS) -o b_helloworld_dive.out
+# b_helloworld_revisited.out: b_helloworld_revisited.cpp
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) b_helloworld_revisited.cpp $(LDFLAGS) -o b_helloworld_revisited.out
 
 # extra prerequisite only - no recipe, so the pattern rule below builds it
 c_helloworld_codebook.out: ../../utils/cbl/printing.hpp

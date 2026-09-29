@@ -2,19 +2,16 @@
 
 /* ---- Preamble ----
  *
- * Kind: required study - not discussed in the session, but assumed in the
- * tasks and the exam.
- *
  * Teaching Focus
  * - `while` and `do`-`while` - as in Java.
  * - `continue` and `break` in loops.
  * - `switch` on integral values, and fall through.
- * - `for` and `if` with init are in `ii_session/c_control_flow.cpp`.
+ * - `for` and `if` with init: see previous snippets.
  */
 
 #include <iostream>
-#include <cstdlib>                          // for EXIT_SUCCESS
-#include <cbl/printing.hpp>                 // for `print_function_header`
+#include <cstdlib>
+#include <cbl/printing.hpp>
 
 using std::cout;
 
@@ -23,11 +20,10 @@ using std::cout;
 
 namespace {
 
-    /* --- `while_and_do_while` ---
-     * `while` checks before the body, `do`-`while` after it - so the body of a
-     * `do`-`while` runs at least once.
+    /* --- `loop_with_while` ---
+     * `while` checks before the body, `do`-`while` after it - so the body of a `do`-`while` runs at least once.
      */
-    void while_and_do_while() {
+    void loop_with_while() {
         print_function_header();
 
         int p{1};
@@ -46,8 +42,8 @@ namespace {
         cout << " 2| 12345 has " << digits << " digits\n";
     }
 
-    /* --- `continue_and_break` --- Both work in every kind of loop. */
-    void continue_and_break() {
+    /* --- `skip_and_leave_loops` --- Both work in every kind of loop. */
+    void skip_and_leave_loops() {
         print_function_header();
 
         cout << " 1| i from 5 to 10:\n";
@@ -62,11 +58,11 @@ namespace {
         }
     }
 
-    /* --- `switch_on_int` ---
-     * `switch` works on integral types. The `case` labels must be constants
-     * known at compile time.
+    /* --- `branch_with_switch` ---
+     * `switch` works on integral types. The `case` labels must be constants known at compile time.
+     * - !![#switch]
      */
-    void switch_on_int() {
+    void branch_with_switch() {
         print_function_header();
 
         const int n{4};
@@ -83,9 +79,8 @@ namespace {
     }
 
     /* --- `fall_through` ---
-     * Without `break`, execution simply continues with the next `case` -
-     * sometimes a feature, often a bug. `[[fallthrough]]` says "this is
-     * intended", to the reader and to the compiler, which otherwise may warn.
+     * Without `break`, execution simply continues with the next `case` - sometimes a feature, often a bug.
+     * `[[fallthrough]]` says "this is intended", to the reader and to the compiler, which otherwise may warn.
      */
     void fall_through() {
         print_function_header();
@@ -105,20 +100,11 @@ namespace {
 
 }
 
-/* --- Check yourself ---
- * Predict first, then try it.
- * - In `continue_and_break`: what changes if you swap the two `if`s?
- * - In `switch_on_int`: remove the `break` after `case 3` and set `n` to 3.
- * - In `c_control_flow`: what does `if (int n2 = n * n > 500)` do instead?
- *   Hint: operator precedence.
- * - Why is `switch` on a `string` not allowed?
- */
-
 /* --- `main` --- */
 int main() {
-    while_and_do_while();
-    continue_and_break();
-    switch_on_int();
+    loop_with_while();
+    skip_and_leave_loops();
+    branch_with_switch();
     fall_through();
 
     return EXIT_SUCCESS;
