@@ -182,6 +182,14 @@ overloads get different symbols; the return type is not part of it (except for t
 functions cannot be overloaded on the return type alone. `nm -C` and `c++filt` demangle the names. MSVC mangles
 differently (`?area@@YANN@Z`); its tool is `dumpbin /symbols`.
 
+### `extern "C"` <a id="extern-c"></a>
+
+Gives a function C linkage: its [symbol](#symbols) is the plain name, without mangling —
+`extern "C" int count(const char*)` is `count` for the linker (`_count` on macOS), not `_Z5countPKc`. That is how C code
+can call a C++ function, and how C++ calls C libraries: their headers declare the functions in an `extern "C" { ... }`
+block, which is why `nm` shows `U strlen`. Without mangling there is no overloading — two `extern "C"` functions cannot
+share a name. The [calling convention](#calling-convention) does not change.
+
 
 ---
 
@@ -443,6 +451,23 @@ Four choices, one decision table:
 
 Call-by-value on a `struct` copies every member — measurable as soon as the struct holds a `std::string`.
 
+### Calling convention <a id="calling-convention"></a>
+
+The rules of a platform for how a function gets its arguments and returns its result: which registers, what goes to the
+stack, who cleans up. Every compiler on the platform follows them, so that object files from different compilers can
+call each other.
+
+| Platform | Integers, addresses | Floating point | Result | Larger structs |
+|:--|:--|:--|:--|:--|
+| x86-64 Linux, macOS | `rdi`, `rsi`, `rdx`, `rcx`, `r8`, `r9` | `xmm0`-`xmm7` | `rax`, `xmm0` | over 16 bytes: stack |
+| ARM64 | `x0`-`x7` | `d0`-`d7` | `x0`, `d0` | over 16 bytes: an address |
+| Windows x64 | `rcx`, `rdx`, `r8`, `r9` | `xmm0`-`xmm3` | `rax`, `xmm0` | over 8 bytes: an address |
+
+A large result is built at an address the caller passes as a hidden argument (`rdi`, `x8`, `rcx`) — the mechanism behind
+[copy elision](#copy-elision). Small, trivially copyable structs travel in registers, which is why they are passed by
+value; a type with a copy constructor of its own, like `std::string`, is always passed via an address. On ARM64, a
+struct of up to four `double`s travels in `d` registers.
+
 ### Range-based `for` <a id="range-based-for"></a>
 
 Iterates anything with `begin()`/`end()` — arrays, containers, ranges:
@@ -525,6 +550,15 @@ int  a[5]{};
 int* p = a;          // decay - sizeof(p) says nothing about the 5
 p[3] = 1;            // same as *(p + 3)
 ```
+
+### C string <a id="c-string"></a>
+
+An array of `char` that ends with `'\0'`, the character with the value 0 — the way C represents text. The literal
+`"Kind"` is a `const char[5]`. The length is stored nowhere: `strlen` finds it by walking to the `'\0'`, every time.
+Passed on, the array [decays](#pointer-arithmetic) to a `const char*`, and everything that takes one — `cout <<`,
+`strlen`, `std::string{p}` — reads up to the zero; without one, it reads on. `==` on two `const char*` compares
+addresses, `strcmp` compares characters. The functions of `<cstring>` (`strcpy`, `strncpy`, `memcpy`, `memset`) trust
+the caller with every size. From a `std::string`: `c_str()`, which guarantees the `'\0'`.
 
 ### Stack and heap <a id="stack-and-heap"></a>
 
