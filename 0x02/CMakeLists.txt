@@ -1,6 +1,6 @@
 # (C) A.Voß, a.voss@fh-aachen.de, info@codebasedlearning.dev
 
-add_executable(a_recap_episode i_preparation/a_recap_episode.cpp)
+add_executable(a_recap_episode_0x02 i_preparation/a_recap_episode_0x02.cpp)
 add_executable(b_structs_and_containers i_preparation/b_structs_and_containers.cpp)
 add_executable(c_stopwatch i_preparation/c_stopwatch.cpp)
 

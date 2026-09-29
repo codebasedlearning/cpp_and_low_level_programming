@@ -1,6 +1,6 @@
 [© A.Voß, FH Aachen, codebasedlearning.dev](mailto:info@codebasedlearning.dev)
 
-# Machine-level Programming with C++ – A Course for Experienced Programmers
+# Low-Level Programming with C++ – A Course for Experienced Programmers
 
 ## Overview
 
@@ -50,6 +50,8 @@ What it does, which CLion version it needs and how to install it:
 
 - [Unit 0x01](0x01/README.md)
 - [Unit 0x02](0x02/README.md)
+- [Unit 0x03](0x03/README.md)
+- [Unit 0x04](0x04/README.md)
 
 ## Feedback
 

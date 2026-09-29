@@ -14,3 +14,5 @@ link_libraries(cbl_utils)                   # Directory property, inherited by a
 
 add_subdirectory(0x01)
 add_subdirectory(0x02)
+add_subdirectory(0x03)
+add_subdirectory(0x04)

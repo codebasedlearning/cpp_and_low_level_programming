@@ -138,6 +138,51 @@ std::cout << v1;            // UB - not "some random number", UB
 `CMakeLists.txt` — which is where this course sets `CMAKE_CXX_STANDARD 23` and where the `cbl_utils` target makes
 `<cbl/printing.hpp>` findable from every unit.
 
+### Header and source file <a id="header-and-source"></a>
+
+A class usually lives in two files: the header (`sensor.hpp`) with the class definition — data members and declarations
+of the member functions — and the source file (`sensor.cpp`) with the definitions of the member functions, each
+prefixed with the class name (`double sensor::value() const { … }`). Every file that uses the class includes the header;
+only the source file is compiled for the definitions, and the linker connects the calls to them. The data members must
+be in the header, private or not: every [translation unit](#translation-unit) that creates an object needs its
+`sizeof`.
+
+```cmake
+add_executable(program main.cpp sensor.cpp)    # all .cpp files, not the header
+```
+
+### Linker errors <a id="linker-errors"></a>
+
+Errors that appear after every file has compiled, when the linker joins the object files:
+
+- **undefined reference** (gcc), **Undefined symbols** (Apple clang) — a function was declared and called, but no
+  object file contains its definition: a `.cpp` file is missing from the build, a definition was forgotten, or its
+  signature does not match the declaration.
+- **multiple definition** (gcc), **duplicate symbol** (Apple clang) — two object files contain the same function,
+  usually because a header with a function body is included in several `.cpp` files. Fix: move the body into a `.cpp`
+  file, or mark it `inline`, see [ODR](#odr).
+
+The message names the function — mangled or demangled — and the object file that needs or defines it.
+
+### Symbols and name mangling <a id="symbols"></a>
+
+An object file has a symbol table: the names of the functions and variables it defines, and of those it needs from
+elsewhere. `nm` lists it, one line per symbol, with a letter:
+
+- `T` — defined here, in the code; other object files may use it.
+- `U` — undefined: used here, defined elsewhere; the [linker](#compiler-and-linker) must find exactly one `T` for it.
+- `t` — defined here, but local — e.g. in an [unnamed namespace](#unnamed-namespace); invisible to the linker.
+- `W` — a weak definition: template instances and `inline` functions, generated in every translation unit that uses
+  them. The linker keeps one and drops the others, see [ODR](#odr). macOS `nm` shows them as `T`; `nm -m` says
+  `weak external`.
+
+The names are *mangled*: the name, its namespace or class, and the parameter types are encoded into one identifier —
+`area(double)` becomes `_Z4aread`, `area(double, double)` `_Z4areadd` (with one more `_` in front on macOS). That is how
+overloads get different symbols; the return type is not part of it (except for template instances), which is why
+functions cannot be overloaded on the return type alone. `nm -C` and `c++filt` demangle the names. MSVC mangles
+differently (`?area@@YANN@Z`); its tool is `dumpbin /symbols`.
+
+
 ---
 
 ## Types, values, initialization
@@ -297,6 +342,21 @@ void greet(std::string_view name);                   // no copy of the caller's 
 std::string_view bad = std::string{"temp"};          // dangling immediately
 ```
 
+A view is two words — 16 bytes on a 64-bit platform, whatever the length of the text. It knows its length, the
+characters do not: `data()` of a view into the middle of a text is not `'\0'`-terminated, so it is not a C string.
+
+### `std::span` <a id="span"></a>
+
+C++20. The same idea as [`string_view`](#string-view) for elements of any type: a non-owning view of contiguous memory
+— a pointer and a count. A `span<const int>` parameter accepts a `std::array`, a `std::vector` or a part of them
+(`first`, `last`, `subspan`) without copying; a `span<int>` may change the elements. With the count in the type,
+`span<int, 3>`, only the pointer is stored.
+
+```cpp
+long long sum(std::span<const int> values);          // array, vector, or a part of them
+void double_all(std::span<int> values);              // writes through the view
+```
+
 ### Type conversion: `stoi`, `stod`, `to_string` <a id="string-conversion"></a>
 
 `std::stoi` / `std::stod` parse a number out of a `std::string` and **throw** (`std::invalid_argument`,
@@ -341,6 +401,13 @@ The period during which an object exists and its address is valid: from the end 
 destructor. Automatic ("stack") objects die at the closing brace, dynamic objects when `delete`d or when their
 [smart pointer](#unique-ptr) lets go, static objects at program end. Nearly every pointer bug in this course is a
 lifetime bug.
+
+### Temporary object <a id="temporary"></a>
+
+An object without a name, created in the middle of an expression: `tower{4}`, the result of a function returned by
+value, or the result of an implicit conversion through a non-[`explicit`](#explicit) constructor. It lives until the end
+of the full expression — the `;` — and then its destructor runs. A reference to a part of it, e.g. to a member returned
+by a getter, dangles after that; only binding the temporary itself to a `const&` extends its lifetime.
 
 ### Namespace and unnamed namespace         <a id="unnamed-namespace"></a>
 
@@ -899,6 +966,14 @@ try {
 
 Catch by `const&` (copying slices, see [slicing](#slicing)), order handlers from specific to general, and let the
 exception carry the message — `e.what()`.
+
+### Stack unwinding <a id="stack-unwinding"></a>
+
+What happens between `throw` and `catch`: the runtime leaves every function on the way without finishing it, removes its
+stack frame, and destroys every local object in it — in reverse order of construction, exactly as at a normal `}`. This
+is what makes [RAII](#raii) work with exceptions. If a destructor throws during unwinding, there would be two exceptions
+at once; the program ends with `std::terminate`. If no `catch` matches at all, it is implementation-defined whether the
+stack is unwound before `std::terminate` is called.
 
 ### Standard exception types <a id="std-exception"></a>
 

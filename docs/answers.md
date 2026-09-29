@@ -91,6 +91,108 @@ sides must agree on the layout. So the order is your decision - and so is the pa
 reorder by default.
 <br> - !![sizeof](glossary.md#sizeof)
 
+## A-301                                    <a id="a-301"></a>
+No. `private` is a rule the compiler checks when it translates your code - in the object file there is no trace of it,
+and the bytes of a private member are ordinary memory like any other. The debugger shows them, and any code with the
+object's address could read or write them. `private` protects against mistakes, not against someone who wants to get
+in: it is about who may use a member in the source code, not about security.
+<br> - !![Access modifiers](glossary.md#access-modifiers)
+
+## A-302                                    <a id="a-302"></a>
+Because there is only one destructor, but there may be many constructors. The destructor destroys the members in reverse
+order of their construction - so that order must be the same for every constructor, and the only order all of them
+share is the declaration order. If each constructor could choose its own order, the destructor would have to know which
+constructor built the object.
+<br> - !![Member initializer list](glossary.md#member-initializer-list)
+
+## A-303                                    <a id="a-303"></a>
+The caller reserves the memory for `m` in its own frame and passes its address to `make_tracer` - a hidden argument,
+like `this` (on x86-64 Linux and macOS in register `rdi`, on ARM64 in `x8`). `make_tracer` constructs the `tracer`
+directly at that address, so there is nothing left to copy. Since C++17 this is guaranteed when a function returns an
+unnamed temporary, as in `return tracer{name};`. For a named local, `tracer t{name}; return t;`, compilers usually do
+the same (NRVO), but they do not have to - that is the difference `-fno-elide-constructors` makes visible.
+<br> - !![Copy elision](glossary.md#copy-elision)
+
+## A-304                                    <a id="a-304"></a>
+Because the destructor does the job - and does it better. In Java, every user of a resource must remember a `finally`
+block, at every place where the resource is used. In C++, the cleanup is written once, in the destructor of the class
+that owns the resource, and the compiler calls it at every exit of the scope: the normal end, `return`, `break`, and
+stack unwinding. It cannot be forgotten. Java's `try`-with-resources and C#'s `using` follow the same idea - but there,
+the user of the resource still has to remember to write them.
+<br> - !![RAII](glossary.md#raii)
+
+## A-305                                    <a id="a-305"></a>
+Because the One Definition Rule treats classes differently from functions. A function or a variable must be defined
+exactly once in the whole program - its definition becomes code or memory in one object file, and the linker would not
+know which of two to take. A class definition produces no code of its own; it only describes the layout and the members
+for the compiler, so it may appear in every translation unit that needs it, as long as all of them are identical. That
+is exactly what including the header does. The same holds for member functions defined inside the class body - they
+are implicitly `inline`.
+<br> - !![ODR](glossary.md#odr)
+
+## A-306                                    <a id="a-306"></a>
+When the object dies - the reference points to the member, and the member is part of the object.
+`const string& n{ada.name()};` is fine as long as `ada` lives. The classic trap is a temporary:
+`const string& n{person{"Ada"}.name()};` dangles right after the `;`, because the `person` is destroyed at the end of
+the full expression. Reading `n` is undefined behavior. When in doubt, take a copy: `const string n{...};`.
+<br> - !![Dangling](glossary.md#dangling-pointer)
+
+## A-401                                    <a id="a-401"></a>
+Nowhere. A mangled name encodes the name, its namespace or class, `const`, and the parameter types - not the return
+type. The linker only needs to tell different functions apart, and in C++ two functions cannot differ in the return
+type alone: `int f(double)` and `double f(double)` in one program are an error, and they would get the same symbol,
+`_Z1fd`. The exception are instances of function templates: `largest<int>` has the return type in its name (`T_` after
+the template arguments), because two instances may really differ only in it.
+<br> - !![Symbols](glossary.md#symbols)
+
+## A-402                                    <a id="a-402"></a>
+No - by value. A `string_view` is two words, and on x86-64 (Linux, macOS) and ARM64 two words are passed in two
+registers: `where_by_view` gets the size in `rdi` and the address in `rsi` (libstdc++ order). With
+`const string_view&`, the caller has to put the view into memory first and pass its address - one more indirection, to
+save nothing. (The Windows x64 convention passes everything larger than 8 bytes via a hidden address anyway, so there
+it makes no difference.) The same holds for `span` - and in general for small types that are cheap to copy.
+<br> - !![Parameter passing](glossary.md#parameter-passing)
+
+## A-403                                    <a id="a-403"></a>
+Something between the right text and garbage - undefined behavior. With gcc and clang on Linux, the view pointed into
+the heap block of the temporary `string`. After the `;` the block was released, but not cleared: typically the first
+16 bytes are overwritten by the allocator's bookkeeping and the rest still reads `...he Miles Davis album from 1959`. As
+Release, clang printed only garbage. None of that is a guarantee - the next allocation may reuse the block at any
+moment. "It prints almost the right text" is the dangerous case: the bug goes unnoticed. AddressSanitizer
+(`-fsanitize=address`, Linux and macOS) reports it as `heap-use-after-free`.
+<br> - !![Dangling](glossary.md#dangling-pointer)
+
+## A-404                                    <a id="a-404"></a>
+From the type, at compile time. `vector<int>::iterator` and `list<int>::iterator` are two different classes, each
+with its own `operator++`: one adds 4 to the address, the other loads the address of the next node from the current
+one. The compiler picks the function by the static type of `it` - there is no tag in the iterator and no check at
+runtime. That is also why `print_all` is compiled once per container: each instance calls another `++`.
+<br> - !![Iterator](glossary.md#iterator)
+
+## A-405                                    <a id="a-405"></a>
+Because most of it depends on `T`. When the template is defined, the compiler checks what does not depend on `T` - the
+syntax, names that must exist anyway. Whether `value_ * 2` makes sense can only be decided when `T` is known, at the
+instantiation - and member functions of a class template are only instantiated when they are called. So
+`maybe<string>` is fine as long as nobody calls `twice`. The price: an error in rarely used template code shows up
+late, and far from where it is caused - hence the "required from" lines. Concepts (C++20) state the requirements up
+front: see future snippets.
+<br> - !![Instantiation](glossary.md#instantiation)
+
+## A-406                                    <a id="a-406"></a>
+One value: `nullptr`. `maybe<int*>{nullptr}` says `has_value() == false`, although a value was given - "empty" and "a
+null pointer" are the same bytes now. For most uses of an optional pointer that is fine, and it saves 8 bytes; but it
+changes the meaning for one value, and a user of the template may not expect that. `std::optional<int*>` does not do
+it: it keeps its flag, and costs 16 bytes.
+<br> - !![Specialization](glossary.md#specialization)
+
+## A-407                                    <a id="a-407"></a>
+One of them - in practice, with the GNU and LLVM linkers, the first one it sees in the order of the object files; the
+other copies are dropped. It does not matter which, because they were compiled from the same definition in the same
+header, and the ODR guarantees they are the same. If they are not - two different definitions under one name - it does
+matter, and nobody warns you: see the extension of task 'Fox Hollow'. As Release, there may be no copy left at all,
+because every call was inlined.
+<br> - !![ODR](glossary.md#odr)
+
 ---
 
 # Comprehension Check
@@ -276,3 +378,282 @@ Answer B:
 A is wrong about the platforms, B about `vector` - each is mostly right, and each has one confident statement that
 does not hold. Even the layouts differ: on Apple Silicon the characters start at the object's address and the size is
 in the last byte; with gcc a pointer comes first.
+
+## Unit 0x03 <a id="check-0x03"></a>
+
+**I can explain what an object is in memory, and what `sizeof` of a class includes - and what not.**
+
+An object is its data members, in declaration order, with padding - exactly like a `struct`. Member functions,
+constructors, the destructor and `private` add nothing: the code of a member function exists once in the program, not
+in each object. `sizeof` of a class with two `double`s is 16, with or without twenty member functions. A hidden pointer
+appears only with `virtual` functions - that comes later.
+
+**I can explain what `this` is, how a member function knows its object, and what a `const` member function promises.**
+
+A member function is an ordinary function with a hidden first parameter: the address of the object it was called on,
+available as `this`. `p.scale(2.0)` compiles to the same machine code as a free function `scale(&p, 2.0)` - on x86-64
+the address arrives in `rdi`, on ARM64 in `x0`. Inside, `x_` is short for `this->x_`. A `const` after the parameter
+list makes `this` a pointer to a `const` object: the function promises not to change the object, and only such
+functions can be called on a `const` object or through a `const&`.
+
+**I can write constructors with a member initializer list, and I know in which order the members are initialized.**
+
+The member initializer list, `: begin_{begin}, end_{begin_ + length}`, initializes the members before the body runs;
+assigning in the body instead means initializing first and overwriting after - impossible for `const` members and
+references. The members are initialized in declaration order, whatever the order of the list; the compiler warns
+(`-Wreorder`) if the two differ. Default member initializers, `int id_{-1};`, apply to every constructor that does not
+set the member itself.
+
+**I know when a constructor should be `explicit`, and what an implicit conversion creates.**
+
+A constructor with one argument is also a conversion: with `tower(int)`, `eiffel = 4;` compiles, and the compiler
+builds a temporary `tower` from the 4, assigns it, and destroys it at the `;` - an object nobody wrote. `explicit`
+forbids that; the temporary must then be written, `tower{4}`. Rule of thumb: one-argument constructors are `explicit`,
+unless the conversion is the point.
+
+**I can tell a copy construction from a copy assignment, and I know what the generated versions do.**
+
+A copy construction creates a new object - `tracer b{a};`, `tracer c = a;`, and every pass by value. A copy
+assignment overwrites an existing one - `d = a;`. The generated versions copy or assign member by member, each member
+with its own copy operation: 4 bytes for an `int`, a new heap block for a `string`. So whether a copy is deep or
+shallow is decided by the members.
+
+**I can say exactly when a destructor runs: at the `}`, at the `;`, and during stack unwinding.**
+
+A local object is destroyed at the closing brace of its block, in reverse order of construction; the compiler inserts
+the calls there. A temporary is destroyed at the end of the full expression, the `;`. A member is destroyed after the
+destructor body of its object, in reverse declaration order. When an exception passes through a function, its frame is
+removed and its local objects are destroyed on the way to the `catch` - stack unwinding.
+
+**I know what happens when a constructor throws, and why a destructor must not throw.**
+
+If a constructor throws, the object never existed: its destructor does not run, but the members that were already
+constructed are destroyed, in reverse order - nothing leaks. A destructor that throws during stack unwinding would
+create a second exception while the first is still in flight; the program ends with `std::terminate` (exit status 134
+on Linux and macOS). That is why destructors are implicitly `noexcept`.
+
+**I can explain RAII, and why C++ needs no `finally`.**
+
+Resource Acquisition Is Initialization: a resource - memory, a file, a lock, a measurement - is owned by an object,
+acquired in its constructor and released in its destructor. Since the destructor runs at every exit of the scope,
+including stack unwinding, the cleanup cannot be forgotten, and it is written once, in the class, instead of in a
+`finally` at every use. `string`, `vector` and the `scope_timer` of the session work this way.
+
+**I can split a class into a header and a source file, and I can read the typical linker errors.**
+
+The header holds the class definition - data members and declarations of the member functions - protected by
+`#pragma once` or an include guard; the source file includes it and defines the member functions as
+`double temperature::celsius() const { ... }`. All `.cpp` files go into the `add_executable`, the header does not. The
+typical linker errors, as gcc on Linux shows them (Apple clang says the same in other words):
+- A missing `.cpp` file, or a declared but never defined function:
+  `undefined reference to 'fraction::fraction(int, int)'` (Apple clang: `Undefined symbols for architecture arm64`).
+- A function body in a header that is included in two `.cpp` files: `multiple definition of 'twice(int)'; ... first
+  defined here` (Apple clang: `duplicate symbol`). Fix: move the body into the `.cpp` file, or mark it `inline`.
+- Without `#pragma once`, a header included twice in the same file is not a linker error but a compiler error:
+  `redefinition of 'class fraction'` - the class appears twice in one translation unit.
+
+**I can write getters that neither copy needlessly nor give away the members.**
+
+A getter is `const`. For small members it returns a copy; for bigger ones, e.g. a `string`, a `const&` avoids the copy -
+but the reference is only valid while the object lives. A getter that returns a non-`const` reference hands out write
+access without any check - as good as a public member. Better than a setter for every member: member functions with a
+purpose, which keep the rules of the class.
+
+**I know which special member functions the compiler generates, and how to `= default` or `= delete` them.**
+
+Default constructor, copy constructor, copy assignment and destructor (and since C++11 the two move operations): the
+compiler generates them member by member, unless you declare them yourself - and the default constructor disappears as
+soon as you declare any constructor. `= default` asks for the generated version explicitly, `= delete` forbids a
+function, e.g. the copy operations of a timer. Rule of Zero: with members that clean up after themselves, write none of
+them. Rule of Three: if you need a destructor, you need the copy operations, too - or delete them.
+
+### 'AI' - Two Opinions <a id="ai-0x03"></a>
+
+| | `sizeof(point)` | with `~point()` | empty class |
+|:--|:--|:--|:--|
+| gcc, clang (Linux, macOS), MSVC | 16 | 16 | 1 |
+
+Answer A:
+
+- "Member functions are stored once, in the code, not in every object" - right.
+- "only the data members count", "16 bytes" - right.
+- "because it has a user-defined destructor, the compiler adds a hidden pointer ... 24 bytes" - wrong: a destructor is
+  a function like any other, it adds nothing. A hidden pointer, the vptr, comes only with `virtual` functions -
+  including a `virtual` destructor. A mixes up two things it has heard about.
+
+Answer B:
+
+- "16 bytes", "neither member functions nor constructors nor destructors take space", "neither does `private`" - right.
+- "a class without data members takes no memory at all: its `sizeof` is 0" - wrong: `sizeof` is at least 1, because
+  two different objects must have different addresses - in an array, for example. (As a base class or with
+  `[[no_unique_address]]`, an empty class may take no space - but that is another story.)
+
+A is wrong about the destructor, B about the empty class - each follows a correct rule one step too far.
+
+### 'AI' - Explain the Machine Code <a id="ai2-0x03"></a>
+
+With x86-64 gcc `-O1` (the same structure with clang on ARM64), `f` contains four calls of `tracer::~tracer()`:
+
+- The normal path: constructor of `a`, constructor of `b`, `work()`, destructor of `b`, destructor of `a`, `ret` - the
+  reverse order, exactly where the `}` is.
+- A cleanup path for an exception from `work()`: destructor of `b`, destructor of `a`, then `_Unwind_Resume`, which
+  continues the unwinding in the caller.
+- A cleanup path for an exception from the constructor of `b`: only the destructor of `a` - `b` was never born. gcc
+  shares the second call with the path above and jumps into it.
+
+The cleanup paths ("landing pads") are never reached by a jump from the normal code. When an exception is thrown, the
+runtime looks up in a table (the `.gcc_except_table`, used by `__gxx_personality_v0`) which landing pad belongs to the
+current return address, and continues there - frame by frame. That is stack unwinding, compiled. The normal path
+contains no instruction for it: an exception costs time only when it is thrown ("zero-cost exceptions").
+
+Typical weak spots of an LLM explanation, worth checking:
+- "the extra destructor calls are for copies" or "for Debug builds" - wrong: there are no copies, and it is `-O1`.
+- "after every call, the function checks whether an exception occurred" - wrong for this model: there is no check on the
+  normal path, the table does the work.
+- Mixing up which landing pad destroys what - the constructor case, with only one destructor, is the one most often
+  missed.
+- With a local gcc on Linux you may also see `__stack_chk_fail`: a stack protector, enabled by default in some
+  distributions - nothing to do with exceptions.
+
+A breakpoint in the destructor, with `work` throwing, shows `f` directly below the destructor, marked at its `}` - the
+frames of `work` and of the unwinder are gone already: the runtime has jumped into the landing pad of `f`.
+
+## Unit 0x04 <a id="check-0x04"></a>
+
+**I can explain what a `string_view` is in memory, and when it is cheaper than a `const string&`.**
+
+Two words: the address of the first character and the number of characters - 16 bytes on a 64-bit platform, whatever
+the length of the text. It points into the characters of a `string`, a literal or any other buffer; creating one,
+copying one and `substr` copy nothing. It is cheaper than `const string&` whenever the caller does not have a `string`
+at hand: for a literal, a `const string&` parameter needs a temporary `string` first - a copy, and a heap allocation
+for longer texts. Passed by value, a view travels in two registers.
+
+**I know why a `string_view` can dangle, and why `data()` of a view is not a C string.**
+
+A view owns nothing, and it does not extend the lifetime of anything: a view of a temporary `string` - e.g. the result
+of a function returning `string` - points into released memory right after the `;`, and neither gcc nor clang warns.
+The same holds for a view of a `string` that is changed or destroyed later. `data()` is only the address; the view
+knows its length, the characters behind it do not. A view of a part of a text is not followed by `'\0'`, so printing
+`data()` as a `const char*` runs on to the end of the whole text - or beyond.
+
+**I can use `std::span` for functions that read or change elements of an array, a vector, or a part of them.**
+
+`span<const int>` as a parameter accepts a `std::array`, a `std::vector` and a part of them (`first`, `last`,
+`subspan`) - a pointer and a count, no copy. `span<int>` allows changing the elements; the `const` of the parameter
+itself only means that the view will not look elsewhere. With the count in the type, `span<int, 3>`, it is a single
+pointer. Like every view, it dangles if the elements move or die - e.g. after a `push_back` that reallocates.
+
+**I can explain what an iterator into a `vector` is, and why `++it` on a `list` iterator does something else.**
+
+A `vector` iterator is essentially the address of an element, wrapped in a class: `*it` reads there, `++it` adds
+`sizeof(T)`, `&*it` is the address - and with `-O2` nothing but the address is left. A `list` stores every element in a
+node of its own, with the addresses of the next and the previous node; its iterator is the address of a node, and
+`++it` loads the next address from it. Both are one word; the type decides at compile time which `++` is called. That
+is also why `it + n` exists only for random-access iterators.
+
+**I know when iterators become invalid.**
+
+When the element they point to moves or dies. For a `vector`: after a `push_back` or `insert` that exceeds the
+capacity, all iterators, references and pointers into it are invalid (they hold the old address); after `insert` or
+`erase` without reallocation, those behind the position. For a `list`, `set` or `map`, only the iterators to erased
+elements - nodes never move. In a loop, `it = v.erase(it)` continues with a valid iterator. `end()` is never valid to
+dereference.
+
+**I can write an `operator<<` for my class, and I know why it returns the stream.**
+
+A free function `ostream& operator<<(ostream& os, const T& x)` that writes the parts of `x` to `os` and returns `os`.
+The stream by reference, because streams cannot be copied; the object by `const&`. `cout << a << b` is
+`operator<<(operator<<(cout, a), b)` - without the returned stream, the chain breaks after the first `<<`. Because it
+takes an `ostream&`, it works for `cout`, a file stream and an `ostringstream` alike.
+
+**I know what `[[nodiscard]]` is for, and what it costs at runtime.**
+
+It asks the compiler to warn when a result is thrown away - for functions whose result is the point: a computed value,
+an error code, a handle. It is a warning, not an error (unless you build with `-Werror`), and it costs nothing at
+runtime: the machine code and the symbols are the same with and without it. It is one of several attributes, e.g.
+`[[deprecated]]` and `[[maybe_unused]]`.
+
+**I can write function and class templates, and I know that the compiler generates code per type - and only for what is
+used.**
+
+A template is a recipe: for every combination of template arguments that is used, the compiler generates a separate
+function or class - `largest<int>`, `largest<double>` - as if written by hand, with its own symbol and, for classes,
+its own layout and `sizeof`. A template that is never used generates nothing, and the member functions of a class
+template are generated only when called: `nm` shows `maybe<int>::twice`, but no `maybe<double>::twice`. Errors that
+depend on the type appear only at the instantiation.
+
+**I can specialize a template for a particular type, and I know why one would.**
+
+A full specialization, `template <> class maybe<bool> { ... };`, replaces the recipe for exactly one type; a partial
+specialization, `template <typename T> class maybe<T*> { ... };`, for a whole group of types (class templates only).
+The specialization may have entirely different members and layout - e.g. one byte instead of two for `bool`, no flag
+for pointers - or different behavior. The compiler picks the most specialized version that fits. For function
+templates, an ordinary overload is usually the simpler tool.
+
+**I can read the output of `nm`: defined, undefined, local and weak symbols, and a mangled name.**
+
+Each line: an address, a letter, a name. `T` - defined here, callable from elsewhere; `U` - needed here, defined
+elsewhere; `t` - defined here, but local (unnamed namespace, `static`); `W` - a weak definition, e.g. a template
+instance or an `inline` function (macOS `nm` shows them as `T`). The names are mangled: `_Z4areadd` is `area(double,
+double)` - `_Z`, the length of the name, the name, the parameter types. Members are nested, `_ZNK6circle4areaEv` is
+`circle::area() const`. `nm -C` or `c++filt` demangle them.
+
+**I can explain why templates and `inline` functions are defined in headers, and what the linker does with their
+copies.**
+
+The compiler can only generate `largest<double>` where it sees the whole template - so every translation unit that uses
+it needs the body, i.e. the header. If the body is only in a `.cpp` file, the other files compile to `U`s, the `.cpp`
+file generates nothing for types it does not use itself, and the linker reports `undefined reference`. So every object
+file that uses the template, or an `inline` function, contains its own copy as a weak symbol `W`; the linker keeps one
+and drops the others - they must be identical (ODR), which nobody checks. As Release, small ones are inlined, and no
+copy is left at all. A member function defined in the class body is `inline`, too - it becomes a `W` as well. Ordinary
+functions, in contrast, are defined once, in a `.cpp` file, and appear as `T` in exactly one object file. In the
+extension of 'Fox Hollow', two different `inline int scale(int)` in `fraction.cpp` and `main.cpp`: as Debug, both files
+call the same one - the one from the first object file the linker sees, so swapping the files in the `add_executable`
+swaps the result; as Release, each file has its own inlined copy, and the output looks right. gcc 13 and clang 18 warn
+in neither case, not even with `-flto -Wodr`.
+
+**I can use `vector`, `list`, `set`, `map` and `unordered_map` - create, insert, find, erase - and I know how they
+store their elements.**
+
+A `vector` is created from a list of elements with braces, `vector<int>{5, 23}` (two elements), or with parentheses from
+a count and a value, `vector<int>(5, 23)` (five times 23), or from a range of two iterators. `push_back` and
+`emplace_back` (builds the element in place) at the end are cheap; `insert` and `erase` in the middle or at the front
+move every element behind the position. `clear` keeps the capacity, `shrink_to_fit` asks to release it. For all
+containers: `insert`/`push_back`/`push_front`, `find` (returns `end()` for "not found") or `contains`, `erase` by value
+or by iterator, and a range-based `for` over all of them; for maps, the elements are `pair<const K, V>`, conveniently
+taken apart with `const auto& [key, value]`. `map[key]` inserts a missing key with a default value - for lookups, use
+`find`, `contains` or `at`. Prefer a member `find` to `std::find`: on a `set` of a million elements, `std::find` walks
+node by node, the member function goes down the tree in about 20 steps. `list`, `set` and `map` keep every element in a
+node of its own (doubly linked, or a balanced tree, sorted); the unordered containers put nodes into buckets chosen by a
+hash - O(1) on average, no order. Only `vector`, `array` and, in blocks, `deque` store the elements next to each other.
+
+### 'AI' - Two Opinions <a id="ai-0x04"></a>
+
+| | `sizeof(string_view)` | `sizeof(string)` | `string_view` passed in |
+|:--|:--|:--|:--|
+| gcc (libstdc++), Linux x86-64 | 16 | 32 | two registers (`rdi`: size, `rsi`: address) |
+| clang (libstdc++), Linux x86-64 | 16 | 32 | two registers |
+
+Answer A:
+
+- "a pointer and a length - 16 bytes, passed by value in two registers" - right (on x86-64 Linux and macOS, and on
+  ARM64).
+- "accepts literals, strings and parts of strings without a copy" - right.
+- "a literal must first become a temporary `string`" for a `const string&` - right.
+- "a `string_view` always ends with a `'\0'`, so you can hand `sv.data()` to C functions" - wrong: a view of a part of a
+  text, `string_view{text}.substr(0, 4)`, prints the whole rest of the text via `data()`. A view of a buffer without
+  any `'\0'` makes `printf` read on until it happens to find one. For a C function, build a `string` from the view and
+  pass `c_str()`.
+
+Answer B:
+
+- "Both avoid copies when you pass a `string`, but only `string_view` avoids one for a literal" - right.
+- "pass it by value, not as `const string_view&`" - right.
+- "bound to a temporary, it keeps the temporary alive ... `const string_view name{make_name()};` is fine" - wrong: only
+  a reference bound directly to a temporary extends its lifetime. A `string_view` is an object of its own, initialized
+  with the address of the characters; the temporary `string` dies at the `;`, and `name` dangles. Printing its address
+  and size works, printing its content is undefined behavior.
+
+A is wrong about the terminating `'\0'`, B about the lifetime - both mistakes confuse a view with a `string`, and both
+compile without a warning.
