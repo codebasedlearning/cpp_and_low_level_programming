@@ -9,6 +9,7 @@
  *   them - so they belong in a `.cpp` file.
  * - `W`: template instances, `inline` functions, member functions defined in the class body. Every translation unit
  *   that uses them makes its own copy, the linker keeps one - so they may be in a header, and templates must be.
+ * - A named namespace is part of the name - in the source and in the symbol. It costs nothing at runtime.
  * - `-O0` vs. `-O2`: the `W`s are inlined and disappear, the `T`s stay.
  */
 
@@ -81,6 +82,20 @@ bool range::contains(const double x) const {
     return low_ <= x && x <= high_;
 }
 
+/* --- `units::to_fahrenheit` ---
+ * A function in a named namespace. Outside it, its full name is `units::to_fahrenheit` - another `to_fahrenheit` in
+ * another namespace would be a different function, and nothing would clash. For the compiler, a namespace is just a
+ * part of the name, as a class is for a member function: no object, no memory, no instruction.
+ * - !![#namespace]
+ */
+namespace units {
+
+    double to_fahrenheit(const double celsius) {
+        return celsius * 9.0 / 5.0 + 32.0;
+    }
+
+}
+
 namespace {
 
     /* --- `use_all_kinds` --- Calls everything above - `largest` for `double` and for `int`. */
@@ -94,6 +109,7 @@ namespace {
              << ", highest building=" << largest(floors) << " floors\n";
         cout << " 2| midpoint=" << midpoint(temperatures.front(), temperatures.back())
              << ", width=" << comfortable.width() << ", 21.0 comfortable? " << comfortable.contains(21.0) << '\n';
+        cout << " 3| largest in Fahrenheit=" << units::to_fahrenheit(largest(temperatures)) << '\n';
     }
 
 }
@@ -101,9 +117,11 @@ namespace {
 /* --- The symbols ---
  * Build as Debug and list the symbols of
  * `cmake-build-debug/0x04/CMakeFiles/d_symbols_revisited.dir/ii_session/d_symbols_revisited.cpp.o`, filtered for the
- * names of this program: `nm -C <file> | grep -E 'total|largest|midpoint| range::|use_all'`. With gcc (clang lists the
- * same):
+ * names of this program: `nm -C <file> | grep -E 'total|largest|midpoint| range::|units::|use_all'`. With gcc (clang
+ * lists the same):
  * - `T total(...)` and `T range::contains(double) const` - defined here, once.
+ * - `T units::to_fahrenheit(double)` - an ordinary function, its namespace in front. Without `-C`, the mangled name is
+ *   `_ZN5units13to_fahrenheitEd`: `N...E` a nested name, as for `circle::area` in the preparation.
  * - `W double largest<double>(...)`, `W int largest<int>(...)` - one instance per type.
  * - `W midpoint(double, double)`, `W range::width() const`, `W range::range(double, double)` - the `inline` ones.
  * - `t (anonymous namespace)::use_all_kinds()` - local.
@@ -141,8 +159,8 @@ namespace {
 /* --- Debug and Release ---
  * Build as Release and list the symbols again. The `W`s are gone: `largest`, `midpoint`, `width` and the constructor
  * are small, so the compiler copied their code into `use_all_kinds` - inlined. `use_all_kinds` is gone, too, inlined
- * into `main`. `total` and `range::contains` stay, although they were inlined as well: another object file could call
- * them, and the compiler of one file never knows.
+ * into `main`. `total`, `range::contains` and `units::to_fahrenheit` stay, although they were inlined as well: another
+ * object file could call them, and the compiler of one file never knows.
  */
 
 /* --- `main` --- */

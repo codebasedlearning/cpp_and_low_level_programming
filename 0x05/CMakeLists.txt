@@ -15,6 +15,7 @@ add_executable(study_pointers_to_pointers iii_follow_up/study_pointers_to_pointe
 add_executable(tinker_address_sanitizer iii_follow_up/tinker_address_sanitizer.cpp)
 add_executable(tinker_aliasing iii_follow_up/tinker_aliasing.cpp)
 add_executable(tinker_row_or_column iii_follow_up/tinker_row_or_column.cpp)
+add_executable(tinker_simd iii_follow_up/tinker_simd.cpp)
 
 # AddressSanitizer for one target, where the toolchain can link it (gcc and clang on Linux, Apple clang on macOS).
 # Elsewhere - MinGW, MSVC - the check fails, the snippet is built without it and says so when it runs.

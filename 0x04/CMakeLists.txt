@@ -13,6 +13,17 @@ add_executable(study_vector iii_follow_up/study_vector.cpp)
 add_executable(study_containers iii_follow_up/study_containers.cpp)
 add_executable(study_iterators iii_follow_up/study_iterators.cpp)
 add_executable(study_class_templates iii_follow_up/study_class_templates.cpp)
+add_executable(study_namespaces iii_follow_up/study_namespaces.cpp)
+add_executable(study_concepts iii_follow_up/study_concepts.cpp)
+
+# A static library and a program that uses it: the library from three .cpp files, the program from main.cpp alone.
+add_library(weather STATIC
+        iii_follow_up/study_static_library/stats.cpp
+        iii_follow_up/study_static_library/report.cpp
+        iii_follow_up/study_static_library/convert.cpp)
+add_executable(study_static_library iii_follow_up/study_static_library/main.cpp)
+target_link_libraries(study_static_library PRIVATE weather)
+
 add_executable(tinker_attributes iii_follow_up/tinker_attributes.cpp)
 add_executable(tinker_views iii_follow_up/tinker_views.cpp)
 add_executable(tinker_literals iii_follow_up/tinker_literals.cpp)
@@ -24,3 +35,5 @@ add_executable(millbrook_one_solution iv_solutions/millbrook_one_solution.cpp)
 add_executable(oakberg_one_solution iv_solutions/oakberg_one_solution.cpp)
 add_executable(ashfield_one_solution iv_solutions/ashfield_one_solution.cpp)
 add_executable(sparrowtown_one_solution iv_solutions/sparrowtown_one_solution.cpp)
+add_executable(eastbourne_one_solution iv_solutions/eastbourne_one_solution.cpp)
+add_executable(wintervale_one_solution iv_solutions/wintervale_one_solution.cpp)

@@ -1,6 +1,6 @@
 [© A.Voß, FH Aachen, codebasedlearning.dev](mailto:info@codebasedlearning.dev)
 
-# Low-Level Programming with C++ – A Course for Experienced Programmers
+# C++ and Low-Level Programming – A Course for Experienced Programmers
 
 ## Overview
 
@@ -27,6 +27,13 @@ run them, and see what happens - in the debugger, in the memory view, in the sym
 
 So this is a C++ course, and a course on what programs are made of; each topic is taught with both in view. What has
 a machine-level story is in the sessions, what is C++ for its own sake goes to the `study_` and `tinker_` files.
+
+## Why low-level?
+
+A course that only teaches a language ages quickly: syntax can be looked up, and today a tool often writes it for us. 
+What lasts is understanding what a program actually does – memory, addresses, lifetime, ownership, cost. 
+C++ is particularly suited to that, because it does not hide these things. So this is still a C++ course, but one that 
+follows every language feature down to the machine: not only how to write it, but what happens – and why.
 
 ## Working with this repository
 
@@ -63,11 +70,16 @@ What it does, which CLion version it needs and how to install it:
 
 ## Units
 
-- [Unit 0x01](0x01/README.md)
+- [Unit 0x01 - Up and Running](0x01/README.md): How does a text file become a program that solves something?
 - [Unit 0x02](0x02/README.md)
 - [Unit 0x03](0x03/README.md)
 - [Unit 0x04](0x04/README.md)
 - [Unit 0x05](0x05/README.md)
+- [Unit 0x06](0x06/README.md)
+- [Unit 0x07](0x07/README.md)
+- [Unit 0x08](0x08/README.md)
+- [Unit 0x09](0x09/README.md)
+- [Unit 0x0a](0x0a/README.md)
 
 ## Feedback
 

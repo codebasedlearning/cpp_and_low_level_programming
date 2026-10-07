@@ -1,0 +1,23 @@
+# (C) A.Voß, a.voss@fh-aachen.de, info@codebasedlearning.dev
+
+add_executable(a_recap_episode_0x09 i_preparation/a_recap_episode_0x09.cpp)
+add_executable(b_lambdas i_preparation/b_lambdas.cpp)
+add_executable(c_cpp_insights_revisited i_preparation/c_cpp_insights_revisited.cpp)
+
+add_executable(a_functions_in_memory ii_session/a_functions_in_memory.cpp)
+add_executable(b_lambdas_in_memory ii_session/b_lambdas_in_memory.cpp)
+add_executable(c_calls_compared ii_session/c_calls_compared.cpp)
+add_executable(d_captured_lifetimes ii_session/d_captured_lifetimes.cpp)
+
+add_executable(study_algorithms iii_follow_up/study_algorithms.cpp)
+add_executable(study_lambda_rules iii_follow_up/study_lambda_rules.cpp)
+add_executable(study_callbacks iii_follow_up/study_callbacks.cpp)
+add_executable(tinker_function_by_hand iii_follow_up/tinker_function_by_hand.cpp)
+add_executable(tinker_member_function_pointers iii_follow_up/tinker_member_function_pointers.cpp)
+
+add_executable(roarport_one_solution iv_solutions/roarport_one_solution.cpp)
+add_executable(kreley_one_solution iv_solutions/kreley_one_solution.cpp)
+add_executable(yrouwood_one_solution iv_solutions/yrouwood_one_solution.cpp)
+add_executable(pleim_one_solution iv_solutions/pleim_one_solution.cpp)
+add_executable(silverlake_one_solution iv_solutions/silverlake_one_solution.cpp)
+add_executable(hollowcreek_one_solution iv_solutions/hollowcreek_one_solution.cpp)

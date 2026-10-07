@@ -17,6 +17,7 @@ add_executable(study_getters_and_setters iii_follow_up/study_getters_and_setters
 add_executable(study_special_members iii_follow_up/study_special_members.cpp)
 add_executable(tinker_properties iii_follow_up/tinker_properties.cpp)
 add_executable(tinker_throwing_destructor iii_follow_up/tinker_throwing_destructor.cpp)
+add_executable(tinker_stack_overflow iii_follow_up/tinker_stack_overflow.cpp)
 
 add_executable(ravencastle_one_solution iv_solutions/ravencastle_one_solution.cpp)
 add_executable(stoneridge_one_solution iv_solutions/stoneridge_one_solution.cpp)

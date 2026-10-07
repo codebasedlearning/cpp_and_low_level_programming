@@ -154,3 +154,5 @@ Answers: [comprehension check 0x02](../docs/answers.md#check-0x02).
 - I know what `auto`, `auto&` and `const auto&` deduce, especially in a range-based `for`.
 - I can throw, catch and rethrow standard exceptions, and I know why the order of the `catch` blocks matters.
 - I can convert between text and numbers with `stoi`, `stod` and `to_string`, and handle what goes wrong.
+- I know the difference between `const` and `constexpr`, can check a claim with `static_assert`, and know where a value
+  computed by the compiler ends up.

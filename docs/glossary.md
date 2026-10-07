@@ -54,7 +54,8 @@ every class in it. Either the portable macro form or `#pragma once`, which every
 ### `using`                                 <a id="using"></a>
 
 Three distinct meanings share the keyword: a *using-declaration* pulls one name into scope (`using std::cout;`), a
-*using-directive* pulls in a whole namespace (`using namespace std;` — avoid it outside a small scope), and a *type
+*using-directive* pulls in a whole namespace (`using namespace std;` — avoid it outside a small scope, and never use
+it in a header, where it is forced on every file that includes it), and a *type
 alias* names a type (`using catalog_t = std::unordered_map<std::string, book>;`), which replaces C's `typedef` and is
 the only form that works with templates.
 
@@ -70,15 +71,16 @@ the only form that works with templates.
 ### `#pragma`                               <a id="pragma"></a>
 
 An instruction to the compiler outside the language itself; a compiler skips the pragmas it does not know, usually with
-a warning. Two appear in this course: `#pragma once`, see [include guard](#include-guard), and - for didactic purposes
-only -
+a warning. Two kinds appear in this course: `#pragma once`, see [include guard](#include-guard), and - for didactic
+purposes only - `#pragma GCC diagnostic`, e.g.
 
 ```cpp
 #pragma GCC diagnostic ignored "-Wuninitialized"    // gcc and clang
 ```
 
 which switches off the warning about reading an uninitialized variable, so that we can do exactly that and watch what
-happens. Never do this in production code. See also [Preprocessor](#preprocessor).
+happens; with `push` and `pop` around it, only for the lines in between. Never do this in production code. See also
+[Preprocessor](#preprocessor).
 
 ### Preprocessor                            <a id="preprocessor"></a>
 
@@ -92,6 +94,8 @@ The compiler turns each [translation unit](#translation-unit) into an object fil
 the libraries into one executable and resolves every name that was only declared. A program has exactly one `main`,
 which returns `int` — `return EXIT_SUCCESS;` (from `<cstdlib>`) says "nothing went wrong" more legibly than `return 0;`,
 and falling off the end of `main` means the same thing.
+
+![The build process: compile each file alone, link all together, run](images/build_process.drawio.png)
 
 ### `main`                                  <a id="main"></a>
 
@@ -131,6 +135,11 @@ is why "it worked on my machine" is not evidence of anything.
 int v1;                     // no initializer at block scope
 std::cout << v1;            // UB - not "some random number", UB
 ```
+
+UndefinedBehaviorSanitizer (`-fsanitize=undefined`, gcc and clang, not MSVC) adds a check to signed arithmetic,
+divisions, shifts and more, and reports every failed check at runtime with file, line and values. It does not see
+uninitialized reads, and a sanitized build no longer lets the optimizer exploit the UB - it finds the problem, it does
+not show what the Release build will do.
 
 ### Build system: make and CMake <a id="build-system"></a>
 
@@ -182,6 +191,18 @@ overloads get different symbols; the return type is not part of it (except for t
 functions cannot be overloaded on the return type alone. `nm -C` and `c++filt` demangle the names. MSVC mangles
 differently (`?area@@YANN@Z`); its tool is `dumpbin /symbols`.
 
+### Static and dynamic library <a id="static-library"></a>
+
+A static library is an archive of object files (`libname.a`; MSVC: `name.lib`), built with `ar` or CMake's
+`add_library(name STATIC ...)` and used with `target_link_libraries`. The linker copies into the program only the
+members that define a symbol still undefined — an unused object file stays out — and the GNU linker reads its inputs
+from left to right, so a library comes after the files that need it. A dynamic library (`.so`, `.dylib`, `.dll`;
+`add_library(name SHARED ...)`) stays a file of its own and is loaded when the program starts.
+
+A variable shared between files is declared `extern` in the header (`extern int count;` — a declaration, no memory)
+and defined in exactly one `.cpp` file (`int count{0};`). Since C++17, an `inline` variable may instead be defined in
+the header; as for `inline` functions, the linker keeps one copy (see [ODR](#odr)).
+
 ### `extern "C"` <a id="extern-c"></a>
 
 Gives a function C linkage: its [symbol](#symbols) is the plain name, without mangling —
@@ -215,7 +236,9 @@ The one trap: for `std::vector`, braces prefer the initializer-list constructor 
 
 A conversion that may lose information: `double` to `int`, a wide integer to a narrower one, or any value the target
 type cannot represent. [Uniform initialization](#uniform-initialization) makes it an **error**, `=` initialization at
-most a warning (e.g. with `-Wconversion`).
+most a warning (e.g. with `-Wconversion`). One exception in practice: an `int` variable in braces for a `double` -
+`double d{n};` - is only a warning with gcc, an error with clang. What happens to the bits:
+[integer conversions](#integer-conversions).
 
 ```cpp
 int a = 1.2;                    // compiles, a == 1
@@ -223,6 +246,22 @@ int b{1.2};                     // error: narrowing conversion
 int c = 123456789012345;        // compiles, the value is cut off
 int d{123456789012345};         // error
 ```
+
+### Integer conversions <a id="integer-conversions"></a>
+
+What happens to the bits when an integer changes its type - in two's complement, which C++20 guarantees:
+
+- wider, from a signed type: the sign bit is copied into the new bits, a sign extension - -5 stays -5 (`movsx`,
+  `sxtw`);
+- wider, from an unsigned type: the new bits are 0;
+- the same size, signed to unsigned or back: the bits stay, only their meaning changes - -1 becomes 4294967295, and
+  no instruction is needed;
+- narrower: the lower bits stay - 300 as a `std::uint8_t` is 44.
+
+In an expression with two types, the usual arithmetic conversions choose one first; types smaller than `int` become
+`int`, and between `int` and `unsigned` the choice is `unsigned`: `-1 < 1u` is `false`. `std::cmp_less` and its
+siblings (C++20) compare by value. A `double` to an `int` is not a matter of bits: it is converted, truncated toward
+zero, and a value out of range is [UB](#undefined-behavior).
 
 ### Default values                          <a id="default-values"></a>
 
@@ -306,6 +345,29 @@ a number — `+x` (or, later, `static_cast<int>(x)`) prints the number.
 
 C++ does not promise IEEE 754 for floating point, but `double` is IEEE 754 binary64 on every platform this course
 targets.
+
+### Bit operations and masks <a id="bit-operations"></a>
+
+`&`, `|`, `^` and `~` combine or flip all bits at once, `<<` and `>>` move them — each a single instruction. With a
+mask, `x |= m` sets bits, `x &= ~m` clears them, `x ^= m` toggles them and `(x & m) != 0` tests them; a field is taken
+out with a shift and a mask, `(x >> 16) & 0xff`. Two traps: operands smaller than `int` are promoted to `int` first
+(`~uint8_t{1}` is a negative `int`), and a shift by the width of the type or more is undefined. `std::byte` is a byte
+with only these operators; `<bit>` (C++20) has `popcount`, `countr_zero`, `has_single_bit`, `rotl` and more.
+
+### Byte order <a id="byte-order"></a>
+
+The order in which the bytes of a number lie in memory. Little-endian — the lowest byte first — is used by x86-64 and
+ARM64 in all common systems; big-endian is the order of network protocols and some file formats. `std::endian::native`
+(C++20) tells which one a program runs on, `std::byteswap` (C++23) reverses the bytes of an integer. It matters as soon
+as bytes leave the program: in a binary file, or on the network.
+
+### Floating point (IEEE 754) <a id="floating-point"></a>
+
+A `float` has 1 sign bit, 8 bits of exponent (stored with a bias of 127) and 23 bits of mantissa, the digits after an
+implicit leading 1; a `double` has 1, 11 and 52. Most decimal fractions, 0.1 among them, have no finite binary form
+and are rounded — so `0.1 + 0.2 != 0.3`, and floating-point numbers are compared with a tolerance. Infinity and NaN
+are special bit patterns (all exponent bits set); NaN is not equal to anything, itself included. `std::bit_cast` shows
+the bits.
 
 ### `sizeof`, `size_t`, `ptrdiff_t` <a id="sizeof"></a>
 
@@ -417,15 +479,32 @@ value, or the result of an implicit conversion through a non-[`explicit`](#expli
 of the full expression — the `;` — and then its destructor runs. A reference to a part of it, e.g. to a member returned
 by a getter, dangles after that; only binding the temporary itself to a `const&` extends its lifetime.
 
-### Namespace and unnamed namespace         <a id="unnamed-namespace"></a>
+### Namespace and unnamed namespace         <a id="unnamed-namespace"></a><a id="namespace"></a>
 
-A named scope that keeps unrelated names apart (`std::`, `cbl::`). An **unnamed namespace** gives everything inside it
-internal linkage — visible only in this [translation unit](#translation-unit) — and is the modern replacement for
-file-scope `static`, because it also works for types.
+A named scope that keeps unrelated names apart (`std::`, `cbl::`). Outside it, a name needs its prefix
+(`geo::distance`) or a [`using`](#using). A namespace is open: several blocks, in several headers, add to the same one
+— that is how `std` is spread over the standard headers. `namespace course::geo { … }` nests (C++17), and
+`namespace fs = std::filesystem;` gives a long name a short alias.
+
+A namespace costs nothing at runtime: it is only a part of the name, also in the object file:
+`units::to_fahrenheit(double)` becomes the symbol `_ZN5units13to_fahrenheitEd`, a nested name like a member function
+(see [symbols](#symbols)).
+
+An **unnamed namespace** gives everything inside it internal linkage — visible only in this
+[translation unit](#translation-unit) — and is the modern replacement for file-scope `static`, because it also works
+for types.
 
 ```cpp
-namespace { void define_and_init() { … } }   // helper, private to this file
+namespace geo { double distance(const point& a, const point& b); }  // in a header
+namespace { void define_and_init() { … } }                          // helper, private to this file
 ```
+
+### Argument-dependent lookup (ADL)         <a id="adl"></a>
+
+For an unqualified call, the compiler also searches the namespaces of the argument types: `length(p)` with a
+`geo::point p` finds `geo::length` without `geo::`. That is how `cout << p` finds an `operator<<` declared next to its
+class, and `cout << s` finds `std::operator<<` for a `string` — in `a << b`, there is no place for a namespace
+prefix. Also called Koenig lookup.
 
 ---
 
@@ -483,6 +562,14 @@ for (auto x : v) …           // copy per element - deliberate, or an accident?
 Selects on an integral or enum value. Without `break`, control *falls through* to the next label — legal, occasionally
 intended, and worth marking as such with `[[fallthrough]];` (C++17) so the reader and the compiler both know it was on
 purpose. A `default:` label makes the intent explicit even when it does nothing.
+
+### Branch prediction <a id="branch-prediction"></a>
+
+A processor starts instructions long before the ones in front of them are finished. At a branch - an `if`, a loop, a
+`switch`, an indirect jump such as a [virtual call](#virtual) - it cannot wait for the condition or the address: it
+guesses, from the history of that branch, and goes on. A right guess costs almost nothing; a wrong one throws away the
+work started on the wrong path. So a branch that goes the same way many times in a row is cheap, and one that goes
+either way at random is expensive - sorting the data by the condition can make the same loop much faster.
 
 ### `[[nodiscard]]` <a id="nodiscard"></a>
 
@@ -560,12 +647,30 @@ Passed on, the array [decays](#pointer-arithmetic) to a `const char*`, and every
 addresses, `strcmp` compares characters. The functions of `<cstring>` (`strcpy`, `strncpy`, `memcpy`, `memset`) trust
 the caller with every size. From a `std::string`: `c_str()`, which guarantees the `'\0'`.
 
-### Stack and heap <a id="stack-and-heap"></a>
+### Stack and heap <a id="stack-and-heap"></a><a id="stack-overflow"></a>
 
 Automatic variables live on the **stack**: allocation is a pointer bump, lifetime ends at the closing brace, size must
 be known at compile time. Dynamic objects live on the **heap** (free store): allocation is a library call, lifetime is
 manual (or [RAII](#raii)-managed), size may be computed at runtime. Prefer the stack; reach for the heap when the object
 must outlive the scope or is too large or too variable for it.
+
+The stack has a fixed size, set when the thread starts: on Linux usually 8 MiB for the main thread (`ulimit -s`),
+less for other threads (512 KiB on macOS). Every call takes a frame; a recursion that is too deep, or a local array
+that is too large, runs past the end into a guard page the system keeps unmapped — a **stack overflow**, which ends
+the program with a segmentation fault (exit status 139 on Linux), not with an exception.
+
+### Memory layout of a program <a id="memory-layout"></a><a id="virtual-memory"></a>
+
+A running program sees one address space, divided into regions: the machine code (`.text`), constants and string
+literals (`.rodata`), globals with a value (`.data`), globals that are zero (`.bss` — only its size is stored in the
+file), the heap, and the stack of each thread. The names are those of Linux (ELF); macOS and Windows use others for
+the same idea. Globals with a constructor are initialized before `main` and destroyed after it.
+
+The addresses are virtual: the system maps them page by page (usually 4 KiB, 16 KiB on Apple silicon) to physical
+memory, and only when a page is first touched. `malloc` gets its memory from the system in large pieces — on Linux
+with `brk` for small blocks and `mmap` for large ones — and hands it out in small blocks.
+
+![The memory of a running program: stack, heap, globals, constants and code](images/memory_model.drawio.png)
 
 ### `new` and `delete` <a id="new-delete"></a>
 
@@ -575,6 +680,23 @@ Allocate on the heap and construct; destruct and free. Every `new` needs exactly
 [Core Guidelines](#the-modern-way) sense.
 
 `new` throws `std::bad_alloc` rather than returning null (unless you ask for `new (std::nothrow)`).
+
+### Array cookie <a id="array-cookie"></a>
+
+`new T[n]` for a type with a destructor asks `operator new[]` for a few bytes more than `n * sizeof(T)` and stores the
+count `n` in front of the first element - the cookie; the address it returns is behind it. `delete[]` reads the count
+to call `n` destructors, and gives the block back from its real start. That is why `delete` and `delete[]` must match:
+the wrong one runs the wrong number of destructors and hands the allocator an address it never gave out. For types
+without a destructor - `int`, a plain `struct` - there is nothing to count and no cookie. Its size belongs to the ABI:
+8 bytes on x86-64 and ARM64 Linux (checked) and on Windows; Apple's ARM64 ABI also stores the size of an element, 16
+bytes (not checked here).
+
+### Placement `new` <a id="placement-new"></a>
+
+`new (address) T{...}` constructs an object at an address you provide, without allocating - the second of the two
+steps of [`new`](#new-delete). The object is destroyed with an explicit destructor call, `p->~T()`, and the memory is
+released separately. `std::construct_at` and `std::destroy_at` (`<memory>`) are the same with names. Containers work
+this way: a `vector` allocates its capacity as raw memory, and constructs and destroys its elements in it one by one.
 
 ### `malloc` / `free` <a id="malloc"></a>
 
@@ -707,7 +829,11 @@ not copyable".
 
 Belongs to the class, not to an instance: one shared variable, or a function with no `this`. Reachable as
 `Temperature::is_plausible(20.0)`, and — legally but pointlessly — through an object. `static constexpr` data members
-can be initialized in the class body; other static data members need a definition (or `inline`, C++17).
+can be initialized in the class body; other static data members need a definition in exactly one `.cpp` file (or
+`inline`, C++17).
+A static data member is not part of the object - `sizeof` does not count it - but lives in static storage, next to
+the global variables. A class template has one per instantiation: `registry<int>::count` and `registry<double>::count`
+are two variables.
 
 ### Three meanings of `static` <a id="static-storage"></a>
 
@@ -718,6 +844,13 @@ One keyword, three jobs:
 2. **Function-local**: one instance, initialized on first use, outliving the call. Thread-safe initialization since
    C++11.
 3. **Class member**: belongs to the type, see [static member](#static-member).
+
+What a function-local `static` costs: with a constant initializer, nothing more than a global variable - it is ready
+before `main`. With an initializer that must run, a guard variable is tested at every call, and the first call goes
+through `__cxa_guard_acquire` and `__cxa_guard_release`, so that two threads cannot both initialize it. An object with
+a destructor is destroyed after `main` returns. `constinit` (C++20) demands the constant initialization. Across
+translation units, the order in which globals are initialized is not defined - a function-local `static` is the usual
+way out.
 
 ### Named constructor <a id="named-constructor"></a>
 
@@ -751,7 +884,36 @@ T& operator[](std::size_t i);                  // index operator
 std::ostream& operator<<(std::ostream&, const T&);
 ```
 
-C++20's `operator<=>` generates the six comparisons from one definition.
+C++20's `operator<=>` generates the six comparisons from one definition, see [three-way comparison](#spaceship).
+
+For the compiler, an operator is a call: `a + b` is `operator+(a, b)`, `a += b` is `a.operator+=(b)` - C++ Insights
+shows it. Precedence, associativity and the number of operands stay those of the built-in operator. In the object file,
+an operator has a mangled name like every function (`_Zpl...` for `+`, `pL` for `+=`, `ls` for `<<`), and as Release a
+small one is inlined - `a + b` for a class holding a `long long` is the same instruction as for two `long long`s. An
+overloaded `&&`, `||` or `,` loses the [short-circuit](#short-circuit).
+
+### Three-way comparison `<=>` <a id="spaceship"></a>
+
+`a <=> b` (C++20, the "spaceship") says whether `a` is less than, equal to or greater than `b`: a
+`std::strong_ordering`, or a `std::partial_ordering` for floating-point, where a NaN is unordered. With `= default`, the
+compiler compares member by member, in the order of declaration. It also rewrites the other comparisons: `a < b` becomes
+`(a <=> b) < 0`, and `a != b` becomes `!(a == b)` - two defaulted operators give all six.
+
+```cpp
+struct version {
+    int major;
+    int minor;
+    bool operator==(const version&) const = default;
+    auto operator<=>(const version&) const = default;   // 1.2 < 1.10
+};
+```
+
+### Short-circuit evaluation <a id="short-circuit"></a>
+
+The built-in `&&` and `||` evaluate the right operand only if the left one does not decide the result:
+`p != nullptr && *p > 0` never dereferences a null pointer. An overloaded `&&` or `||` is a function call, and all
+arguments of a call are evaluated before it - the short-circuit is gone. That is why they are not overloaded. Since
+C++17, the left operand is at least evaluated first.
 
 ### Conversion operator <a id="conversion-operator"></a>
 
@@ -791,6 +953,23 @@ The whole standard library is built this way: `string`, `vector`, [`unique_ptr`]
 base-first, destructors derived-first. The access specifier on the base (`public`, `protected`, `private`) limits how
 visible the inherited members are to *users* of the derived class; `public` is the only one that models "is a".
 
+### SOLID <a id="solid"></a>
+
+Five principles for the design of classes, collected by Robert C. Martin ([SOLID](https://en.wikipedia.org/wiki/SOLID)):
+
+- **S**ingle responsibility: a class has one reason to change — no "god object" that parses, computes and prints.
+- **O**pen-closed: open for extension, closed for modification — a new kind of shape is a new derived class, not a
+  new `case` in every `switch`.
+- **L**iskov substitution: a derived class keeps every promise of its base — a square that derives from a resizable
+  rectangle breaks it.
+- **I**nterface segregation: several small interfaces (abstract classes with pure virtual functions) rather than one
+  large one that forces classes to implement what they do not need.
+- **D**ependency inversion: high-level code depends on an interface, not on a concrete class; the concrete one is
+  passed in, e.g. as a `std::unique_ptr<interface>` or a reference.
+
+Four of the five are about interfaces and inheritance, so in C++ they mean [virtual](#virtual) functions — and their
+price, one pointer per object and an indirect call.
+
 ### `virtual` and dynamic dispatch <a id="virtual"></a>
 
 A `virtual` function is chosen by the **dynamic** type of the object, through a pointer or reference, not by the static
@@ -801,6 +980,12 @@ virtual by default.
 widget* w = new button{};
 w->draw();          // button::draw() only if draw is virtual
 ```
+
+In the machine, a virtual call is two loads and an indirect jump: the [vptr](#vtable) from the object, the address of
+the function from the table, then a jump to it (`mov rax, [rdi]`, `jmp [rax+16]` on x86-64). A non-virtual call has the
+address of the function in the instruction. The jump is cheap when it is [predicted](#branch-prediction) and expensive
+when the types are mixed at random; it also keeps the compiler from inlining - unless it
+[devirtualizes](#devirtualization) the call.
 
 ### `override` and `final` <a id="override"></a>
 
@@ -813,6 +998,16 @@ derivation).
 The usual implementation of [dynamic dispatch](#virtual): each polymorphic class has a table of function pointers, and
 each object of it carries a hidden pointer to that table. Hence the cost — one pointer per object, one indirection per
 call — and hence [zero overhead](#zero-overhead): you pay it only for classes that declare a virtual function.
+
+With gcc and clang (the Itanium C++ ABI), the vptr is the first 8 bytes of the object, and it points 16 bytes into the
+table: in front of that address are the offset to the top of the object and a pointer to the
+[type information](#rtti); from there on, the addresses of the virtual functions in the order of declaration - a virtual
+destructor takes two slots, one that destroys and one that destroys and frees (`delete`). The table is in static
+storage, one per class; `nm -C` lists it as `vtable for circle`. The constructors write the vptr - the base first, so
+during the base's constructor the object is a base - and the destructors write it back. The table is emitted in the
+object file that defines the key function, the first virtual function that is neither pure nor defined in the class;
+without that definition, the linker reports an `undefined reference to 'vtable for circle'`. A class with two
+polymorphic bases has two vptrs; a virtual base is found through an offset in the table.
 
 ### Abstract class and pure virtual function <a id="abstract-class"></a>
 
@@ -832,11 +1027,49 @@ Copying a derived object into a base-typed variable keeps only the base part; th
 [vtable](#vtable) pointer are lost, so virtual calls resolve to the base. Passing by value is the usual accident —
 `void f(widget w)` instead of `void f(const widget& w)`.
 
+The vptr is not copied at all: the copy constructor of the base writes the vptr of the base, as every constructor of
+the base does. So the copy is a complete base object - never half a derived one. To copy a polymorphic object, a
+virtual `clone` asks the object to copy itself.
+
 ### Multiple inheritance and the diamond <a id="multiple-inheritance"></a>
 
 A class may have several bases. If two of them share a base, that base exists *twice* — the diamond problem — and member
 access becomes ambiguous. `class b : virtual public a` makes the shared base a single sub-object, at the cost of a more
 complex layout and construction order (the most-derived class initializes the virtual base).
+
+In memory, the bases are sub-objects one after the other. Only the first one starts at the address of the object: a
+pointer to the second base is the address plus an offset - the conversion adds it and keeps a null pointer null - and a
+virtual call through the second base goes through a thunk that subtracts it again (`non-virtual thunk to ...` in `nm`).
+The offset of a virtual base depends on the complete object, so it is stored in the [vtable](#vtable): every access is
+one load more, and a class with a virtual base has a vptr even without virtual functions. Multiple inheritance of
+interfaces - classes with only pure virtual functions - is the common case, and costs one vptr per interface.
+
+### Devirtualization <a id="devirtualization"></a>
+
+A virtual call made as a direct call, because the compiler knows the dynamic type: the object is a local, its class is
+`final`, or the call names the class (`c.circle::area()`, never virtual). Then the call can be inlined, too. gcc also
+devirtualizes speculatively: it compares the slot in the table with the address of the function it expects, and runs
+the inlined code if they are equal.
+
+### RTTI: `typeid` and `dynamic_cast` <a id="rtti"></a>
+
+Run-time type information: for every polymorphic class, the compiler emits a `std::type_info` object - `nm` lists it
+as `typeinfo for circle` - and the [vtable](#vtable) points to it. `typeid(expr)` on a reference to a polymorphic class
+reads it through the vptr - the dynamic type; for any other type, it is the static type, known at compile time.
+`name()` is implementation-defined (gcc and clang: the mangled name).
+
+`dynamic_cast<circle*>(p)` checks at run time: a call into the runtime library (`__dynamic_cast`), which walks the
+classes described by the type information and returns `nullptr` if the object is no circle; for a reference, it throws
+`std::bad_cast`. It needs a polymorphic class. `static_cast` down a hierarchy does not check - one instruction, or
+none - and a wrong one is [UB](#undefined-behavior). A chain of `dynamic_cast`s usually stands for a missing virtual
+function.
+
+### Empty base optimization <a id="empty-base"></a>
+
+An object takes at least one byte, so that two objects have two addresses - but an empty base class may take no space
+at all: it shares the address of the derived object. `struct counter : empty { int count; }` is 4 bytes, with an
+`empty` member it is 8. The standard library uses it - or `[[no_unique_address]]` - to store empty helpers such as the
+deleter of a `unique_ptr` for free.
 
 ### Casts <a id="casts"></a>
 
@@ -849,12 +1082,33 @@ fits:
 - `const_cast<T>` — adds or removes `const`. Writing through a removed `const` on a truly const object is
   [UB](#undefined-behavior).
 - `reinterpret_cast<T>` — reinterprets the bits. Portable only in the narrow cases the standard lists.
+- `std::bit_cast<T>` (C++20, `<bit>`) — the bits of a value, as a value of another type of the same size.
+
+In the machine, a cast is an instruction or nothing. A conversion between number types may compute a new value
+(`cvttsd2si` for `double` to `int`, `movsx` for a wider signed type) or keep the bits (`int` to `unsigned`).
+`reinterpret_cast` and `const_cast` only change the type the compiler sees - no instruction, and no check. A
+user-defined conversion - a [conversion operator](#conversion-operator) or a converting constructor - is a call. C++
+Insights shows which named cast a C-style cast stands for.
+
+### Strict aliasing <a id="strict-aliasing"></a>
+
+An object may be read and written only through its own type - or a signed or unsigned variant of it, or `char`,
+`unsigned char` and `std::byte`. The compiler relies on that: a `float*` and a `std::uint32_t*` are assumed never to
+point to the same object, so a value may stay in a register across a write through the other pointer. Reading a `float`
+as `*reinterpret_cast<std::uint32_t*>(&f)` is therefore [UB](#undefined-behavior), even where it seems to work. For the
+bits of a value: `std::bit_cast` or `std::memcpy`.
 
 ### `enum` and `enum class` <a id="enum-class"></a>
 
 A plain `enum` leaks its enumerators into the surrounding scope and converts to `int` on sight. A **scoped** enum
 (`enum class color { red, green };`, C++11) does neither: names are `color::red`, and conversion needs an explicit
 [`static_cast`](#casts). The underlying type can be fixed (`enum class flags : std::uint8_t`).
+
+In memory, an enum is its underlying type: `int` for an `enum class` without `:`, a type the compiler chooses for a
+plain `enum`, or the one after the `:` - `sizeof` shows it. With a fixed underlying type, every value of that type is a
+valid value of the enum, named or not: `static_cast<suit>(7)` is fine. So a `switch` over an enum must be ready for
+values without a name - and gcc and clang turn a `switch` that maps every name to a value into a table, with a range
+check in front. `std::to_underlying` (C++23) gives the number in the underlying type.
 
 ---
 
@@ -1014,7 +1268,8 @@ stack is unwound before `std::terminate` is called.
 All derive from `std::exception`: `std::logic_error` (`invalid_argument`, `out_of_range`, `domain_error`) for bugs the
 caller could have prevented, `std::runtime_error` (`range_error`, `system_error`) for conditions only discovered while
 running, plus `std::bad_alloc` and `std::bad_cast`. Derive your own from `std::runtime_error` rather than from
-`std::exception` directly — you get the `what()` machinery for free.
+`std::exception` directly — you get the `what()` machinery for free. Catch by `const&`: a `catch` by value copies
+the exception into the handler's type and slices it, and `what()` returns the base's text.
 
 ### Exception safety <a id="exception-safety"></a>
 
@@ -1126,6 +1381,12 @@ std::ranges::sort(v, [](const auto& a, const auto& b) { return a.size() < b.size
 `[](){}` in full: *capture*, *parameters*, *body*. Generic lambdas take `auto` parameters (C++14); `mutable` allows
 modifying captured copies.
 
+Underneath, a lambda is an object of a class the compiler writes for it - the *closure type*: every capture is a data
+member, the body is a `const` `operator()`. So `sizeof` of a lambda is the size of its captures (a lambda without
+captures takes 1 byte, as every empty object), and C++ Insights shows the class. Every lambda expression has a type of
+its own, which a template can be instantiated with - the reason why `std::sort` with a lambda can inline the
+comparison. Only a lambda without captures converts to a function pointer.
+
 ### Lambda capture <a id="capture"></a>
 
 What the lambda takes from the enclosing scope: `[x]` by copy, `[&x]` by reference, `[=]` / `[&]` everything (avoid: it
@@ -1134,10 +1395,12 @@ outlives its scope is a [dangling reference](#dangling-pointer) — the standard
 
 ### Function pointer and `std::function` <a id="std-function"></a>
 
-A function pointer (`double (*f)(double)`) stores exactly one kind of callable and costs nothing.
-`std::function<double(double)>` is a type-erased wrapper that stores *any* callable — function, lambda, functor — at the
-price of an indirection and possibly an allocation. Use a template parameter where the type can be deduced,
-`std::function` where it must be stored.
+A function pointer (`double (*f)(double)`) holds the address of a function - 8 bytes, and a call through it is an
+indirect call, unless the compiler knows the value and inlines. `std::function<double(double)>` is a type-erased
+wrapper that stores *any* callable — function, lambda, functor — at the price of its size (32 bytes with libstdc++, 48
+with libc++), an allocation for a callable that does not fit into its small buffer, and an indirect call that is
+rarely inlined. An empty `std::function` throws `std::bad_function_call` when called. Use a template parameter where
+the type can be deduced, `std::function` where it must be stored.
 
 C++23 adds `std::move_only_function` for callables that cannot be copied.
 
@@ -1187,6 +1450,57 @@ cv.wait(lock, []{ return done; });      // re-checks the predicate on every wake
 
 The waiting side must hold the lock while testing the condition; the notifying side sets it under the lock and then
 calls `notify_one`/`notify_all`.
+
+### `thread_local` <a id="thread-local"></a>
+
+A variable with one instance per thread - created when the thread starts (or at its first use), destroyed when the
+thread ends. The machine finds the current thread's instance through a register that the operating system sets at
+every switch: `fs` on x86-64 (`add DWORD PTR fs:x@tpoff, 1`), `tpidr_el0` on ARM64. For data that each thread needs for
+itself - a counter, a buffer, a random generator - without any synchronization.
+
+### `std::atomic` <a id="atomic"></a>
+
+`std::atomic<T>` makes every operation on a `T` one indivisible step for all threads: `++a`, `a += n`, `a.load()`,
+`a.store(v)`, `a.exchange(v)`, `a.compare_exchange_strong(expected, v)`. For an `int` or a pointer, it is the `T`
+itself - `sizeof(atomic<int>)` is 4 - and the operations are single instructions: `lock add` or `lock xadd` on x86-64,
+`ldadd` or a `ldaxr`/`stlxr` loop on ARM64. For large types, `is_always_lock_free` is `false`, and the library uses a
+lock. Each operation is atomic, not a sequence of them: `if (a == 0) { a = 1; }` is two steps - use
+`compare_exchange_strong`.
+
+```cpp
+std::atomic<int> counter{0};
+++counter;                                  // from any thread
+```
+
+### Memory order <a id="memory-order"></a>
+
+Processors and compilers reorder loads and stores as long as the thread itself cannot tell. An atomic operation says
+how much order it needs: `std::memory_order_relaxed` - only the operation itself is atomic; `release` (for a store)
+and `acquire` (for a load) - what was written before the release is visible after an acquire that sees it;
+`seq_cst`, the default - one order of all atomic operations for all threads. x86-64 needs extra work only for
+`seq_cst` stores (`xchg`); ARM64 needs `ldar`/`stlr` for acquire and release. Use the default unless you have
+measured and understood.
+
+### Cache line and false sharing <a id="false-sharing"></a>
+
+Caches copy memory in lines of 64 bytes (on current x86-64 and ARM64 processors). A core that writes to a line must
+own it exclusively; another core that writes to the same line takes it over. Two threads that write to different
+variables in the same line pass the line back and forth - *false sharing*: correct, and several times slower. Keep
+variables that different threads write often at least 64 bytes apart - `alignas(64)`, or
+`std::hardware_destructive_interference_size` where the library defines it - or keep them in locals and write once.
+
+### `std::async`, `std::future`, `std::promise` <a id="async"></a>
+
+`std::async(std::launch::async, f, args...)` runs `f` in another thread and returns a `std::future` - a handle for the
+result; `get()` waits for it, and throws what `f` threw. A `std::promise` is the other end: a thread sets the value or
+the exception, another waits at the future. Between them is a shared state on the heap. The future of `std::async` waits
+in its destructor - a future that is thrown away makes the call synchronous.
+
+```cpp
+std::future<long long> result{std::async(std::launch::async, sum_up_to, 1000)};
+// ... other work ...
+std::cout << result.get();
+```
 
 ### Deadlock <a id="deadlock"></a>
 

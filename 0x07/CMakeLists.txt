@@ -1,0 +1,28 @@
+# (C) A.Voß, a.voss@fh-aachen.de, info@codebasedlearning.dev
+
+add_executable(a_recap_episode_0x07 i_preparation/a_recap_episode_0x07.cpp)
+add_executable(b_operators i_preparation/b_operators.cpp)
+add_executable(c_casts_and_enums i_preparation/c_casts_and_enums.cpp)
+add_executable(d_cpp_insights i_preparation/d_cpp_insights.cpp)
+
+add_executable(a_operators_are_calls ii_session/a_operators_are_calls.cpp)
+add_executable(b_casts_in_the_machine ii_session/b_casts_in_the_machine.cpp)
+add_executable(c_statics_in_memory ii_session/c_statics_in_memory.cpp)
+add_executable(d_enums_in_memory ii_session/d_enums_in_memory.cpp)
+
+add_executable(study_operator_rules iii_follow_up/study_operator_rules.cpp)
+add_executable(study_static iii_follow_up/study_static.cpp)
+add_executable(study_casts_and_enums iii_follow_up/study_casts_and_enums.cpp)
+add_executable(study_streams_and_files iii_follow_up/study_streams_and_files.cpp)
+add_executable(study_format iii_follow_up/study_format.cpp)
+add_executable(study_bits_and_masks iii_follow_up/study_bits_and_masks.cpp)
+add_executable(study_bytes_in_memory iii_follow_up/study_bytes_in_memory.cpp)
+add_executable(tinker_pointer_operators iii_follow_up/tinker_pointer_operators.cpp)
+add_executable(tinker_memory_map iii_follow_up/tinker_memory_map.cpp)
+
+add_executable(heartland_one_solution iv_solutions/heartland_one_solution.cpp)
+add_executable(deerwoods_one_solution iv_solutions/deerwoods_one_solution.cpp)
+add_executable(dovertown_one_solution iv_solutions/dovertown_one_solution.cpp)
+add_executable(tinharbor_one_solution iv_solutions/tinharbor_one_solution.cpp)
+add_executable(emberfalls_one_solution iv_solutions/emberfalls_one_solution.cpp)
+add_executable(clarcton_one_solution iv_solutions/clarcton_one_solution.cpp)

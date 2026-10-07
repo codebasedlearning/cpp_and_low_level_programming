@@ -16,6 +16,17 @@ add_executable(study_assert iii_follow_up/study_assert.cpp)
 add_executable(study_console_io iii_follow_up/study_console_io.cpp)
 add_executable(tinker_int8 iii_follow_up/tinker_int8.cpp)
 add_executable(tinker_goto iii_follow_up/tinker_goto.cpp)
+add_executable(tinker_undefined_sanitizer iii_follow_up/tinker_undefined_sanitizer.cpp)
+
+# UndefinedBehaviorSanitizer for one target, where the toolchain can link it (gcc and clang on Linux, Apple clang on
+# macOS). Elsewhere - MinGW, MSVC - the check fails, the snippet is built without it and says so when it runs.
+include(CheckLinkerFlag)
+check_linker_flag(CXX -fsanitize=undefined CBL_HAVE_UBSAN)
+if (CBL_HAVE_UBSAN)
+    target_compile_options(tinker_undefined_sanitizer PRIVATE -fsanitize=undefined)
+    target_link_options(tinker_undefined_sanitizer PRIVATE -fsanitize=undefined)
+    target_compile_definitions(tinker_undefined_sanitizer PRIVATE CBL_UBSAN=1)
+endif ()
 
 add_executable(westrosecliff_one_solution iv_solutions/westrosecliff_one_solution.cpp)
 add_executable(echovalley_one_solution iv_solutions/echovalley_one_solution.cpp)

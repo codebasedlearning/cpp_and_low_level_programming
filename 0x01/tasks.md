@@ -28,8 +28,9 @@ g++ a_helloworld.o -o a_helloworld.out      # link: a_helloworld.out
 Two consequences. Errors come from different steps: a typo or a type error from the compiler, an `undefined reference`
 (or `undefined symbols`) from the linker. And the executable is what runs, not the source: change the source and forget
 to compile, and you run the old program.
-More in the [glossary](../docs/glossary.md#compiler-and-linker); the linker gets its own look once programs consist
-of several files.
+The whole way as a picture is in the [README](README.md) of this unit. More in the
+[glossary](../docs/glossary.md#compiler-and-linker); the linker gets its own look once programs consist of several
+files.
 
 ### Make
 

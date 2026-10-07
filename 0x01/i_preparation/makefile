@@ -17,7 +17,7 @@ CPPFLAGS = -I../../utils
 .PHONY: all clean
 
 # says what to build and because it's the first target it's the default goal.
-all: a_helloworld.out b_helloworld_revisited.out c_helloworld_codebook.out d_var_init.out
+all: a_helloworld.out b_helloworld_revisited.out c_helloworld_codebook.out d_uniform_initialization.out
 
 # explicit rule
 a_helloworld.out: a_helloworld.cpp
@@ -28,7 +28,7 @@ a_helloworld.out: a_helloworld.cpp
 
 # extra prerequisite only - no recipe, so the pattern rule below builds it
 c_helloworld_codebook.out: ../../utils/cbl/printing.hpp
-d_var_init.out: ../../utils/cbl/printing.hpp
+d_uniform_initialization.out: ../../utils/cbl/printing.hpp
 
 # one pattern rule instead of one explicit rule per file
 # '%' matches the stem, '$<' is the first prerequisite (the .cpp),

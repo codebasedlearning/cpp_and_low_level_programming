@@ -22,8 +22,7 @@ using std::cout, std::array, std::vector;
 
 namespace {
 
-    /* --- `fraction` ---
-     * A `struct` groups data - like a class with public fields and nothing else.
+    /* --- `fraction` --- A `struct` groups data - like a class with public fields and nothing else.
      * - !![#aggregate]
      */
     struct fraction {
@@ -57,9 +56,8 @@ namespace {
         cout << " 5| u.num=" << u.num << ", u.denom=" << u.denom << '\n';
     }
 
-    /* --- `use_arrays` ---
-     * `std::array<T, N>` holds exactly `N` values of type `T`. `N` must be known at compile time - that is what
-     * `constexpr` says.
+    /* --- `use_arrays` --- `std::array<T, N>` holds exactly `N` values of type `T`. `N` must be known at compile time.
+     * - !![#containers]
      * - !![#constexpr]
      */
     void use_arrays() {
@@ -84,8 +82,7 @@ namespace {
         cout << " 1| v[0]=" << v[0] << ", v.at(2)=" << v.at(2) << ", v.size()=" << v.size() << '\n';
     }
 
-    /* --- `loop_over_containers` ---
-     * "For each element x in the container" - no index needed.
+    /* --- `loop_over_containers` --- "For each element x in the container" - no index needed.
      * - !![#range-based-for]
      */
     void loop_over_containers() {
