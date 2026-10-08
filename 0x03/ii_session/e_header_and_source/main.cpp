@@ -53,7 +53,7 @@ namespace {
          * The functions of this file are in an unnamed namespace, since unit 0x01: they are visible only in this
          * translation unit. So another `.cpp` file may have its own `use_the_class` - no conflict. `temperature` is
          * outside of it, because other files need it.
-         * - !![#unnamed-namespace]
+         * - !![#namespace]
          */
     }
 

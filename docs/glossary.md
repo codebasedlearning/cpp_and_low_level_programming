@@ -28,7 +28,7 @@ One source file after preprocessing — the unit the compiler actually sees, and
 others. Headers are not compiled on their own; they become part of every translation unit that includes them.
 
 `static` at file scope gives a name *internal linkage*, meaning it is invisible to every other translation unit; an
-[unnamed namespace](#unnamed-namespace) does the same and is preferred in modern C++, because it also works for types.
+[unnamed namespace](#namespace) does the same and is preferred in modern C++, because it also works for types.
 
 ### `#include`                              <a id="include"></a>
 
@@ -124,7 +124,7 @@ token-for-token identical — which is what makes header-only code legal. `inlin
 several translation units, they are all the same one", which is why header-only helpers and `inline` variables (C++17)
 exist.
 
-### Undefined behavior (UB) <a id="undefined-behavior"></a>
+### Undefined behavior (UB)                 <a id="undefined-behavior"></a>
 
 Code for which the standard imposes no requirement at all: reading an uninitialized variable, indexing past the end of
 an array, dereferencing a [dangling pointer](#dangling-pointer), signed overflow. The program may crash, may print
@@ -141,13 +141,13 @@ divisions, shifts and more, and reports every failed check at runtime with file,
 uninitialized reads, and a sanitized build no longer lets the optimizer exploit the UB - it finds the problem, it does
 not show what the Release build will do.
 
-### Build system: make and CMake <a id="build-system"></a>
+### Build system: make and CMake            <a id="build-system"></a>
 
 `make` rebuilds only what changed, driven by rules in a `makefile`. CMake generates those build files from a portable
 `CMakeLists.txt` — which is where this course sets `CMAKE_CXX_STANDARD 23` and where the `cbl_utils` target makes
 `<cbl/printing.hpp>` findable from every unit.
 
-### Header and source file <a id="header-and-source"></a>
+### Header and source file                  <a id="header-and-source"></a>
 
 A class usually lives in two files: the header (`sensor.hpp`) with the class definition — data members and declarations
 of the member functions — and the source file (`sensor.cpp`) with the definitions of the member functions, each
@@ -160,7 +160,7 @@ be in the header, private or not: every [translation unit](#translation-unit) th
 add_executable(program main.cpp sensor.cpp)    # all .cpp files, not the header
 ```
 
-### Linker errors <a id="linker-errors"></a>
+### Linker errors                           <a id="linker-errors"></a>
 
 Errors that appear after every file has compiled, when the linker joins the object files:
 
@@ -173,14 +173,14 @@ Errors that appear after every file has compiled, when the linker joins the obje
 
 The message names the function — mangled or demangled — and the object file that needs or defines it.
 
-### Symbols and name mangling <a id="symbols"></a>
+### Symbols and name mangling               <a id="symbols"></a>
 
 An object file has a symbol table: the names of the functions and variables it defines, and of those it needs from
 elsewhere. `nm` lists it, one line per symbol, with a letter:
 
 - `T` — defined here, in the code; other object files may use it.
 - `U` — undefined: used here, defined elsewhere; the [linker](#compiler-and-linker) must find exactly one `T` for it.
-- `t` — defined here, but local — e.g. in an [unnamed namespace](#unnamed-namespace); invisible to the linker.
+- `t` — defined here, but local — e.g. in an [unnamed namespace](#namespace); invisible to the linker.
 - `W` — a weak definition: template instances and `inline` functions, generated in every translation unit that uses
   them. The linker keeps one and drops the others, see [ODR](#odr). macOS `nm` shows them as `T`; `nm -m` says
   `weak external`.
@@ -191,7 +191,7 @@ overloads get different symbols; the return type is not part of it (except for t
 functions cannot be overloaded on the return type alone. `nm -C` and `c++filt` demangle the names. MSVC mangles
 differently (`?area@@YANN@Z`); its tool is `dumpbin /symbols`.
 
-### Static and dynamic library <a id="static-library"></a>
+### Static and dynamic library              <a id="static-library"></a>
 
 A static library is an archive of object files (`libname.a`; MSVC: `name.lib`), built with `ar` or CMake's
 `add_library(name STATIC ...)` and used with `target_link_libraries`. The linker copies into the program only the
@@ -203,7 +203,7 @@ A variable shared between files is declared `extern` in the header (`extern int 
 and defined in exactly one `.cpp` file (`int count{0};`). Since C++17, an `inline` variable may instead be defined in
 the header; as for `inline` functions, the linker keeps one copy (see [ODR](#odr)).
 
-### `extern "C"` <a id="extern-c"></a>
+### `extern "C"`                            <a id="extern-c"></a>
 
 Gives a function C linkage: its [symbol](#symbols) is the plain name, without mangling —
 `extern "C" int count(const char*)` is `count` for the linker (`_count` on macOS), not `_Z5countPKc`. That is how C code
@@ -247,7 +247,7 @@ int c = 123456789012345;        // compiles, the value is cut off
 int d{123456789012345};         // error
 ```
 
-### Integer conversions <a id="integer-conversions"></a>
+### Integer conversions                     <a id="integer-conversions"></a>
 
 What happens to the bits when an integer changes its type - in two's complement, which C++20 guarantees:
 
@@ -270,7 +270,7 @@ memory before, and reading it is [UB](#undefined-behavior). Empty braces ask for
 `0` for numbers, `false` for `bool`, `nullptr` for pointers. Variables with static storage (globals, `static` locals)
 are zero-initialized anyway, and class types run their default constructor - a `std::string` starts empty.
 
-### `const` <a id="const"></a>
+### `const`                                 <a id="const"></a>
 
 A promise to the compiler and to the reader that a value will not change through this name. Applies to variables,
 parameters, return types and member functions:
@@ -284,7 +284,7 @@ void print(const std::string& s);          // no copy, no modification
 `const` is checked at compile time and costs nothing at runtime — see [const correctness](#const-correctness) for why it
 is the default here.
 
-### `constexpr` <a id="constexpr"></a>
+### `constexpr`                             <a id="constexpr"></a>
 
 *May* be evaluated at compile time. On a variable it means "constant, known at compile time"; on a function it means
 "usable in a constant expression, if the arguments are". Replaces macros for constants.
@@ -295,8 +295,10 @@ constexpr int square(int n) { return n * n; }
 constexpr int nine = square(3);   // computed by the compiler
 int m = square(runtime_value);    // same function, computed at runtime
 ```
+- Use `constexpr` when the value is conceptually a compile-time constant.
+- Use `const` when a value should not change after initialization but may only be known at runtime.
 
-### `consteval` and `constinit` <a id="consteval"></a>
+### `consteval` and `constinit`             <a id="consteval"></a>
 
 C++20. `consteval` makes compile-time evaluation *mandatory* — an "immediate function" that cannot be called at runtime
 at all. `constinit` says a variable with static storage must be initialized at compile time (no
@@ -307,8 +309,11 @@ consteval int cube(int n) { return n * n * n; }
 constexpr int c = cube(3);        // fine
 // int r = cube(read_number());   // error: not a constant expression
 ```
+- `const`: A value cannot be modified after initialization.
+- `constexpr`: A variable must have a compile-time constant initializer. A constexpr function can be evaluated at compile time.
+- `consteval`: A function must be evaluated at compile time when called in a context requiring immediate evaluation.
 
-### `auto` <a id="auto"></a>
+### `auto`                                  <a id="auto"></a>
 
 Type deduction from the initializer. The type is still static and fixed — the compiler writes it out, not the
 programmer. Useful where the type is long, obvious, or unspeakable (lambdas, iterators).
@@ -322,7 +327,7 @@ for (const auto& x : container)   // the workhorse form
 `auto` drops references and top-level `const` unless you write them back, which is the single most common source of
 accidental copies.
 
-### `decltype` and trailing return type <a id="decltype"></a>
+### `decltype` and trailing return type     <a id="decltype"></a>
 
 `decltype(expr)` is the declared type of an expression, without evaluating it. A *trailing return type* moves the return
 type behind the parameters, where it can name them:
@@ -346,7 +351,7 @@ a number — `+x` (or, later, `static_cast<int>(x)`) prints the number.
 C++ does not promise IEEE 754 for floating point, but `double` is IEEE 754 binary64 on every platform this course
 targets.
 
-### Bit operations and masks <a id="bit-operations"></a>
+### Bit operations and masks                <a id="bit-operations"></a>
 
 `&`, `|`, `^` and `~` combine or flip all bits at once, `<<` and `>>` move them — each a single instruction. With a
 mask, `x |= m` sets bits, `x &= ~m` clears them, `x ^= m` toggles them and `(x & m) != 0` tests them; a field is taken
@@ -354,14 +359,14 @@ out with a shift and a mask, `(x >> 16) & 0xff`. Two traps: operands smaller tha
 (`~uint8_t{1}` is a negative `int`), and a shift by the width of the type or more is undefined. `std::byte` is a byte
 with only these operators; `<bit>` (C++20) has `popcount`, `countr_zero`, `has_single_bit`, `rotl` and more.
 
-### Byte order <a id="byte-order"></a>
+### Byte order                              <a id="byte-order"></a>
 
 The order in which the bytes of a number lie in memory. Little-endian — the lowest byte first — is used by x86-64 and
 ARM64 in all common systems; big-endian is the order of network protocols and some file formats. `std::endian::native`
 (C++20) tells which one a program runs on, `std::byteswap` (C++23) reverses the bytes of an integer. It matters as soon
 as bytes leave the program: in a binary file, or on the network.
 
-### Floating point (IEEE 754) <a id="floating-point"></a>
+### Floating point (IEEE 754)               <a id="floating-point"></a>
 
 A `float` has 1 sign bit, 8 bits of exponent (stored with a bias of 127) and 23 bits of mantissa, the digits after an
 implicit leading 1; a `double` has 1, 11 and 52. Most decimal fractions, 0.1 among them, have no finite binary form
@@ -369,7 +374,7 @@ and are rounded — so `0.1 + 0.2 != 0.3`, and floating-point numbers are compar
 are special bit patterns (all exponent bits set); NaN is not equal to anything, itself included. `std::bit_cast` shows
 the bits.
 
-### `sizeof`, `size_t`, `ptrdiff_t` <a id="sizeof"></a>
+### `sizeof`, `size_t`, `ptrdiff_t`         <a id="sizeof"></a>
 
 `sizeof(T)` is the size of a type in bytes, evaluated at compile time. `std::size_t` is the unsigned type it yields and
 the type every container's `.size()` returns; `std::ptrdiff_t` is the signed type a pointer subtraction yields. Mixing
@@ -385,14 +390,14 @@ Linux.
 
 
 
-### `std::string` <a id="string"></a>
+### `std::string`                           <a id="string"></a>
 
 An owning, growing sequence of characters with [RAII](#raii) semantics: it allocates, copies and frees for you. `+`
 concatenates, `.size()`, `.substr()`, `.find()` do the obvious, and `.starts_with()` (C++20) / `.contains()` (C++23)
 save a comparison against `npos`.
 
 
-### Small string optimization (SSO)        <a id="sso"></a>
+### Small string optimization (SSO)         <a id="sso"></a>
 
 A `std::string` object has room for a few characters of its own. A short text is stored right there, inside the object -
 on the stack, if the string is a local - and no heap allocation happens. Only a longer text goes to the heap, and the
@@ -401,7 +406,7 @@ object keeps its address. The limit depends on the library: 15 characters with l
 [small buffer optimization](#sbo).
 
 
-### `std::string_view` <a id="string-view"></a>
+### `std::string_view`                      <a id="string-view"></a>
 
 C++17. A **non-owning** view of a character sequence: a pointer and a length. Copying one costs nothing, so it is the
 right parameter type for a function that only *reads* a string — and the wrong type to store, because it does not keep
@@ -415,7 +420,7 @@ std::string_view bad = std::string{"temp"};          // dangling immediately
 A view is two words — 16 bytes on a 64-bit platform, whatever the length of the text. It knows its length, the
 characters do not: `data()` of a view into the middle of a text is not `'\0'`-terminated, so it is not a C string.
 
-### `std::span` <a id="span"></a>
+### `std::span`                             <a id="span"></a>
 
 C++20. The same idea as [`string_view`](#string-view) for elements of any type: a non-owning view of contiguous memory
 — a pointer and a count. A `span<const int>` parameter accepts a `std::array`, a `std::vector` or a part of them
@@ -433,7 +438,7 @@ void double_all(std::span<int> values);              // writes through the view
 `std::out_of_range`) rather than returning an error code — so they belong in a [try/catch](#exception). `std::to_string`
 goes the other way; `std::format` (C++20) does it better.
 
-### Structured bindings <a id="structured-bindings"></a>
+### Structured bindings                     <a id="structured-bindings"></a>
 
 C++17. Names for the members of a pair, tuple, aggregate or map element:
 
@@ -444,7 +449,7 @@ for (const auto& [isbn, book] : catalog)
 
 Reads better than `it->first` / `it->second`, and `auto&` binds without copying.
 
-### Aggregate <a id="aggregate"></a>
+### Aggregate                               <a id="aggregate"></a>
 
 A `struct` (or class) with no private data, no user-declared constructors (since
 C++20, `= default` counts too), no virtuals — so it can be initialized member by member with braces, including by
@@ -456,7 +461,7 @@ fraction f{3, 4};
 fraction g{.num = 3, .den = 4};      // C++20
 ```
 
-### Scope <a id="scope"></a>
+### Scope                                   <a id="scope"></a>
 
 The region of a program in which a name is visible — a namespace, a class body, a function, a block. Nothing forces a
 helper into a class: a static member function's only advantage over a free function is that it lives in the scope a
@@ -465,21 +470,21 @@ reader searches first, and that it may touch the class's private members.
 Not to be confused with *lifetime*: `static` at block scope changes the lifetime of a variable, not the scope in which
 its name can be used.
 
-### Lifetime <a id="lifetime"></a>
+### Lifetime                                <a id="lifetime"></a>
 
 The period during which an object exists and its address is valid: from the end of its constructor to the start of its
 destructor. Automatic ("stack") objects die at the closing brace, dynamic objects when `delete`d or when their
 [smart pointer](#unique-ptr) lets go, static objects at program end. Nearly every pointer bug in this course is a
 lifetime bug.
 
-### Temporary object <a id="temporary"></a>
+### Temporary object                        <a id="temporary"></a>
 
 An object without a name, created in the middle of an expression: `tower{4}`, the result of a function returned by
 value, or the result of an implicit conversion through a non-[`explicit`](#explicit) constructor. It lives until the end
 of the full expression — the `;` — and then its destructor runs. A reference to a part of it, e.g. to a member returned
 by a getter, dangles after that; only binding the temporary itself to a `const&` extends its lifetime.
 
-### Namespace and unnamed namespace         <a id="unnamed-namespace"></a><a id="namespace"></a>
+### Namespace and unnamed namespace         <a id="namespace"></a>
 
 A named scope that keeps unrelated names apart (`std::`, `cbl::`). Outside it, a name needs its prefix
 (`geo::distance`) or a [`using`](#using). A namespace is open: several blocks, in several headers, add to the same one
@@ -510,14 +515,14 @@ prefix. Also called Koenig lookup.
 
 ## Functions and control flow
 
-### Function overloading <a id="overloading"></a>
+### Function overloading                  <a id="overloading"></a>
 
 Several functions may share a name if their parameter lists differ; the compiler picks by the argument types (*overload
 resolution*). The return type alone is **not** enough to distinguish two overloads. Default arguments
 (`void log(std::string_view msg, int level = 0);`) often replace an overload — and must be given once, in the
 declaration.
 
-### Parameter passing <a id="parameter-passing"></a>
+### Parameter passing                       <a id="parameter-passing"></a>
 
 Four choices, one decision table:
 
@@ -530,7 +535,7 @@ Four choices, one decision table:
 
 Call-by-value on a `struct` copies every member — measurable as soon as the struct holds a `std::string`.
 
-### Calling convention <a id="calling-convention"></a>
+### Calling convention                      <a id="calling-convention"></a>
 
 The rules of a platform for how a function gets its arguments and returns its result: which registers, what goes to the
 stack, who cleans up. Every compiler on the platform follows them, so that object files from different compilers can
@@ -547,7 +552,7 @@ A large result is built at an address the caller passes as a hidden argument (`r
 value; a type with a copy constructor of its own, like `std::string`, is always passed via an address. On ARM64, a
 struct of up to four `double`s travels in `d` registers.
 
-### Range-based `for` <a id="range-based-for"></a>
+### Range-based `for`                       <a id="range-based-for"></a>
 
 Iterates anything with `begin()`/`end()` — arrays, containers, ranges:
 
@@ -557,13 +562,13 @@ for (auto& x : v) x *= 2;    // modify in place
 for (auto x : v) …           // copy per element - deliberate, or an accident?
 ```
 
-### `switch` and fallthrough <a id="switch"></a>
+### `switch` and fallthrough                <a id="switch"></a>
 
 Selects on an integral or enum value. Without `break`, control *falls through* to the next label — legal, occasionally
 intended, and worth marking as such with `[[fallthrough]];` (C++17) so the reader and the compiler both know it was on
 purpose. A `default:` label makes the intent explicit even when it does nothing.
 
-### Branch prediction <a id="branch-prediction"></a>
+### Branch prediction                       <a id="branch-prediction"></a>
 
 A processor starts instructions long before the ones in front of them are finished. At a branch - an `if`, a loop, a
 `switch`, an indirect jump such as a [virtual call](#virtual) - it cannot wait for the condition or the address: it
@@ -571,20 +576,20 @@ guesses, from the history of that branch, and goes on. A right guess costs almos
 work started on the wrong path. So a branch that goes the same way many times in a row is cheap, and one that goes
 either way at random is expensive - sorting the data by the condition can make the same loop much faster.
 
-### `[[nodiscard]]` <a id="nodiscard"></a>
+### `[[nodiscard]]`                         <a id="nodiscard"></a>
 
 C++17 attribute: warns when the return value is thrown away. Belongs on functions whose result *is* the point — a
 computed value, an error code, a handle, a [RAII](#raii) wrapper. C++20 allows a reason:
 `[[nodiscard("check the error code")]]`.
 
-### `noexcept` <a id="noexcept"></a>
+### `noexcept`                              <a id="noexcept"></a>
 
 A promise that a function throws nothing. Not merely documentation: containers use it to decide whether they may *move*
 elements while reallocating, so move constructors and swaps should be `noexcept`. If a `noexcept` function does throw,
 `std::terminate` is called — whether the stack is unwound first is up to the implementation, and there is no second
 chance.
 
-### Recursion <a id="recursion"></a>
+### Recursion                               <a id="recursion"></a>
 
 A function calling itself, with a base case that ends it. Each call gets its own frame on the [stack](#stack-and-heap) —
 deep recursion runs out of it, and C++ makes no guarantee of tail-call elimination.
@@ -593,7 +598,7 @@ deep recursion runs out of it, and C++ makes no guarantee of tail-call eliminati
 
 ## References, pointers, memory
 
-### Reference <a id="reference"></a>
+### Reference                               <a id="reference"></a>
 
 An alias for an existing object: same object, second name. Must be initialized, can never be rebound, and cannot be
 null.
@@ -607,7 +612,7 @@ r = 2;          // a == 2
 `const T&` binds to temporaries as well and extends their lifetime to the reference's — the reason it is the default
 parameter type for anything larger than a pointer.
 
-### Pointer <a id="pointer"></a>
+### Pointer                                 <a id="pointer"></a>
 
 A variable holding an address. Must be dereferenced (`*p`) to reach the object, can be null, can be re-pointed, and can
 be compared and printed. Where a reference says "this object", a pointer says "possibly an object, possibly none,
@@ -620,13 +625,13 @@ int* p{&v};     // p holds the address of v
 p = nullptr;    // legal for a pointer, impossible for a reference
 ```
 
-### `nullptr` <a id="nullptr"></a>
+### `nullptr`                               <a id="nullptr"></a>
 
 C++11. The typed null pointer literal — `NULL` and `0` are integers in disguise and pick the wrong
 [overload](#overloading). Dereferencing a null pointer is [UB](#undefined-behavior); check before you deref, or use a
 [reference](#reference) if null is not a case you want to handle.
 
-### Pointer arithmetic and array decay <a id="pointer-arithmetic"></a>
+### Pointer arithmetic and array decay      <a id="pointer-arithmetic"></a>
 
 Adding to a pointer moves it in units of the pointed-to *type*, not bytes, so `p + 1` and `&a[1]` are the same address.
 An array converts ("decays") to a pointer to its first element at the slightest provocation — which is exactly when it
@@ -638,7 +643,7 @@ int* p = a;          // decay - sizeof(p) says nothing about the 5
 p[3] = 1;            // same as *(p + 3)
 ```
 
-### C string <a id="c-string"></a>
+### C string                                <a id="c-string"></a>
 
 An array of `char` that ends with `'\0'`, the character with the value 0 — the way C represents text. The literal
 `"Kind"` is a `const char[5]`. The length is stored nowhere: `strlen` finds it by walking to the `'\0'`, every time.
@@ -647,7 +652,7 @@ Passed on, the array [decays](#pointer-arithmetic) to a `const char*`, and every
 addresses, `strcmp` compares characters. The functions of `<cstring>` (`strcpy`, `strncpy`, `memcpy`, `memset`) trust
 the caller with every size. From a `std::string`: `c_str()`, which guarantees the `'\0'`.
 
-### Stack and heap <a id="stack-and-heap"></a><a id="stack-overflow"></a>
+### Stack and heap                          <a id="stack-and-heap"></a>
 
 Automatic variables live on the **stack**: allocation is a pointer bump, lifetime ends at the closing brace, size must
 be known at compile time. Dynamic objects live on the **heap** (free store): allocation is a library call, lifetime is
@@ -659,7 +664,7 @@ less for other threads (512 KiB on macOS). Every call takes a frame; a recursion
 that is too large, runs past the end into a guard page the system keeps unmapped — a **stack overflow**, which ends
 the program with a segmentation fault (exit status 139 on Linux), not with an exception.
 
-### Memory layout of a program <a id="memory-layout"></a><a id="virtual-memory"></a>
+### Memory layout of a program              <a id="memory-layout"></a>
 
 A running program sees one address space, divided into regions: the machine code (`.text`), constants and string
 literals (`.rodata`), globals with a value (`.data`), globals that are zero (`.bss` — only its size is stored in the
@@ -672,7 +677,7 @@ with `brk` for small blocks and `mmap` for large ones — and hands it out in sm
 
 ![The memory of a running program: stack, heap, globals, constants and code](images/memory_model.drawio.png)
 
-### `new` and `delete` <a id="new-delete"></a>
+### `new` and `delete`                      <a id="new-delete"></a>
 
 Allocate on the heap and construct; destruct and free. Every `new` needs exactly one `delete`, every `new[]` exactly one
 `delete[]`, on every path including the one an exception takes. This is why modern C++ writes
@@ -681,7 +686,7 @@ Allocate on the heap and construct; destruct and free. Every `new` needs exactly
 
 `new` throws `std::bad_alloc` rather than returning null (unless you ask for `new (std::nothrow)`).
 
-### Array cookie <a id="array-cookie"></a>
+### Array cookie                            <a id="array-cookie"></a>
 
 `new T[n]` for a type with a destructor asks `operator new[]` for a few bytes more than `n * sizeof(T)` and stores the
 count `n` in front of the first element - the cookie; the address it returns is behind it. `delete[]` reads the count
@@ -691,30 +696,30 @@ without a destructor - `int`, a plain `struct` - there is nothing to count and n
 8 bytes on x86-64 and ARM64 Linux (checked) and on Windows; Apple's ARM64 ABI also stores the size of an element, 16
 bytes (not checked here).
 
-### Placement `new` <a id="placement-new"></a>
+### Placement `new`                         <a id="placement-new"></a>
 
 `new (address) T{...}` constructs an object at an address you provide, without allocating - the second of the two
 steps of [`new`](#new-delete). The object is destroyed with an explicit destructor call, `p->~T()`, and the memory is
 released separately. `std::construct_at` and `std::destroy_at` (`<memory>`) are the same with names. Containers work
 this way: a `vector` allocates its capacity as raw memory, and constructs and destroys its elements in it one by one.
 
-### `malloc` / `free` <a id="malloc"></a>
+### `malloc` / `free`                       <a id="malloc"></a>
 
 The C allocator: raw bytes, no constructor, no destructor, returns null on failure. Never mix with `new`/`delete`, and
 never use it on a type with a constructor. Present in this course to show what `new` adds.
 
-### Memory leak <a id="memory-leak"></a>
+### Memory leak                             <a id="memory-leak"></a>
 
 Allocated memory that is never freed because the last pointer to it was lost. Not a crash and not a warning — just a
 program that grows until it dies. The cure is ownership: exactly one owner, [RAII](#raii)-managed.
 
-### Dangling pointer / reference <a id="dangling-pointer"></a>
+### Dangling pointer / reference            <a id="dangling-pointer"></a>
 
 A pointer or reference to an object whose [lifetime](#lifetime) has ended: returning the address of a local, keeping a
 `string_view` of a temporary, holding an iterator across a `push_back`. Reading through it is [UB](#undefined-behavior),
 and it usually "works" for a while, which is the worst possible failure mode.
 
-### `this` <a id="this"></a>
+### `this`                                  <a id="this"></a>
 
 Inside a non-static member function, a pointer to the object the function was called on — `const` when the function is
 `const`. `this->x` disambiguates a member from a parameter of the same name; `*this` is the object, which is what an
@@ -723,12 +728,12 @@ assignment operator returns.
 C++23 adds *deducing `this`* (`auto&& self` as an explicit first parameter), which removes a class of const/ref
 duplication — current compilers support it, but this course sticks to the classic form.
 
-### Address-of and `std::addressof` <a id="addressof"></a>
+### Address-of and `std::addressof`         <a id="addressof"></a>
 
 `&x` yields the address of `x` — unless the class overloaded `operator&`, in which case it yields whatever that returns.
 `std::addressof(x)` gets the real address regardless, which is what generic code must use.
 
-### Const pointers vs. pointers to const <a id="const-pointer"></a>
+### Const pointers vs. pointers to const    <a id="const-pointer"></a>
 
 Read the declaration right to left:
 
@@ -745,19 +750,19 @@ really is const.
 
 ## Classes
 
-### `struct` vs. `class` <a id="struct-vs-class"></a>
+### `struct` vs. `class`                    <a id="struct-vs-class"></a>
 
 The same construct with one difference: members of a `struct` default to `public`, members of a `class` to `private`.
 Convention, not rule: `struct` for plain data ([aggregates](#aggregate)), `class` where there is an invariant to
 protect.
 
-### Access modifiers <a id="access-modifiers"></a>
+### Access modifiers                        <a id="access-modifiers"></a>
 
 `public` — everyone; `protected` — the class and its derived classes; `private` — the class and its [friends](#friend).
 The question to ask first is *who* wants access: a user of an instance always needs `public`, a derived class may be
 served by `protected`.
 
-### Constructor <a id="constructor"></a>
+### Constructor                             <a id="constructor"></a>
 
 The member function that turns raw storage into an object with an invariant. If it throws, the object never existed —
 members constructed so far are destroyed, and no destructor runs for the object itself.
@@ -766,25 +771,25 @@ members constructed so far are destroyed, and no destructor runs for the object 
 explicit Temperature(double celsius) : celsius_{celsius} {}
 ```
 
-### Member initializer list <a id="member-initializer-list"></a>
+### Member initializer list                 <a id="member-initializer-list"></a>
 
 The `: member_{value}, other_{…}` part between the constructor's signature and its body. Members are *initialized* here,
 in declaration order; assigning in the body instead means default-constructing first and overwriting after — impossible
 for `const` members and references, wasteful for everything else.
 
-### Destructor <a id="destructor"></a>
+### Destructor                              <a id="destructor"></a>
 
 Runs when the object's [lifetime](#lifetime) ends, in reverse order of construction, and releases whatever the object
 owns. **A destructor must never throw** — during stack unwinding a second exception calls `std::terminate`. Destructors
 are implicitly `noexcept`.
 
-### `explicit` <a id="explicit"></a>
+### `explicit`                              <a id="explicit"></a>
 
 Forbids a constructor (or conversion operator) from being used for an implicit conversion. Without it, any one-argument
 constructor doubles as a silent conversion — `void f(Temperature); f(20.0);` compiles and probably should not. The rule
 of thumb: single-argument constructors are `explicit` unless the conversion is the point.
 
-### `const` member function <a id="const-member-function"></a>
+### `const` member function                 <a id="const-member-function"></a>
 
 `double celsius() const;` — promises not to modify the observable state of the object, and is the only kind callable on
 a `const` object or through a `const&`. Skipping it is what forces callers to drop `const`, one caller at a time, until
@@ -792,26 +797,26 @@ nothing is const any more.
 
 See also [`mutable`](#mutable) for the deliberate exception.
 
-### `mutable` <a id="mutable"></a>
+### `mutable`                               <a id="mutable"></a>
 
 A data member that may change even in a [`const` member function](#const-member-function) — for caches, lazily computed
 values, mutexes and counters, i.e. state that is not part of what the object *means*. (In a lambda, `mutable` means
 something related but different: the captured copies may be modified.)
 
-### Copy constructor and copy assignment <a id="copy-constructor"></a>
+### Copy constructor and copy assignment    <a id="copy-constructor"></a>
 
 `T(const T&)` builds a new object from an existing one; `T& operator=(const T&)` overwrites an existing one. The
 compiler generates both member-wise, which is correct as long as every member owns itself — and wrong the moment a raw
 pointer is involved, see [deep vs. shallow copy](#deep-copy).
 
-### Deep vs. shallow copy <a id="deep-copy"></a>
+### Deep vs. shallow copy                   <a id="deep-copy"></a>
 
 A shallow copy duplicates the pointer, so two objects believe they own the same memory — double `delete`, or
 modification through one showing up in the other. A deep copy duplicates what the pointer points to. Members that own
 themselves (`string`, `vector`, [`unique_ptr`](#unique-ptr)) make the question disappear, which is the
 [Rule of Zero](#rule-of-zero).
 
-### Rule of Zero / Three / Five <a id="rule-of-zero"></a>
+### Rule of Zero / Three / Five             <a id="rule-of-zero"></a>
 
 - **Zero**: define none of the special members. Let RAII members manage resources. This is the goal.
 - **Three**: if you define any of destructor, copy constructor, copy assignment, you probably need all three (C++98
@@ -819,13 +824,13 @@ themselves (`string`, `vector`, [`unique_ptr`](#unique-ptr)) make the question d
 - **Five**: with C++11, add [move constructor](#move-semantics) and move assignment to that set.
 - **Move-only** (rare, e.g. a file handle): delete the copy operations and provide the moves.
 
-### `= default` and `= delete` <a id="default-delete"></a>
+### `= default` and `= delete`              <a id="default-delete"></a>
 
 `= default` asks for the compiler's version explicitly (and keeps the type trivial where possible); `= delete` removes a
 function, so using it is a compile error rather than a surprise. Deleting the copy operations is how a type says "I am
 not copyable".
 
-### Static member <a id="static-member"></a>
+### Static member                           <a id="static-member"></a>
 
 Belongs to the class, not to an instance: one shared variable, or a function with no `this`. Reachable as
 `Temperature::is_plausible(20.0)`, and — legally but pointlessly — through an object. `static constexpr` data members
@@ -835,12 +840,12 @@ A static data member is not part of the object - `sizeof` does not count it - bu
 the global variables. A class template has one per instantiation: `registry<int>::count` and `registry<double>::count`
 are two variables.
 
-### Three meanings of `static` <a id="static-storage"></a>
+### Three meanings of `static`              <a id="static-storage"></a>
 
 One keyword, three jobs:
 
 1. **File scope**: internal linkage — invisible to other [translation units](#translation-unit). Superseded by the
-   [unnamed namespace](#unnamed-namespace).
+   [unnamed namespace](#namespace).
 2. **Function-local**: one instance, initialized on first use, outliving the call. Thread-safe initialization since
    C++11.
 3. **Class member**: belongs to the type, see [static member](#static-member).
@@ -852,7 +857,7 @@ a destructor is destroyed after `main` returns. `constinit` (C++20) demands the 
 translation units, the order in which globals are initialized is not defined - a function-local `static` is the usual
 way out.
 
-### Named constructor <a id="named-constructor"></a>
+### Named constructor                       <a id="named-constructor"></a>
 
 A static member function that returns an object, used where a constructor would be ambiguous or unnamed:
 
@@ -864,13 +869,13 @@ C++ constructors cannot be named or overloaded on intent, only on parameter type
 `Temperature{300.0, kelvin_tag{}}` for a name a reader understands. It is the closest counterpart to Python's
 `@classmethod` alternative constructor, minus the `cls` parameter.
 
-### `friend` <a id="friend"></a>
+### `friend`                                <a id="friend"></a>
 
 Grants one function or class access to the private members of another. Used sparingly and deliberately — most often for
 `operator<<`, which cannot be a member because its left operand is the stream. A friend is part of the class's
 interface, not a hole in it.
 
-### Operator overloading <a id="operator-overloading"></a>
+### Operator overloading                    <a id="operator-overloading"></a>
 
 Giving operators a meaning for your own type. Choose member vs. free function by the left operand: `a + b` where `a` is
 yours can be either, `std::cout << a` must be free (usually a [friend](#friend)). Keep the conventional semantics — `+`
@@ -892,7 +897,7 @@ an operator has a mangled name like every function (`_Zpl...` for `+`, `pL` for 
 small one is inlined - `a + b` for a class holding a `long long` is the same instruction as for two `long long`s. An
 overloaded `&&`, `||` or `,` loses the [short-circuit](#short-circuit).
 
-### Three-way comparison `<=>` <a id="spaceship"></a>
+### Three-way comparison `<=>`              <a id="spaceship"></a>
 
 `a <=> b` (C++20, the "spaceship") says whether `a` is less than, equal to or greater than `b`: a
 `std::strong_ordering`, or a `std::partial_ordering` for floating-point, where a NaN is unordered. With `= default`, the
@@ -908,26 +913,26 @@ struct version {
 };
 ```
 
-### Short-circuit evaluation <a id="short-circuit"></a>
+### Short-circuit evaluation                <a id="short-circuit"></a>
 
 The built-in `&&` and `||` evaluate the right operand only if the left one does not decide the result:
 `p != nullptr && *p > 0` never dereferences a null pointer. An overloaded `&&` or `||` is a function call, and all
 arguments of a call are evaluated before it - the short-circuit is gone. That is why they are not overloaded. Since
 C++17, the left operand is at least evaluated first.
 
-### Conversion operator <a id="conversion-operator"></a>
+### Conversion operator                     <a id="conversion-operator"></a>
 
 `operator double() const;` — lets an object convert to another type. Same warning as the [`explicit`](#explicit)
 constructor: without `explicit`, the conversion happens silently in overload resolution, which can make two unrelated
 types compare equal by accident.
 
-### Getter and setter <a id="getter-setter"></a>
+### Getter and setter                       <a id="getter-setter"></a>
 
 Accessors that keep a member private while exposing its value. Worth it when they enforce an invariant, validate, or
 notify; pure pass-throughs are just a longer `public:`. C++ has no properties — a wrapper class can approximate the
 syntax, at a cost.
 
-### RAII <a id="raii"></a>
+### RAII                                    <a id="raii"></a>
 
 *Resource Acquisition Is Initialization*: a resource — memory, file, lock, socket — is owned by an object, acquired in
 its [constructor](#constructor) and released in its [destructor](#destructor). Since destructors run on every exit path,
@@ -947,13 +952,13 @@ The whole standard library is built this way: `string`, `vector`, [`unique_ptr`]
 
 ## Inheritance and polymorphism
 
-### Inheritance <a id="inheritance"></a>
+### Inheritance                             <a id="inheritance"></a>
 
 `class button : public widget` — a `button` *is a* `widget` and contains one as a sub-object. Constructors run
 base-first, destructors derived-first. The access specifier on the base (`public`, `protected`, `private`) limits how
 visible the inherited members are to *users* of the derived class; `public` is the only one that models "is a".
 
-### SOLID <a id="solid"></a>
+### SOLID                                   <a id="solid"></a>
 
 Five principles for the design of classes, collected by Robert C. Martin ([SOLID](https://en.wikipedia.org/wiki/SOLID)):
 
@@ -970,7 +975,7 @@ Five principles for the design of classes, collected by Robert C. Martin ([SOLID
 Four of the five are about interfaces and inheritance, so in C++ they mean [virtual](#virtual) functions — and their
 price, one pointer per object and an indirect call.
 
-### `virtual` and dynamic dispatch <a id="virtual"></a>
+### `virtual` and dynamic dispatch          <a id="virtual"></a>
 
 A `virtual` function is chosen by the **dynamic** type of the object, through a pointer or reference, not by the static
 type of the expression. Without `virtual`, C++ calls what the pointer's type says — unlike Java, where every method is
@@ -987,13 +992,13 @@ address of the function in the instruction. The jump is cheap when it is [predic
 when the types are mixed at random; it also keeps the compiler from inlining - unless it
 [devirtualizes](#devirtualization) the call.
 
-### `override` and `final` <a id="override"></a>
+### `override` and `final`                  <a id="override"></a>
 
 C++11. `override` says "this replaces a base virtual" and turns a typo — a wrong signature, a missing `const` — into a
 compile error instead of a second, never-called function. `final` forbids further overriding (or, on a class, further
 derivation).
 
-### vtable <a id="vtable"></a>
+### vtable                                  <a id="vtable"></a>
 
 The usual implementation of [dynamic dispatch](#virtual): each polymorphic class has a table of function pointers, and
 each object of it carries a hidden pointer to that table. Hence the cost — one pointer per object, one indirection per
@@ -1015,13 +1020,13 @@ polymorphic bases has two vptrs; a virtual base is found through an offset in th
 but pure virtuals is C++'s interface. A pure virtual *destructor* is legal and still needs a definition, because the
 derived destructor calls it.
 
-### Virtual destructor <a id="virtual-destructor"></a>
+### Virtual destructor                      <a id="virtual-destructor"></a>
 
 `delete base_ptr;` where the object is really a derived one is [UB](#undefined-behavior) unless the base destructor is
 `virtual`. Rule: a base class intended for polymorphic deletion declares a virtual destructor — or a protected
 non-virtual one, if deletion through the base is not allowed.
 
-### Object slicing <a id="slicing"></a>
+### Object slicing                          <a id="slicing"></a>
 
 Copying a derived object into a base-typed variable keeps only the base part; the derived state and the
 [vtable](#vtable) pointer are lost, so virtual calls resolve to the base. Passing by value is the usual accident —
@@ -1044,14 +1049,14 @@ The offset of a virtual base depends on the complete object, so it is stored in 
 one load more, and a class with a virtual base has a vptr even without virtual functions. Multiple inheritance of
 interfaces - classes with only pure virtual functions - is the common case, and costs one vptr per interface.
 
-### Devirtualization <a id="devirtualization"></a>
+### Devirtualization                        <a id="devirtualization"></a>
 
 A virtual call made as a direct call, because the compiler knows the dynamic type: the object is a local, its class is
 `final`, or the call names the class (`c.circle::area()`, never virtual). Then the call can be inlined, too. gcc also
 devirtualizes speculatively: it compares the slot in the table with the address of the function it expects, and runs
 the inlined code if they are equal.
 
-### RTTI: `typeid` and `dynamic_cast` <a id="rtti"></a>
+### RTTI: `typeid` and `dynamic_cast`       <a id="rtti"></a>
 
 Run-time type information: for every polymorphic class, the compiler emits a `std::type_info` object - `nm` lists it
 as `typeinfo for circle` - and the [vtable](#vtable) points to it. `typeid(expr)` on a reference to a polymorphic class
@@ -1064,14 +1069,14 @@ classes described by the type information and returns `nullptr` if the object is
 none - and a wrong one is [UB](#undefined-behavior). A chain of `dynamic_cast`s usually stands for a missing virtual
 function.
 
-### Empty base optimization <a id="empty-base"></a>
+### Empty base optimization                 <a id="empty-base"></a>
 
 An object takes at least one byte, so that two objects have two addresses - but an empty base class may take no space
 at all: it shares the address of the derived object. `struct counter : empty { int count; }` is 4 bytes, with an
 `empty` member it is 8. The standard library uses it - or `[[no_unique_address]]` - to store empty helpers such as the
 deleter of a `unique_ptr` for free.
 
-### Casts <a id="casts"></a>
+### Casts                                   <a id="casts"></a>
 
 Four named casts, each with a job, all greppable — unlike the C-style `(T)x`, which silently picks whichever of them
 fits:
@@ -1090,7 +1095,7 @@ In the machine, a cast is an instruction or nothing. A conversion between number
 user-defined conversion - a [conversion operator](#conversion-operator) or a converting constructor - is a call. C++
 Insights shows which named cast a C-style cast stands for.
 
-### Strict aliasing <a id="strict-aliasing"></a>
+### Strict aliasing                         <a id="strict-aliasing"></a>
 
 An object may be read and written only through its own type - or a signed or unsigned variant of it, or `char`,
 `unsigned char` and `std::byte`. The compiler relies on that: a `float*` and a `std::uint32_t*` are assumed never to
@@ -1098,7 +1103,7 @@ point to the same object, so a value may stay in a register across a write throu
 as `*reinterpret_cast<std::uint32_t*>(&f)` is therefore [UB](#undefined-behavior), even where it seems to work. For the
 bits of a value: `std::bit_cast` or `std::memcpy`.
 
-### `enum` and `enum class` <a id="enum-class"></a>
+### `enum` and `enum class`                 <a id="enum-class"></a>
 
 A plain `enum` leaks its enumerators into the surrounding scope and converts to `int` on sight. A **scoped** enum
 (`enum class color { red, green };`, C++11) does neither: names are `color::red`, and conversion needs an explicit
@@ -1114,7 +1119,7 @@ check in front. `std::to_underlying` (C++23) gives the number in the underlying 
 
 ## Templates and generics
 
-### Function and class template <a id="template"></a>
+### Function and class template             <a id="template"></a>
 
 A pattern the compiler instantiates per type used. Templates live in headers, because the definition must be visible
 where it is instantiated ([ODR](#odr) permits it).
@@ -1124,13 +1129,13 @@ template <class T> void join(const T& container);
 template <class T, std::size_t N> class my_array { … };
 ```
 
-### Template parameters and instantiation <a id="instantiation"></a>
+### Template parameters and instantiation   <a id="instantiation"></a>
 
 Parameters may be types (`class T` / `typename T` — same thing), non-type values (`std::size_t N`), or templates.
 *Instantiation* is the compiler generating one concrete class or function per distinct argument list — which is why
 templates cost compile time and code size but no runtime dispatch, see [zero overhead](#zero-overhead).
 
-### Specialization <a id="specialization"></a>
+### Specialization                          <a id="specialization"></a>
 
 Providing a different implementation for particular arguments: *full* specialization fixes every parameter, *partial*
 specialization fixes some (only for class templates; functions overload instead).
@@ -1141,13 +1146,13 @@ template <class A> struct my_pair<A, bool> { … };      // partial
 template <> struct my_pair<int, int> { … };            // full
 ```
 
-### Type traits <a id="type-traits"></a>
+### Type traits                             <a id="type-traits"></a>
 
 Compile-time queries and transformations over types, in `<type_traits>`: `std::is_integral_v<T>`,
 `std::remove_reference_t<T>`, `std::decay_t<T>`. The classic use is a [specialization](#specialization) selected by a
 trait; since C++17 `if constexpr` often replaces that with a plain branch that is compiled away.
 
-### Concepts and `requires` <a id="concepts"></a>
+### Concepts and `requires`                 <a id="concepts"></a>
 
 C++20. Named constraints on template parameters, checked at the call site — so the error says "not sortable" instead of
 forty lines from inside the algorithm.
@@ -1163,7 +1168,7 @@ template <numeric T> T twice(T v) { return v + v; }
 
 ## Standard library
 
-### Sequence containers <a id="containers"></a>
+### Sequence containers                     <a id="containers"></a>
 
 | Container      | Storage            | Good at                          |
 |----------------|--------------------|----------------------------------|
@@ -1175,31 +1180,31 @@ template <numeric T> T twice(T v) { return v + v; }
 `vector` grows geometrically: `capacity()` may exceed `size()`, and a reallocation invalidates every iterator and
 pointer into it.
 
-### Associative containers <a id="associative-containers"></a>
+### Associative containers                  <a id="associative-containers"></a>
 
 `std::set` / `std::map` keep keys sorted in a balanced tree — O(log n), ordered iteration, needs `<`.
 `std::unordered_set` / `std::unordered_map` hash them — O(1) on average, no order, needs `==` and a hash. Reach for the
 unordered ones unless the order matters.
 
-### `std::pair` and `std::tuple` <a id="pair-tuple"></a>
+### `std::pair` and `std::tuple`            <a id="pair-tuple"></a>
 
 Heterogeneous fixed-size bundles: `.first`/`.second` for a pair, `std::get<0>()` for a tuple, or
 [structured bindings](#structured-bindings) for both. Fine as a return type for two values that have no name worth
 inventing — a named `struct` beats them the moment they have one.
 
-### Iterator <a id="iterator"></a>
+### Iterator                                <a id="iterator"></a>
 
 A generalized pointer: `*it` reads, `++it` advances, `it != end` tests. Every container provides `begin()`/`end()`,
 `cbegin()`/`cend()` for const access, and `rbegin()`/`rend()` for reverse traversal. Half-open ranges throughout:
 `end()` points *past* the last element.
 
-### Algorithms <a id="algorithms"></a>
+### Algorithms                              <a id="algorithms"></a>
 
 `<algorithm>` operates on iterator ranges rather than containers: `std::sort`, `std::find_if`, `std::for_each`,
 `std::accumulate` (in `<numeric>`), `std::transform`. Prefer them to hand-written loops — they say *what*, not *how*,
 and they are hard to get wrong.
 
-### Ranges and views <a id="ranges"></a>
+### Ranges and views                        <a id="ranges"></a>
 
 C++20. The same algorithms taking a container directly (`std::ranges::sort(v)`) plus lazy, composable *views*:
 
@@ -1210,13 +1215,13 @@ for (int x : v | std::views::filter(even) | std::views::take(3)) …
 A view owns nothing and computes on demand — cheap to copy, and [dangling](#dangling-pointer) if the underlying range
 dies first.
 
-### `std::optional`, `variant`, `expected` <a id="optional"></a>
+### `std::optional`, `variant`, `expected`  <a id="optional"></a>
 
 C++17 brought `std::optional<T>` ("a T or nothing", better than a magic value) and `std::variant<A, B>` (a type-safe
 union). C++23 adds `std::expected<T, E>` ("a T or an error"), the return-value counterpart to [exceptions](#exception).
 Compiler support for `expected` is recent — check your toolchain before relying on it.
 
-### Streams <a id="streams"></a>
+### Streams                                 <a id="streams"></a>
 
 `std::cout`, `std::cin`, `std::cerr` for the console; `std::ifstream` / `std::ofstream` for files ([RAII](#raii): they
 close themselves); `std::istringstream` / `std::ostringstream` for parsing and building strings in memory. `std::endl`
@@ -1237,7 +1242,7 @@ Needs a recent libstdc++/libc++ — where it is missing, `std::format` plus `std
 
 ## Errors and exceptions
 
-### Exception <a id="exception"></a>
+### Exception                               <a id="exception"></a>
 
 An error signalled by `throw` and handled by the nearest matching `catch`, unwinding the stack — and running every
 destructor on the way — in between.
@@ -1255,7 +1260,7 @@ try {
 Catch by `const&` (copying slices, see [slicing](#slicing)), order handlers from specific to general, and let the
 exception carry the message — `e.what()`.
 
-### Stack unwinding <a id="stack-unwinding"></a>
+### Stack unwinding                         <a id="stack-unwinding"></a>
 
 What happens between `throw` and `catch`: the runtime leaves every function on the way without finishing it, removes its
 stack frame, and destroys every local object in it — in reverse order of construction, exactly as at a normal `}`. This
@@ -1263,7 +1268,7 @@ is what makes [RAII](#raii) work with exceptions. If a destructor throws during 
 at once; the program ends with `std::terminate`. If no `catch` matches at all, it is implementation-defined whether the
 stack is unwound before `std::terminate` is called.
 
-### Standard exception types <a id="std-exception"></a>
+### Standard exception types                <a id="std-exception"></a>
 
 All derive from `std::exception`: `std::logic_error` (`invalid_argument`, `out_of_range`, `domain_error`) for bugs the
 caller could have prevented, `std::runtime_error` (`range_error`, `system_error`) for conditions only discovered while
@@ -1271,13 +1276,13 @@ running, plus `std::bad_alloc` and `std::bad_cast`. Derive your own from `std::r
 `std::exception` directly — you get the `what()` machinery for free. Catch by `const&`: a `catch` by value copies
 the exception into the handler's type and slices it, and `what()` returns the base's text.
 
-### Exception safety <a id="exception-safety"></a>
+### Exception safety                        <a id="exception-safety"></a>
 
 What a function guarantees when it throws: *basic* (nothing leaks, invariants hold), *strong* (the operation either
 completes or changes nothing — see [copy-and-swap](#copy-and-swap)), or *nothrow* ([`noexcept`](#noexcept)).
 [RAII](#raii) is what makes the basic guarantee automatic rather than a matter of discipline.
 
-### `assert` and `static_assert` <a id="assert"></a>
+### `assert` and `static_assert`            <a id="assert"></a>
 
 `assert(cond)` checks a *precondition* at runtime and aborts if it fails (disabled by `NDEBUG` in release builds) — for
 bugs, not for user input. `static_assert(cond, "message")` checks at compile time and belongs in templates, where it
@@ -1287,13 +1292,13 @@ turns an invalid instantiation into a readable error.
 
 ## Move semantics and value categories
 
-### lvalue and rvalue <a id="value-categories"></a>
+### lvalue and rvalue                       <a id="value-categories"></a>
 
 An **lvalue** has a name and an address you can take (`v`, `v[0]`, `*p`); an **rvalue** is a temporary about to expire
 (`42`, `f()`, `std::move(x)`). `T&` binds to lvalues, `const T&` to both, and `T&&` binds only to rvalues — which is
 what lets a function know its argument is disposable.
 
-### Move semantics <a id="move-semantics"></a>
+### Move semantics                          <a id="move-semantics"></a>
 
 C++11. Transferring the guts of an expiring object instead of copying them: the move constructor `T(T&&) noexcept` and
 move assignment `T& operator=(T&&) noexcept` take the resource and leave the source in a valid but unspecified state
@@ -1306,19 +1311,19 @@ smart_ptr(smart_ptr&& other) noexcept : p_{other.p_} { other.p_ = nullptr; }
 Cheap for anything that owns a heap allocation — `string`, `vector`, `unique_ptr` — and identical to a copy for a plain
 `int`.
 
-### `std::move` <a id="std-move"></a>
+### `std::move`                             <a id="std-move"></a>
 
 Moves nothing: it is a cast to an rvalue reference, saying "I am done with this, take it if you can". After moving from
 an object, only assign to it or destroy it. Do **not** `std::move` a return value of a local — it blocks
 [copy elision](#copy-elision).
 
-### Copy elision, RVO <a id="copy-elision"></a>
+### Copy elision, RVO                       <a id="copy-elision"></a>
 
 The compiler constructing the result directly in the caller's storage, so neither a copy nor a move happens. Since C++17
 this is *guaranteed* when a function returns a prvalue (`return Temperature{20.0};`) and optional but routine for a
 named local (NRVO). Which is why "return by value is slow" has been folklore for a decade.
 
-### Copy-and-swap <a id="copy-and-swap"></a>
+### Copy-and-swap                           <a id="copy-and-swap"></a>
 
 An assignment operator written as: take the parameter **by value** (the copy or move happens there, and may be elided),
 then swap with `*this`. Self-assignment works, the [strong exception guarantee](#exception-safety) follows from the copy
@@ -1332,13 +1337,13 @@ smart_ptr& operator=(smart_ptr other) noexcept { swap(*this, other); return *thi
 
 ## Smart pointers and ownership
 
-### Ownership <a id="ownership"></a>
+### Ownership                               <a id="ownership"></a>
 
 The answer to "who calls `delete`, and when". A raw pointer says nothing about it, which is why modern C++ encodes it in
 the type: `unique_ptr` (exactly one owner), `shared_ptr` (several), `weak_ptr` (none, observes), plain `T*` or `T&` (a
 non-owning *reference*, valid only as long as the owner says).
 
-### `std::unique_ptr` <a id="unique-ptr"></a>
+### `std::unique_ptr`                       <a id="unique-ptr"></a>
 
 The default smart pointer: sole ownership, zero overhead over a raw pointer, non-copyable and movable, deletes on
 destruction. Create it with `std::make_unique<T>(args…)`, hand it around with `std::move`, pass the *object*
@@ -1350,7 +1355,7 @@ use(*w);                       // borrow
 auto w2 = std::move(w);        // transfer; w is now null
 ```
 
-### `std::shared_ptr` and `weak_ptr` <a id="shared-ptr"></a>
+### `std::shared_ptr` and `weak_ptr`        <a id="shared-ptr"></a>
 
 `shared_ptr` counts owners in a control block and deletes when the count hits zero — pay for it only when ownership
 really is shared. Two objects pointing at each other keep the count above zero forever: a *cycle*, i.e. a
@@ -1359,7 +1364,7 @@ how the observer pattern and parent-pointers in trees are built.
 
 Prefer `std::make_shared<T>(…)`: one allocation for object and control block.
 
-### Small Buffer Optimization (SBO) <a id="sbo"></a>
+### Small Buffer Optimization (SBO)         <a id="sbo"></a>
 
 Storing small payloads inline in the object and only allocating on the heap when they outgrow it — what most
 `std::string` implementations do for short strings. Trades object size for allocations, and forces the class to
@@ -1369,7 +1374,7 @@ implement the [Rule of Five](#rule-of-zero) by hand, since the inline buffer can
 
 ## Functional C++
 
-### Lambda expression <a id="lambda"></a>
+### Lambda expression                       <a id="lambda"></a>
 
 An anonymous function object written where it is used:
 
@@ -1387,13 +1392,13 @@ captures takes 1 byte, as every empty object), and C++ Insights shows the class.
 its own, which a template can be instantiated with - the reason why `std::sort` with a lambda can inline the
 comparison. Only a lambda without captures converts to a function pointer.
 
-### Lambda capture <a id="capture"></a>
+### Lambda capture                          <a id="capture"></a>
 
 What the lambda takes from the enclosing scope: `[x]` by copy, `[&x]` by reference, `[=]` / `[&]` everything (avoid: it
 hides which), `[this]` the enclosing object, `[x = std::move(y)]` an init-capture (C++14). A by-reference capture that
 outlives its scope is a [dangling reference](#dangling-pointer) — the standard bug in a lambda handed to a thread.
 
-### Function pointer and `std::function` <a id="std-function"></a>
+### Function pointer and `std::function`    <a id="std-function"></a>
 
 A function pointer (`double (*f)(double)`) holds the address of a function - 8 bytes, and a call through it is an
 indirect call, unless the compiler knows the value and inlines. `std::function<double(double)>` is a type-erased
@@ -1408,7 +1413,7 @@ C++23 adds `std::move_only_function` for callables that cannot be copied.
 
 ## Concurrency
 
-### `std::thread` <a id="thread"></a>
+### `std::thread`                           <a id="thread"></a>
 
 Starts a function on a new thread of execution; must be `join()`ed or `detach()`ed before it is destroyed, or the
 program calls `std::terminate`. Arguments are **copied** — wrap in `std::ref` to pass a reference.
@@ -1421,14 +1426,14 @@ t.join();
 C++20's `std::jthread` joins in its own destructor ([RAII](#raii)) and supports cooperative cancellation — prefer it
 where available.
 
-### Race condition <a id="race-condition"></a>
+### Race condition                          <a id="race-condition"></a>
 
 A *data race*: two threads touching the same data, at least one writing, without synchronization. The result depends on
 timing, and the standard calls it [UB](#undefined-behavior) rather than "sometimes wrong". (A race condition in the
 wider sense is any timing-dependent bug; the data race is the one that is UB.) Not fixable by reordering statements or
 adding sleeps — only by a [mutex](#mutex), an atomic, or not sharing.
 
-### `std::mutex` <a id="mutex"></a>
+### `std::mutex`                            <a id="mutex"></a>
 
 Mutual exclusion: one thread at a time inside the critical section. `lock()`/`unlock()` by hand works until an exception
 or an early `return` skips the unlock — which is why the manual form appears once in this course and never again.
@@ -1439,7 +1444,7 @@ or an early `return` skips the unlock — which is why the manual form appears o
 stop. `std::unique_lock` can also unlock and relock, which [condition variables](#condition-variable) require.
 `std::scoped_lock` (C++17) takes several mutexes at once, deadlock-free — the sane default for multiple locks.
 
-### Condition variable <a id="condition-variable"></a>
+### Condition variable                      <a id="condition-variable"></a>
 
 Lets a thread wait until another signals that something changed, without busy-waiting. Always used with a `unique_lock`
 **and** a predicate, because waits may wake up for no reason (*spurious wakeup*):
@@ -1451,14 +1456,14 @@ cv.wait(lock, []{ return done; });      // re-checks the predicate on every wake
 The waiting side must hold the lock while testing the condition; the notifying side sets it under the lock and then
 calls `notify_one`/`notify_all`.
 
-### `thread_local` <a id="thread-local"></a>
+### `thread_local`                          <a id="thread-local"></a>
 
 A variable with one instance per thread - created when the thread starts (or at its first use), destroyed when the
 thread ends. The machine finds the current thread's instance through a register that the operating system sets at
 every switch: `fs` on x86-64 (`add DWORD PTR fs:x@tpoff, 1`), `tpidr_el0` on ARM64. For data that each thread needs for
 itself - a counter, a buffer, a random generator - without any synchronization.
 
-### `std::atomic` <a id="atomic"></a>
+### `std::atomic`                           <a id="atomic"></a>
 
 `std::atomic<T>` makes every operation on a `T` one indivisible step for all threads: `++a`, `a += n`, `a.load()`,
 `a.store(v)`, `a.exchange(v)`, `a.compare_exchange_strong(expected, v)`. For an `int` or a pointer, it is the `T`
@@ -1472,7 +1477,7 @@ std::atomic<int> counter{0};
 ++counter;                                  // from any thread
 ```
 
-### Memory order <a id="memory-order"></a>
+### Memory order                            <a id="memory-order"></a>
 
 Processors and compilers reorder loads and stores as long as the thread itself cannot tell. An atomic operation says
 how much order it needs: `std::memory_order_relaxed` - only the operation itself is atomic; `release` (for a store)
@@ -1481,7 +1486,7 @@ and `acquire` (for a load) - what was written before the release is visible afte
 `seq_cst` stores (`xchg`); ARM64 needs `ldar`/`stlr` for acquire and release. Use the default unless you have
 measured and understood.
 
-### Cache line and false sharing <a id="false-sharing"></a>
+### Cache line and false sharing            <a id="false-sharing"></a>
 
 Caches copy memory in lines of 64 bytes (on current x86-64 and ARM64 processors). A core that writes to a line must
 own it exclusively; another core that writes to the same line takes it over. Two threads that write to different
@@ -1502,7 +1507,7 @@ std::future<long long> result{std::async(std::launch::async, sum_up_to, 1000)};
 std::cout << result.get();
 ```
 
-### Deadlock <a id="deadlock"></a>
+### Deadlock                                <a id="deadlock"></a>
 
 Two threads each holding what the other needs, both waiting forever. Avoid by locking in a fixed global order, holding
 one lock at a time, or taking them together with `std::scoped_lock`.
@@ -1534,14 +1539,14 @@ mutation is required.
 - Immutability means the entire logical state of the object never changes after construction. It is a stronger design
   property about an object's whole (logical) state over time.
 
-### Value semantics <a id="value-semantics"></a>
+### Value semantics                         <a id="value-semantics"></a>
 
 Objects behave like values: copying makes an independent object, assignment overwrites, equality compares contents.
 Java-style reference semantics happen in C++ only where you ask for them (pointers, references,
 [`shared_ptr`](#shared-ptr)). Most bugs from other languages arrive here — the copy that was expected to be an alias, or
 the alias expected to be a copy.
 
-### Code Style <a id="code-style"></a>
+### Code Style                              <a id="code-style"></a>
 
 The points that matter most in this course:
 
@@ -1552,7 +1557,7 @@ The points that matter most in this course:
 - prefer uniform initialization (`double x{1.0}`) over `=` where it reads clearly
 - one demo function per topic, called from `main`
 
-### The Modern Way <a id="the-modern-way"></a>
+### The Modern Way                          <a id="the-modern-way"></a>
 
 Solving a problem the way the standard library and the
 [Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) suggest rather than the way C would:

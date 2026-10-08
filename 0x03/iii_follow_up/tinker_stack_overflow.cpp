@@ -54,7 +54,7 @@ namespace {
      * The stack grows downward on x86-64 and ARM64: each level has a lower address than the one before. The difference
      * is the frame: the 256 bytes of the array, plus the return address, saved registers and alignment - as Debug a
      * little more than as Release.
-     * - !![#stack-overflow]
+     * - !![#stack-and-heap]
      */
     void measure_a_frame() {
         print_function_header();

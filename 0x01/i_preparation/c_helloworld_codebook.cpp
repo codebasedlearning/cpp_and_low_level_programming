@@ -46,7 +46,7 @@ using std::cout;
 /* --- Namespaces ---
  * All snippet functions are embedded in an unnamed namespace, thus visible only in this file. In a single-file program
  * like this one it makes no difference yet - it is a habit we will need once programs consist of several files.
- * - !![#unnamed-namespace]
+ * - !![#namespace]
  */
 namespace {
 

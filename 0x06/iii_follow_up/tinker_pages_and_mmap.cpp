@@ -51,7 +51,7 @@ namespace {
     /* --- `ask_for_the_page_size` ---
      * The unit in which the system maps memory: 4096 bytes on x86-64 and on most ARM64 Linux systems, 16 KiB on macOS
      * with Apple silicon.
-     * - !![#virtual-memory]
+     * - !![#memory-layout]
      */
     void ask_for_the_page_size() {
         print_function_header();

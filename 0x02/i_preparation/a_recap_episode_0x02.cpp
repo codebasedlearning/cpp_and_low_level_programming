@@ -84,14 +84,6 @@ namespace {
 
 }
 
-/* --- Toolbox ---
- * What you can use by now to look at the machine:
- * - Debug (`-O0`) vs. Release (`-O2`) - the same code can behave differently.
- * - The debugger: breakpoints, the frames list and the memory view.
- * - `g++ -E` (after the preprocessor) and `g++ -S` (assembly).
- * - `echo $?` - the exit status of the last program.
- */
-
 /* --- `main` --- */
 int main() {
     recall_where_values_live();
