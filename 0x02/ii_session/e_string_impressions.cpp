@@ -20,37 +20,11 @@ using std::cout, std::string;
 
 namespace {
 
-    /* --- `use_strings` ---
-     * Looks like in any other language: an object with member functions.
-     * - !![#string]
-     */
-    void use_strings() {
-        print_function_header();
-
-        string hello{"Hello!"};
-        cout << " 1| hello='" << hello << "'\n";
-
-        cout << " 2| hello.size()=" << hello.size()
-             << ", hello.empty()=" << hello.empty()
-             << ", hello.substr(1,3)='" << hello.substr(1, 3) << "'\n";
-
-        // op+ exists for strings.
-        cout << " 3| hello + \" C++\"='" << hello + " C++" << "'\n";
-
-        /* -- .No `new`, no `()`. --
-         * `string s;` already is an empty string, initialized by its default constructor. It is neither
-         * `string s = new string();` (Java) nor `string s();` - that is valid syntax, but declares a function!
-         * One more reason for braces: `string s{};`.
-         */
-        string s;
-        cout << " 4| s='" << s << "', s.size()=" << s.size() << '\n';
-
-        /* -- .Q&A -- !![Where are differences here to, say, Java?](#a-106) */
-    }
-
     /* --- `show_where_strings_live` ---
      * A `string` object has a fixed size, no matter how long its text is.
      * So where are the characters? `c_str()` gives their address.
+     * - !![#string]
+     * - !![#sso]
      * - !![#stack-and-heap]
      */
     void show_where_strings_live() {
@@ -110,7 +84,6 @@ namespace {
 
 /* --- `main` --- */
 int main() {
-    use_strings();
     show_where_strings_live();
     copy_strings();
 

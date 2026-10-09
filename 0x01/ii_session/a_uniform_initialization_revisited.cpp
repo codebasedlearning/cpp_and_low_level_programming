@@ -7,6 +7,8 @@
  * - Where variables live: the stack, their addresses, the memory view.
  * - What an uninitialized variable really contains - and why reading it is UB.
  * - Sizes and ranges of the integer types, and why braces reject narrowing.
+ * - `std::string` - looks familiar, but it is a value, not a reference.
+ * - The object has a fixed size; where do the characters live?
  */
 
 /* --- Warm-up ---
@@ -18,13 +20,14 @@
  */
 
 #include <iostream>
+#include <string>
 #include <cstdlib>
 #include <cstddef>                          // for `size_t`
 #include <limits>                           // for `numeric_limits`
 #include <cbl/printing.hpp>
 
 using std::cout, std::hex, std::dec, std::showbase, std::noshowbase;
-using std::numeric_limits, std::size_t;
+using std::numeric_limits, std::size_t, std::string;
 
 /* --- Pragmas ---
  * Instructions for the compiler, here: do not warn about the uninitialized variable below - we read it on purpose.
@@ -170,6 +173,33 @@ namespace {
 
         // int v2{d};                       // compiler error: narrowing - try it
     }
+    /* --- `use_strings` ---
+     * Looks like in any other language: an object with member functions.
+     * - !![#string]
+     */
+    void use_strings() {
+        print_function_header();
+
+        string hello{"Hello!"};
+        cout << " 1| hello='" << hello << "'\n";
+
+        cout << " 2| hello.size()=" << hello.size()
+             << ", hello.empty()=" << hello.empty()
+             << ", hello.substr(1,3)='" << hello.substr(1, 3) << "'\n";
+
+        // op+ exists for strings.
+        cout << " 3| hello + \" C++\"='" << hello + " C++" << "'\n";
+
+        /* -- .No `new`, no `()`. --
+         * `string s;` already is an empty string, initialized by its default constructor. It is neither
+         * `string s = new string();` (Java) nor `string s();` - that is valid syntax, but declares a function!
+         * One more reason for braces: `string s{};`.
+         */
+        string s;
+        cout << " 4| s='" << s << "', s.size()=" << s.size() << '\n';
+
+        /* -- .Q&A -- !![Where are differences here to, say, Java?](#a-106) */
+    }
 
 }
 
@@ -182,6 +212,7 @@ int main() {
     show_variables_of_different_types();
     show_sizes_and_ranges();
     compare_equals_and_braces();
+    use_strings();
 
     return EXIT_SUCCESS;
 }

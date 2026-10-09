@@ -111,6 +111,21 @@ Extension:
 
 <hr>
 
+### 👉 Task 'Little Harbor'
+
+- Find the length from which on the characters of a `string` no longer lie inside the object.
+- Start with an empty `string` and append one character at a time in a loop. Each time, print the length, the address of
+  the object and the address of the characters (as in the session).
+- Compare your result with someone who uses another compiler or operating system.
+
+Extension:
+
+- Also print `s.capacity()`. What do you notice at the moment the characters move?
+
+Review: paste the task and your solution into an LLM. What does it criticize, and is it right?
+
+<hr>
+
 ### 👉 Task 'AI' - Two Opinions
 
 Two answers to the question "How big are `std::string` and `std::vector<int>`, and how many characters fit into a
@@ -156,3 +171,4 @@ Answers: [comprehension check 0x02](../docs/answers.md#check-0x02).
 - I can convert between text and numbers with `stoi`, `stod` and `to_string`, and handle what goes wrong.
 - I know the difference between `const` and `constexpr`, can check a claim with `static_assert`, and know where a value
   computed by the compiler ends up.
+- I know where the characters of a `string` live.

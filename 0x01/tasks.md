@@ -64,7 +64,11 @@ targets and dependencies; CLion runs CMake and the build tools for you.
 
 ### 👉 Task 'Compile and Run'
 
-Open a terminal, change into the `i_preparation` directory, and compile your first C++ file. Run
+Open a terminal, change into the `i_preparation` directory, and compile your first C++ file. 
+
+Note: An executable in Windows ends with `exe`, so replace all `out` with `exe`.
+
+Run
 
 ```
 g++ a_helloworld.cpp -o a_helloworld.out
@@ -118,21 +122,6 @@ Review: paste the task and your solution into an LLM. What does it criticize, an
 Extension:
 
 - Add a second variable to `set_value`, before the first one. Does `read_value` still print your value? Why, or why not?
-
-Review: paste the task and your solution into an LLM. What does it criticize, and is it right?
-
-<hr>
-
-### 👉 Task 'Little Harbor'
-
-- Find the length from which on the characters of a `string` no longer lie inside the object.
-- Start with an empty `string` and append one character at a time in a loop. Each time, print the length, the address of
-  the object and the address of the characters (as in the session).
-- Compare your result with someone who uses another compiler or operating system.
-
-Extension:
-
-- Also print `s.capacity()`. What do you notice at the moment the characters move?
 
 Review: paste the task and your solution into an LLM. What does it criticize, and is it right?
 
@@ -237,7 +226,6 @@ Answers: [comprehension check 0x01](../docs/answers.md#check-0x01).
 - I can define and initialize variables, and I know why we prefer `{}`.
 - I can explain what an uninitialized variable contains and why reading it is UB.
 - I know that the sizes of types depend on the platform, and how to find them out.
-- I know where the characters of a `string` live.
 - I know the difference between `s[i]` and `s.at(i)`, and what `string::npos` means.
 - I can declare and define functions, and I know what a call does on the stack.
 - I can predict what happens on integer overflow.

@@ -728,13 +728,6 @@ The standard only fixes minimum sizes and their order; `long`, for example, has 
 Windows. `sizeof(T)` gives the size, `std::numeric_limits<T>::max()` the largest value. If the number of bits matters,
 use the fixed-width types from `<cstdint>`, e.g. `std::int64_t`.
 
-**I know where the characters of a `string` live.**
-
-The `string` object has a fixed size (32 bytes with gcc, 24 with Apple clang) and sits where the variable is, e.g. on
-the stack. A short text fits into the object itself (small string optimization, up to 15 or 22 characters), a longer
-one lives on the heap. `c_str()` shows where. When a string grows beyond its capacity, the characters move: an
-allocation and a copy you do not see in the code.
-
 **I know the difference between `s[i]` and `s.at(i)`, and what `string::npos` means.**
 
 `s[i]` does not check the index - out of range it is undefined behavior. `s.at(i)` checks and throws
@@ -864,6 +857,13 @@ are constants, and at runtime otherwise; a `consteval` function must run at comp
 `static_assert(condition, message)` checks a claim while compiling - the build fails if it is wrong, and nothing is
 left of it in the program. A table computed by the compiler is written into the program file itself, as read-only
 data next to the string literals: no code runs to build it, and its address is far from the stack.
+
+**I know where the characters of a `string` live.**
+
+The `string` object has a fixed size (32 bytes with gcc, 24 with Apple clang) and sits where the variable is, e.g. on
+the stack. A short text fits into the object itself (small string optimization, up to 15 or 22 characters), a longer
+one lives on the heap. `c_str()` shows where. When a string grows beyond its capacity, the characters move: an
+allocation and a copy you do not see in the code.
 
 ### 'AI' - Two Opinions <a id="ai-0x02"></a>
 

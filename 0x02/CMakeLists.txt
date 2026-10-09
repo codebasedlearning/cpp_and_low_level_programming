@@ -8,6 +8,7 @@ add_executable(a_pointers_and_references ii_session/a_pointers_and_references.cp
 add_executable(b_value_or_reference ii_session/b_value_or_reference.cpp)
 add_executable(c_array_and_vector ii_session/c_array_and_vector.cpp)
 add_executable(d_structs_in_memory ii_session/d_structs_in_memory.cpp)
+add_executable(e_string_impressions ii_session/e_string_impressions.cpp)
 
 add_executable(study_auto iii_follow_up/study_auto.cpp)
 add_executable(study_exceptions iii_follow_up/study_exceptions.cpp)
