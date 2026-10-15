@@ -31,7 +31,7 @@ namespace {
         // 10'000'000 and 1 - the one exception to our braces rule.
         const vector<int> v(10'000'000, 1);
 
-        stopwatch watch{};
+        const stopwatch watch{};
         long long sum{0};
         for (int round{0}; round < 10; ++round) {
             for (size_t i{0}; i < v.size(); ++i) {

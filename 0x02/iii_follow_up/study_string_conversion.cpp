@@ -50,6 +50,8 @@ namespace {
 
         const string s{"n=" + to_string(23) + ", x=" + to_string(1.5)};
         cout << " 1| " << s << '\n';
+
+        // Also consider `std::format` if available.
     }
 
 }

@@ -31,11 +31,11 @@ namespace {
         print_function_header();
 
         int n{23};
-        string s1{"C++"};
+        string s1{"C++ Low-Level"};
         string s2{"A rather long text that certainly does not fit into the object itself."};
         int m{42};
 
-        // `const void*` is an address without a type (a pointer, more on that later) - `cout` prints it as an address,
+        // `const void*` is an address without a type (a pointer) - `cout` prints it as an address,
         // whereas a `const char*` is printed as text.
         const void* chars1{s1.c_str()};
         const void* chars2{s2.c_str()};

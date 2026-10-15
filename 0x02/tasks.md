@@ -14,6 +14,22 @@
 
 <hr>
 
+### 👉 Task 'Elkford'
+
+- Define a `constexpr` dimension `dim` with the value 3, and a `struct polynom` that holds the coefficients in a
+  `std::array<double, dim>`. Initialize it e.g. with `polynom p{{1.0, 2.0, 3.0}}` - the inner braces belong to the
+  array.
+- Write a function `eval` that evaluates a polynomial at a position `x`. Pass the polynomial so that it is neither
+  copied nor changed.
+- Write meaningful test code.
+
+Extension:
+
+- Evaluate with Horner's method, `c0 + x*(c1 + x*c2)`. How many multiplications do you save?
+- Look up how to implement `operator<<` for `polynom`, so that `cout << p` works.
+
+<hr>
+
 ### 👉 Task 'Baker River'
 
 - Write a function `cut` that sets the decimal places of two `double` numbers, passed by reference, to 0. Use
@@ -42,28 +58,12 @@ Extension:
 
 <hr>
 
-### 👉 Task 'Elkford'
-
-- Define a `constexpr` dimension `dim` with the value 3, and a `struct polynom` that holds the coefficients in a
-  `std::array<double, dim>`. Initialize it e.g. with `polynom p{{1.0, 2.0, 3.0}}` - the inner braces belong to the
-  array.
-- Write a function `eval` that evaluates a polynomial at a position `x`. Pass the polynomial so that it is neither
-  copied nor changed.
-- Write meaningful test code.
-
-Extension:
-
-- Evaluate with Horner's method, `c0 + x*(c1 + x*c2)`. How many multiplications do you save?
-- Look up how to implement `operator<<` for `polynom`, so that `cout << p` works.
-
-<hr>
-
 ### 👉 Task 'Harshire'
 
 - Learn how a stack works (last in, first out).
 - Define a `struct stack` with a `std::array<int, 3>` for the data and a member `next` for the next free position.
-- Write functions `push` and `pop` that add a value to the stack or take the top one off - only if there is space, or
-  something to take.
+- Write (global) functions `push` and `pop` that add a value to the stack or take the top one off - only if space, 
+  or something to take.
 - Write meaningful test code.
 
 Extension:
@@ -120,7 +120,7 @@ Extension:
 
 Extension:
 
-- Also print `s.capacity()`. What do you notice at the moment the characters move?
+- Also print `s.capacity()`. What do you notice now the characters move?
 
 Review: paste the task and your solution into an LLM. What does it criticize, and is it right?
 

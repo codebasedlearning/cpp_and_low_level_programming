@@ -37,6 +37,9 @@ namespace {
     /* --- `show_alignment` ---
      * Every type has an alignment: its address must be a multiple of it. For the primitive types, that is usually their
      * size.
+     *
+     * Example: alignof(int) == 4, an array of int must start at a memory address divisible by 4.
+     * This is particularly useful when working with raw memory.
      */
     void show_alignment() {
         print_function_header();

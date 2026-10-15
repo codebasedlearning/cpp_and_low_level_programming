@@ -45,7 +45,7 @@ namespace {
         *p = 42;                            // writes to `n`
         cout << " 3| n=" << n << '\n';
 
-        /* -- .Debugger. --
+        /* -- .Debugger --
          * Set a breakpoint on `*p = 42;` and start with 'Debug'.
          * - In the variables view, `p` shows an address - the same as `&n`.
          * - In the memory view, enter `&p`: there are the 8 bytes of that address.
@@ -53,6 +53,11 @@ namespace {
          */
 
         /* -- .Q&A -- !![Where does `p` itself live?](#a-201) */
+
+        /* -- .Important --
+         * - Read `int*` from right to left and replace `*` with 'pointer to'.
+         * - To evaluate `*p` we need to know the size of the data type!
+         */
     }
 
     /* --- `show_void_pointers` ---
@@ -71,7 +76,7 @@ namespace {
 
     /* --- `define_references` ---
      * `int& m{n};` makes `m` another name for `n`. Whatever you do with `m`, you do with `n` - they are the same object
-     * at the same address.
+     * at the same address, sometimes called an 'alias'.
      * - !![#reference]
      */
     void define_references() {
@@ -119,6 +124,13 @@ namespace {
         cout << " 1| n=" << n << ", c=" << c << '\n';
 
         // c = 3;                           // compiler error - try it
+
+        /* -- .Important --
+         * - `n` is not constant, only `c` as an alias is considered const.
+         *   Precisely `c` is a reference to an int object, but that object
+         *   is treated as const when accessed through `c`.
+         * - From right to left, read `&` as `reference to`.
+         */
     }
 
     /* --- `holds_reference` and `holds_pointer` --- Two structs, to compare their size. */
@@ -154,6 +166,11 @@ namespace {
         increment_by_reference(n);          // passes the address of `n` - you just do not see it
         increment_by_pointer(&n);           // passes the address of `n` - explicitly
         cout << " 2| n=" << n << '\n';
+
+        holds_reference rn{n};              // Holds a reference to a local resource - beware!
+        cout << " 3| r=" << rn.r << '\n';
+        n = 23;
+        cout << " 4| r=" << rn.r << '\n';
 
         /* -- .Look at the machine code. --
          * Paste the two `increment_` functions into Compiler Explorer (godbolt.org), or run

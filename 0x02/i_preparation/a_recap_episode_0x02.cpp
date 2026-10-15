@@ -17,6 +17,11 @@ using std::cout, std::string, std::numeric_limits;
 
 /* ---- Content ---- */
 
+/* --- Namespaces ---
+ * All snippet functions are embedded in an unnamed namespace, thus visible only in this file. In a single-file program
+ * like this one it makes no difference yet - it is a habit we will need once programs consist of several files.
+ * - !![#namespace]
+ */
 namespace {
 
     /* --- `recall_where_values_live` ---
@@ -41,26 +46,15 @@ namespace {
         // int v{2.5};                      // compiler error: narrowing
     }
 
-    /* --- `recall_where_strings_live` ---
-     * A `string` object has a fixed size. Short text lives inside it, long text on the heap - and growing may move it.
-     * That is where this unit continues.
-     */
-    void recall_where_strings_live() {
-        print_function_header();
-
-        const string s{"A text that is too long for the string object itself."};
-        const void* chars{s.c_str()};
-        cout << " 1| sizeof(string)=" << sizeof(string) << ", &s=" << &s << ", characters at " << chars << '\n';
-    }
-
     /* --- `pot_checked` ---
      * b^n for b >= 1 and n >= 0, as in 'Blue Canyon' - but before every multiplication it checks whether the result
      * still fits into an `int`.
      * The check cannot overflow itself: it divides instead of multiplying.
      * Returns -1 if the result does not fit - a valid result is never negative.
+     * - !![#constexpr]
      */
     int pot_checked(const int b, const int n) {
-        const int max{numeric_limits<int>::max()};
+        const int max{numeric_limits<int>::max()};  // or (follows): constexpr int
         int result{1};
         for (int i{0}; i < n; ++i) {
             if (result > max / b) {
@@ -88,7 +82,6 @@ namespace {
 int main() {
     recall_where_values_live();
     recall_platform_sizes();
-    recall_where_strings_live();
     recall_silent_overflow();
 
     return EXIT_SUCCESS;

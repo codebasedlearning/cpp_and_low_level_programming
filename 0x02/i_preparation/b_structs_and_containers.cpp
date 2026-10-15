@@ -70,6 +70,7 @@ namespace {
 
         // The old C-style array looks like this. It works, but it does not know its own size - prefer `std::array`.
         int raw[dim]{2, 3, 5};
+        raw[0] = 1;
         cout << " 2| raw[1]=" << raw[1] << '\n';
     }
 

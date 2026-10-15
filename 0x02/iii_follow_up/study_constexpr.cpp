@@ -48,6 +48,12 @@ namespace {
         cout << " 3| slots.size()=" << slots.size() << '\n';
     }
 
+    consteval int checked_size(int n) {
+        if (n <= 0)
+            throw std::out_of_range("Size must be positive");
+        return n;
+    }
+
     /* --- `call_consteval_functions` ---
      * A `consteval` function can only be called with constants - every call is evaluated by the compiler.
      * - !![#consteval]
@@ -60,6 +66,9 @@ namespace {
 
         // int m{7};
         // cout << times5(m);               // compiler error: m is not a constant
+
+        int a[checked_size(10)];            // OK
+        // int b[checked_size(-5)];         // Compile-time error
     }
 
     /* --- `check_at_compile_time` ---
