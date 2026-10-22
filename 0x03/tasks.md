@@ -42,7 +42,7 @@ Extension:
 Extension:
 
 - Write a free function `scale(point_data* p, double f)` for a `struct point_data` with the same two members, and a
-  member function `point::scale(double f)` defined outside the class. Compare both in Compiler Explorer (godbolt.org).
+  member function `point::scale(double f)` defined outside the class. 
 
 <hr>
 
@@ -94,7 +94,7 @@ Extension:
 - Write a free function `add` that adds two polynomials and returns the result - how does it get to the coefficients,
   which are private now?
 - Test with dimension 4.
-- Split it into `polynom.hpp`, `polynom.cpp` and `main.cpp`. Where does the `constexpr` dimension go?
+- Split it into `polynom.hpp`, `polynom.cpp` and `main.cpp`. 
 
 <hr>
 
@@ -102,7 +102,7 @@ Extension:
 
 Sometimes a value is optional: a temperature sensor, for example, may not have produced data yet. Instead of a magic
 number like -1 for "no value", wrap the `int` in a class `optional_int` that knows whether it is set - similar to
-`std::optional<int>`.
+`std::optional<int>` (preview).
 
 - A default constructor creates an empty `optional_int`; a constructor with an `int` creates a set one.
 - `has_value()` says whether a value is set.
@@ -175,7 +175,7 @@ Our results: [answers](../docs/answers.md#ai-0x03).
 
 <hr>
 
-### 👉 Task 'AI' - Explain the Machine Code
+### 👉 Task 'AI' - Explain the Machine Code (preview)
 
 This time the LLM does not answer a question - it explains something you give it, and you check the explanation against
 the machine.
@@ -231,5 +231,4 @@ Answers: [comprehension check 0x03](../docs/answers.md#check-0x03).
 - I know what happens when a constructor throws, and why a destructor must not throw.
 - I can explain RAII, and why C++ needs no `finally`.
 - I can split a class into a header and a source file, and I can read the typical linker errors.
-- I can write getters that neither copy needlessly nor give away the members.
 - I know which special member functions the compiler generates, and how to `= default` or `= delete` them.

@@ -69,8 +69,8 @@ namespace {
      * the `x_` of the object the function was called on.
      */
     void point::scale(const double f) {
-        x_ *= f;
-        y_ *= f;
+        x_ *= f;                            // or: this->x_ *= f;
+        y_ *= f;                            // or: (*this).x_ *= f;
     }
 
     /* --- `show_the_size` ---
@@ -119,7 +119,7 @@ namespace {
     public:
         named_like_its_members(const double x, const double y) {
             this->x = x;                    // the member `x` gets the parameter `x`
-            this->y = y;
+            (*this).y = y;                  // same for `y`, `this` is a 'pointer to instance, deref. `*` makes it the instance
             // x = x;                       // the parameter to itself - the member stays uninitialized
         }
 

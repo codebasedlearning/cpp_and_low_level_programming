@@ -72,7 +72,7 @@ What it does, which CLion version it needs and how to install it:
 
 - [Unit 0x01 - Up and Running](0x01/README.md): How does a text file become a program that solves something?
 - [Unit 0x02 – To Copy or Not to Copy](0x02/README.md): Is it copied — and what does that cost?
-- [Unit 0x03](0x03/README.md)
+- [Unit 0x03 – Born and Buried](0x03/README.md): Classes, objects and the cycle of life.
 - [Unit 0x04](0x04/README.md)
 - [Unit 0x05](0x05/README.md)
 - [Unit 0x06](0x06/README.md)

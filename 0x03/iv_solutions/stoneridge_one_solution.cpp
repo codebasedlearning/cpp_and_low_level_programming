@@ -28,7 +28,7 @@ void point::scale(const double f) {
     y_ *= f;
 }
 
-// Extension: the same work as a free function. In Compiler Explorer, both compile to the same instructions - the
+// Extension: the same work as a free function. In a Compiler Explorer, both compile to the same instructions - the
 // address of the object is the first argument (`rdi` on x86-64, `x0` on ARM64).
 struct point_data {
     double x;

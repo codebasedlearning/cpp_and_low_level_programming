@@ -62,12 +62,13 @@ namespace {
         print_function_header();
 
         const tracer a{"a"};
-        cout << " 1| tracer b{a};\n";
+        cout << " 1| tracer b{a}\n";
         const tracer b{a};
-        cout << " 2| tracer c = a;\n";
+        cout << " 2| tracer c = a\n";
         const tracer c = a;                 // a copy construction, not an assignment
+
         tracer d{"d"};
-        cout << " 3| d = a;\n";
+        cout << " 3| d = a\n";
         d = a;                              // an assignment: `d` exists already
         cout << " 4| end of function\n";
     }
