@@ -576,9 +576,9 @@ guesses, from the history of that branch, and goes on. A right guess costs almos
 work started on the wrong path. So a branch that goes the same way many times in a row is cheap, and one that goes
 either way at random is expensive - sorting the data by the condition can make the same loop much faster.
 
-### `[[nodiscard]]`                         <a id="nodiscard"></a>
+### `nodiscard`                         <a id="nodiscard"></a>
 
-C++17 attribute: warns when the return value is thrown away. Belongs on functions whose result *is* the point — a
+C++17 attribute `[[nodiscard]]`: warns when the return value is thrown away. Belongs on functions whose result *is* the point — a
 computed value, an error code, a handle, a [RAII](#raii) wrapper. C++20 allows a reason:
 `[[nodiscard("check the error code")]]`.
 

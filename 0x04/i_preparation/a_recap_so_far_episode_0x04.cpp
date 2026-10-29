@@ -227,7 +227,7 @@ namespace {
         cout << " 1| t1=" << t1.name() << ", t2=" << t2.name() << ", t3=" << t3.name() << "\n";
     }
 
-    /* --- `recall_stack_unwinding` ---
+    /* --- `recall_RAII` ---
      * - On the way to the `catch` or at return, every frame is removed, and every local object in it is destroyed
      * - RAII: the cleanup is in the destructor, and it cannot be forgotten.
      */
