@@ -116,7 +116,7 @@ namespace {
 
 /* --- The symbols ---
  * Build as Debug and list the symbols of
- * `cmake-build-debug/0x04/CMakeFiles/d_symbols_revisited.dir/ii_session/d_symbols_revisited.cpp.o`, filtered for the
+ * `cmake-build-debug/0x04/CMakeFiles/d_symbols_revisited.dir/iii_follow_up/tinker_symbols_revisited.cpp.o`, filtered for the
  * names of this program: `nm -C <file> | grep -E 'total|largest|midpoint| range::|units::|use_all'`. With gcc (clang
  * lists the same):
  * - `T total(...)` and `T range::contains(double) const` - defined here, once.

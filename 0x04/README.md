@@ -1,6 +1,6 @@
 [© A.Voß, FH Aachen, codebasedlearning.dev](mailto:info@codebasedlearning.dev)
 
-# Unit 0x04 - Just Looking
+# Unit 0x04 - Recap and Looking
 
 A view is two words: where, and how long. This unit is about looking at data without owning it - a `string_view` into
 characters, a `span` or a pair of iterators into elements - and about what that means in memory: no copy, 16 bytes,

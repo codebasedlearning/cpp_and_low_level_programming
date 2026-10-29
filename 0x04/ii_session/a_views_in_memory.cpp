@@ -94,6 +94,15 @@ namespace {
         const string_view kind{string_view{text}.substr(0, 4)};
         cout << " 1| kind='" << kind << "'\n";
         cout << " 2| kind.data()='" << kind.data() << "'\n";
+
+        const void* text_c{text.data()};
+        const void* kind_c{kind.data()};
+        cout << " 3| text at " << text_c << "\n";
+        cout << " 4| kind at " << kind_c << "\n";
+
+        // beware... there is no '\0' in between
+        const char* chars{kind.data()};
+        cout << " 5| chars " << chars << "\n";
     }
 
     /* --- `where_by_ref` and `where_by_view` --- Both only read, both print where the characters are. */
@@ -141,7 +150,7 @@ namespace {
         print_function_header();
 
         const string_view view{make_title()};
-        const void* chars{view.data()};
+        const void* chars{view.data()};     // dangling view (valid metadata but invalid character storage)
         cout << " 1| view.size()=" << view.size() << ", view.data()=" << chars << " - still two valid words\n";
         // cout << view;                    // undefined behavior: the characters are gone
 
@@ -164,6 +173,7 @@ namespace {
     /* --- `show_a_span` ---
      * One function, three sources. `first(2)` and `subspan(1, 2)` are views of a part - the same idea as `substr` of a
      * view.
+     * span<T> also provides iterators and can be mutable (sting_view is immutable).
      */
     void show_a_span() {
         print_function_header();

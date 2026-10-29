@@ -55,7 +55,7 @@ namespace {
     };
 
     /* --- `build_a_house` ---
-     * One line of code - and five functions run: two `room` constructors, the `house` constructor, and after `1|` the
+     * One line of code - and six functions run: two `room` constructors, the `house` constructor, and after `1|` the
      * destructors.
      */
     void build_a_house() {

@@ -85,8 +85,6 @@ Extension:
 Extension:
 
 - Predict `sizeof(fraction<short>)`, `sizeof(fraction<int>)` and `sizeof(fraction<long long>)`, then check them.
-- Compile the file into an object file, and list its symbols with `nm -C`. Which member functions of `fraction<short>`
-  are there, and which of `fraction<long long>`? Call `value()` only for one of the types - where does it appear?
 - Try `fraction<double>`. Does it compile - and if not, which line does the error point to?
 
 <hr>
@@ -107,8 +105,6 @@ Extension:
 
 - Predict `sizeof(point<char>)`, `sizeof(point<int>)`, `sizeof(point<double>)` - and `sizeof(point<bool>)`, a class
   without members that cannot be created. Then check.
-- Remove every call of `describe`, compile to an object file and list the symbols with `nm -C`. Which `describe` is
-  still there, and why? What would that mean for a specialization in a header?
 
 <hr>
 
@@ -118,7 +114,6 @@ B to the power of N, computed by the compiler:
 
 - Write a `constexpr` function `long long power(long long b, unsigned n)` with a loop.
 - Check it with `static_assert`, and use it where only a constant will do: `std::array<int, power(2, 4)>`.
-- Call it with an `n` read from the console, too. Then write a `consteval` version `power_now` and try the same.
 - Compute `power(10, 19)` into a `constexpr long long`. What does the compiler say - and what happened with the same
   overflow at runtime, in unit 0x01?
 
@@ -127,8 +122,7 @@ Extension:
 - The old way, before `constexpr` functions had loops: a template. Write a variable template
   `template <long long B, unsigned N> constexpr long long power_v{B * power_v<B, N - 1>};` and a partial specialization
   for `N = 0` that stops the recursion. Check `power_v<2, 10>` with `static_assert`.
-- List the symbols of the object file with `nm -C`, as Debug and as Release. Is `power` there - with and without the
-  call at runtime? And what does the template version leave behind?
+- Call it with an `n` read from the console, too. Then write a `consteval` version `power_now` and try the same.
 
 <hr>
 
@@ -202,12 +196,14 @@ Answers: [comprehension check 0x04](../docs/answers.md#check-0x04).
 - I can write function and class templates, and I know that the compiler generates code per type - and only for what is
   used.
 - I can specialize a template for a particular type, and I know why one would.
-- I can constrain a template with a standard concept, write a simple concept of my own, and read the error when a type
-  does not satisfy it.
-- I can read the output of `nm`: defined, undefined, local and weak symbols, and a mangled name.
 - I can explain why templates and `inline` functions are defined in headers, and what the linker does with their copies.
 - I can put my code into a namespace, and I know why `using namespace` does not belong in a header.
 - I can build a static library with CMake, share a variable between files with `extern` or `inline`, and say which
   object files the linker takes from an archive.
 - I can use `vector`, `list`, `set`, `map` and `unordered_map` - create, insert, find, erase - and I know how they
   store their elements.
+
+Tinkered
+- I can constrain a template with a standard concept, write a simple concept of my own, and read the error when a type
+  does not satisfy it.
+- I can read the output of `nm`: defined, undefined, local and weak symbols, and a mangled name.

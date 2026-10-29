@@ -69,6 +69,10 @@ namespace {
         if (find(v.begin(), v.end(), 4) == v.end()) {
             cout << " 2| 4 not found\n";
         }
+        // With modern ranges, later we see more algorithms.
+        if (std::ranges::find(v, 4) == v.end()) {
+            cout << " 3| 4 not found\n";
+        }
     }
 
     /* --- `show_an_iterator` ---

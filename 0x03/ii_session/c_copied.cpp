@@ -70,6 +70,7 @@ namespace {
         tracer d{"d"};
         cout << " 3| d = a\n";
         d = a;                              // an assignment: `d` exists already
+        //d.operator=(a);
         cout << " 4| end of function\n";
     }
 

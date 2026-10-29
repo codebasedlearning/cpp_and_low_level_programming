@@ -5,8 +5,8 @@
  * Teaching Focus
  * - `operator<<` makes your own class printable: `cout << t` works like `cout << 42`.
  * - `[[nodiscard]]` asks the compiler to warn if a result is thrown away.
- * - `std::string_view` as a parameter: a function that only reads a text takes a literal, a `string`, or a part of one
- *   - without copying it.
+ * - `std::string_view` as a parameter: a function that only reads a text takes a literal,
+ *   a `string`, or a part of one without copying it.
  */
 
 #include <iostream>
@@ -99,6 +99,7 @@ namespace {
      * - !![#string-view]
      */
     int count_words(const string_view text) {
+//    int count_words(const string& text) {     // Where is the point?
         int words{0};
         bool in_word{false};
         for (const char c : text) {
