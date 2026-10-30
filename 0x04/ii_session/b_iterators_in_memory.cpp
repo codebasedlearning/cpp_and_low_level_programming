@@ -41,6 +41,10 @@ namespace {
         print_function_header();
 
         const vector<int> v{7, 3, 5, 3};
+
+        // motivation:
+        //   for (auto n:v) {}
+
         cout << " 1| v:";
         for (auto it{v.begin()}; it != v.end(); ++it) {        // `auto`: the type is `vector<int>::const_iterator`
             cout << ' ' << *it;
@@ -53,6 +57,8 @@ namespace {
             cout << ' ' << *it;
         }
         cout << '\n';
+
+        // why +it and not it++ ?
     }
 
     /* --- `find_an_element` ---
