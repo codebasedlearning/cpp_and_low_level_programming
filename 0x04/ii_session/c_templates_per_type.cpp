@@ -64,6 +64,10 @@ namespace {
     T smallest(const T& a, const T& b) {
         return b < a ? b : a;
     }
+    template <>
+    string smallest<string>(const string& a, const string& b) {
+        return b.size() < a.size() ? b : a;
+    }
 
     /* --- `instantiate_per_type` ---
      * Three calls, three types - the compiler deduces `T` from the arguments and generates `largest<int>`,
@@ -74,12 +78,15 @@ namespace {
     void instantiate_per_type() {
         print_function_header();
 
-        const string a{"apple"};
-        const string b{"banana"};
-        cout << " 1| " << largest(3, 7) << ", " << largest(2.5, 1.5) << ", " << largest(a, b) << '\n';
+        cout << " 1| " << largest(3, 7) << ", " << largest(2.5, 1.5) << '\n';
         cout << " 2| " << largest<double>(3, 7.5) << '\n';     // `T` given explicitly: 3 becomes a `double`
 
         // largest(3, 7.5);                 // compiler error: `T` is `int` or `double`? The compiler does not guess.
+
+        const string a{"applejuice"};
+        const string b{"banana"};
+        cout << " 3| " << largest(a, b) << '\n';
+        cout << " 4| " << smallest(a, b) << '\n';
 
         /* -- .Count them with `nm`. --
          * The tool from the preparation. Build this snippet as Debug and list the symbols of its object file,

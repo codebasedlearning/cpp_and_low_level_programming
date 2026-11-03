@@ -2,7 +2,6 @@
 
 add_executable(a_recap_so_far_episode_0x04 i_preparation/a_recap_so_far_episode_0x04.cpp)
 add_executable(b_print_and_view i_preparation/b_print_and_view.cpp)
-add_executable(c_symbols i_preparation/c_symbols.cpp)
 
 add_executable(a_views_in_memory ii_session/a_views_in_memory.cpp)
 add_executable(b_iterators_in_memory ii_session/b_iterators_in_memory.cpp)
@@ -27,7 +26,7 @@ target_link_libraries(study_static_library PRIVATE weather)
 add_executable(tinker_attributes iii_follow_up/tinker_attributes.cpp)
 add_executable(tinker_literals iii_follow_up/tinker_literals.cpp)
 add_executable(tinker_more_templates iii_follow_up/tinker_more_templates.cpp)
-add_executable(tinker_symbols_revisited iii_follow_up/tinker_symbols_revisited.cpp)
+add_executable(tinker_symbols iii_follow_up/tinker_symbols.cpp)
 add_executable(tinker_concepts iii_follow_up/tinker_concepts.cpp)
 
 add_executable(brickgate_one_solution iv_solutions/brickgate_one_solution.cpp)
