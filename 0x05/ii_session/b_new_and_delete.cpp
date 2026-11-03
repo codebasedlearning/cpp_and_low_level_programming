@@ -8,6 +8,7 @@
  * - `new int[n]` creates an array whose size is known only at run time; it is given back with `delete[]`.
  * - `std::make_unique` creates an object on the heap together with its owner: a `unique_ptr` that deletes it at its
  *   `}`.
+ * - Goal: Construct a list with nodes dynamically or simulate a vector.
  */
 
 #include <iostream>
@@ -46,11 +47,11 @@ namespace {
     class tracer {
     public:
         explicit tracer(const string& name) : name_{name} {
-            cout << " a|   " << name_ << ": constructed at " << this << '\n';
+            cout << " a|   '" << name_ << "' constructed at " << this << '\n';
         }
 
         ~tracer() {
-            cout << " b|   " << name_ << ": destroyed at " << this << '\n';
+            cout << " b|   '" << name_ << "' destroyed at " << this << '\n';
         }
 
         const string& name() const { return name_; }
@@ -61,7 +62,7 @@ namespace {
 
     /* --- `allocate_an_object` ---
      * `new` calls the constructor, `delete` calls the destructor - the same two as for a local object, only the moment
-     * is yours. `->` reaches a member through the pointer, as in unit 0x05.
+     * is yours. `->` reaches a member through the pointer (see previous snippets).
      */
     void allocate_an_object() {
         print_function_header();
@@ -118,6 +119,7 @@ namespace {
     }
 
     /* --- `own_with_a_unique_ptr` ---
+     * Preview Smart-Pointer
      * `make_unique<tracer>("u")` creates a `tracer` on the heap - the arguments go to its constructor - and returns a
      * `unique_ptr<tracer>`: an object that holds the address and owns the `tracer`. It is used like a pointer, `*u` and
      * `u->name()`. There is no `delete`: when `u` dies at the `}`, its destructor deletes the `tracer`.

@@ -74,25 +74,12 @@ namespace {
 
 }
 
-/* --- Symbols ---
- * `nm` lists the symbols of an object file: `T` defined here, `U` needed from elsewhere, `t` local, `W` weak - a
- * template instance or an `inline` function, of which the linker keeps one. The names are mangled, `_Z4areadd` is
- * `area(double, double)`; `nm -C` and `c++filt` translate them. Templates and `inline` functions live in headers,
- * ordinary functions in exactly one `.cpp` file.
- */
-
 /* --- Toolbox ---
  * What you can use by now to look at the machine:
  * - Debug (`-O0`) vs. Release (`-O2`), `g++ -S` or Compiler Explorer (godbolt.org).
  * - The debugger: breakpoints, the memory view, stepping and the call stack.
- * - `sizeof`, `alignof`, `offsetof` and printed addresses.
+ * - `sizeof` and printed addresses.
  * - `stopwatch` - measure, as Release, instead of guessing.
- * - `nm`, `nm -C` and `c++filt` - which functions are in which object file, and under which name.
- */
-
-/* --- Teaser ---
- * A `span` is an address and a count, a `vector` iterator is an address wrapped in a class. Drop the class and the
- * count, and keep only the address. What can you still do with it - and who remembers where the elements end?
  */
 
 /* --- `main` --- */

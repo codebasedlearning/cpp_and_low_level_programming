@@ -643,6 +643,23 @@ int* p = a;          // decay - sizeof(p) says nothing about the 5
 p[3] = 1;            // same as *(p + 3)
 ```
 
+### Linked list                             <a id="linked-list"></a>
+
+A chain of nodes, each with its payload and the [address](#pointer) of the next node; `nullptr` in the last one ends
+the list. A doubly linked list stores the address of the previous node as well. Inserting or removing a node changes a
+few addresses — no element moves, and pointers to the other nodes stay valid. The price: no
+[pointer arithmetic](#pointer-arithmetic) (the i-th node is i steps away), one address per node, and nodes spread over
+memory, each step a load that waits for the one before. The standard library has `std::forward_list` (singly linked)
+and `std::list` (doubly linked); in practice, `std::vector` wins more often than expected.
+
+```cpp
+struct node {
+    int payload;
+    node* next;             // the address of the next node, or nullptr
+};
+for (const node* p{head}; p != nullptr; p = p->next) { /* ... */ }
+```
+
 ### C string                                <a id="c-string"></a>
 
 An array of `char` that ends with `'\0'`, the character with the value 0 — the way C represents text. The literal

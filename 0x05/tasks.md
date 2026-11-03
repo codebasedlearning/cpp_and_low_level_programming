@@ -5,12 +5,12 @@
 ## How to work on the tasks
 
 - Work in a project of your own, outside this repository, as before - one `add_executable` per task.
-- Some tasks look at the machine code. Use Compiler Explorer (godbolt.org), or compile with
-  `g++ -std=c++23 -S -O1 -masm=intel ...` in a terminal - see the preparation.
 - Some tasks do undefined behavior on purpose. That is fine in a task - it never is in a program you hand in.
 - When you are done, compare your solution with the one in `iv_solutions` (once available), and ask an LLM of your
   choice (ChatGPT, Claude, ...) to review it - paste the task and your code. What does it criticize, and is it right?
   Check its claims before you believe them. If asked, post on Slido what you have learned.
+- Some tinker tasks look at the machine code. Use Compiler Explorer (godbolt.org), or compile with
+  `g++ -std=c++23 -S -O1 -masm=intel ...` in a terminal - see the preparation.
 
 <hr>
 
@@ -27,7 +27,7 @@ Extension:
 
 - Write a function `find_first(const int* first, const int* last, int value)` that returns a pointer to the first
   element equal to `value`, or `last` if there is none - like `std::find`.
-- Turn `sum` into a function template with a type parameter `It` for both parameters, and call it with pointers, with
+- Optional: Turn `sum` into a function template with a type parameter `It` for both parameters, and call it with pointers, with
   `vector` iterators and with `list` iterators. Can you do the same with `reverse`? What does your version need from
   `It`, and what does a `list` iterator not have?
 
@@ -48,8 +48,7 @@ Returning two results through pointers:
 Extension:
 
 - Write a second version, `divide(int n, int d)`, that returns a `struct division` with `quotient`, `remainder` and a
-  `bool ok`. Compare both versions in Compiler Explorer with `-O1`: where does the result of `divide` go?
-- Make the members of `division` `long long`. What changes in the machine code - and at how many bytes does it change?
+  `bool ok`. 
 
 <hr>
 
@@ -60,23 +59,21 @@ A first improvised list:
 - Write a class `node` with a private `int` member for the payload and a private pointer to the next `node`.
 - A constructor sets both; the pointer is optional, `nullptr` by default.
 - Add the member functions `payload()` and `next()`.
-- In `main`, create four local `node`s, each with the address of the one created before it as its next node. Call the
-  last one `head`.
+- In `main`, create four local or heap `node`s, each with the address of the one created before it as its next node. 
+  Call the last one `head`.
 - Starting at `head`, walk through the list with a `const node*`, and print each payload - until the pointer is
   `nullptr`.
 
 Extension:
 
-- Predict `sizeof(node)`, then check it. Print `this` and `next()` of each node: in which order are the nodes in
-  memory, and how far apart?
 - Write a function `int length(const node* first)` - once with a loop, once recursively.
 - Write a function `make_node(int payload, node* next)` that creates a local `node` and returns its address, and put
   its node in front of `head`. What does the compiler say, and what happens when you walk the list? How a node can
-  outlive the function that creates it: see the next unit.
+  outlive the function that creates it? Use it.
 
 <hr>
 
-### 👉 Task 'Thornbury'
+### 👉 Task 'Thornbury' – If you like C-Strings
 
 C strings by hand - without `<cstring>`, only with pointers:
 
@@ -96,7 +93,7 @@ Extension:
 
 <hr>
 
-### 👉 Task 'Glen Ferry'
+### 👉 Task 'Glen Ferry' – If you are familiar with assembler
 
 Where do the arguments go? For each function below, predict where its arguments and its result travel on x86-64 Linux
 or macOS - which register, or memory - then check in Compiler Explorer, x86-64 gcc, `-O1`.
@@ -210,19 +207,10 @@ Our results: [answers](../docs/answers.md#ai-0x05).
 Answers: [comprehension check 0x05](../docs/answers.md#check-0x05).
 
 - I can compute with pointers - `p + n`, `p[n]`, `q - p` - and say how many bytes each step is.
-- I know which addresses I may compute and which I may dereference, and what "one past the end" means.
-- I can explain array decay: when it happens, what is lost, and how C, `std::array` and `std::span` deal with it.
 - I can tell `a` from `&a` for an array, and predict `a + 1` and `&a + 1`.
 - I can work with C strings, and I know why `strlen` walks, why `cout` prints a `char*` as text, and why `==` is the
   wrong comparison.
 - I can pass a `std::string` to a C function and back, and I know what `extern "C"` does to a symbol.
 - I can use pointers as out-parameters, with `nullptr` for "not needed" - and I know when a returned struct is the
   better interface.
-- I can say where the arguments and the result of a function travel on x86-64 and on ARM64, and why small structs are
-  cheap to pass by value.
-- I can read the assembly of a small function as Debug and as Release: arguments, stack frame, calls, result.
-- I can name the kinds of wild pointers, and explain why a program with one may seem to work.
-- I know why the compiler may drop a null check that comes after the dereference.
 - I can read `const` in a pointer declaration from right to left, and choose the right one for a parameter.
-- I can use `strcpy`, `strncpy`, `memcpy` and `memset`, and I know what each of them trusts me with.
-- I can use a pointer to a pointer, e.g. to move the caller's pointer or to read `argv`.

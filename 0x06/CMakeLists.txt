@@ -1,7 +1,6 @@
 # (C) A.Voß, a.voss@fh-aachen.de, info@codebasedlearning.dev
 
 add_executable(a_recap_episode_0x06 i_preparation/a_recap_episode_0x06.cpp)
-add_executable(b_new_and_delete i_preparation/b_new_and_delete.cpp)
 add_executable(c_heap_watch i_preparation/c_heap_watch.cpp)
 
 add_executable(a_heap_in_memory ii_session/a_heap_in_memory.cpp)

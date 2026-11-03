@@ -51,10 +51,12 @@ namespace {
         int n{1};
         int m{2};
         int* p{&n};
+        cout << " 1| n=" << n << ", m=" << m << ", p=" << p << ", &n=" << &n << '\n';
+
         *p = 10;                            // writes to `n`
         p = &m;                             // now `p` points to `m`
         *p = 20;                            // writes to `m`
-        cout << " 1| n=" << n << ", m=" << m << ", p=" << p << ", &m=" << &m << '\n';
+        cout << " 2| n=" << n << ", m=" << m << ", p=" << p << ", &m=" << &m << '\n';
     }
 
     /* --- `define_a_c_array` ---
@@ -96,7 +98,7 @@ namespace {
         b = t;
     }
 
-    /* --- `swap_by_reference` --- Gets two references - second names for the caller's variables. */
+    /* --- `swap_by_reference` --- Gets two references - second names (aliases) for the caller's variables. */
     void swap_by_reference(int& a, int& b) {
         const int t{a};
         a = b;
@@ -120,12 +122,18 @@ namespace {
     void swap_three_ways() {
         print_function_header();
 
-        int n{1};
-        int m{2};
+        int n{};
+        int m{};
+
+        n = 1; m = 2;
         swap_by_value(n, m);
         cout << " 1| by value:     n=" << n << ", m=" << m << '\n';
+
+        n = 11; m = 22;
         swap_by_reference(n, m);
         cout << " 2| by reference: n=" << n << ", m=" << m << '\n';
+
+        n = 111; m = 222;
         swap_by_pointer(&n, &m);
         cout << " 3| by pointer:   n=" << n << ", m=" << m << '\n';
 
