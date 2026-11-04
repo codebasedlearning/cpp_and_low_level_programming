@@ -10,6 +10,7 @@ add_executable(b_new_and_delete ii_session/b_new_and_delete.cpp)
 add_executable(c_singly_linked_list ii_session/c_singly_linked_list.cpp)
 add_executable(d_const_and_pointers ii_session/d_const_and_pointers.cpp)
 add_executable(e_a_box_and_the_rule_of_three ii_session/e_a_box_and_the_rule_of_three.cpp)
+add_executable(f_assembly ii_session/f_assembly.cpp)
 
 add_executable(study_wild_pointers iii_follow_up/study_wild_pointers.cpp)
 add_executable(study_addresses_as_arguments iii_follow_up/study_addresses_as_arguments.cpp)
@@ -20,7 +21,6 @@ add_executable(tinker_address_sanitizer iii_follow_up/tinker_address_sanitizer.c
 add_executable(tinker_aliasing iii_follow_up/tinker_aliasing.cpp)
 add_executable(tinker_row_or_column iii_follow_up/tinker_row_or_column.cpp)
 add_executable(tinker_simd iii_follow_up/tinker_simd.cpp)
-add_executable(tinker_assembly iii_follow_up/tinker_assembly.cpp)
 add_executable(tinker_a_list_with_rule_of_three iii_follow_up/tinker_a_list_and_the_rule_of_three.cpp)
 
 # AddressSanitizer for one target, where the toolchain can link it (gcc and clang on Linux, Apple clang on macOS).

@@ -4,11 +4,13 @@
  *
  * Teaching Focus
  * - The tool of this unit: the assembly the compiler makes of your code - with `g++ -S`, or in the browser with
- *   Compiler Explorer.
+ *   a [Compiler Explorer](www.godbolt.org).
  * - The arguments of a function arrive in registers, the result leaves in a register.
  * - Debug (`-O0`) keeps every variable in the stack frame; Release (`-O2`) keeps them in registers - and inlines small
  *   functions.
  * - Two instruction sets: x86-64 (Intel, AMD) and ARM64 (Apple silicon, most phones).
+ * - `extern "C"`: a name without mangling - a function that C, and every language that can call C, can call.
+ * - The name is one half of the agreement, the calling convention the other: x86-64 has two.
  */
 
 #include <iostream>
@@ -42,6 +44,16 @@ void increment(int* p) {
     ++*p;
 }
 
+/* --- `square_c` ---
+ * `square` once more, for other languages. `extern "C"` switches off the name mangling: the label is `square_c` (on
+ * macOS `_square_c`), not `_Z8square_ci`. That is a name C knows - and with it every language that can call C:
+ * Python, Rust, Swift, C#, Java ... The machine code is the same as for `square`, only the name differs.
+ * - !![#extern-c]
+ */
+extern "C" int square_c(const int n) {
+    return n * n;
+}
+
 namespace {
 
     /* --- `use_the_functions` --- The results are not the point, the machine code is. */
@@ -52,21 +64,22 @@ namespace {
         increment(&n);
         cout << " 1| square(7)=" << square(7) << ", sum_of_squares(3, 4)=" << sum_of_squares(3, 4) << '\n';
         cout << " 2| n=" << n << '\n';
+        cout << " 3| square_c(7)=" << square_c(7) << '\n';
     }
 
 }
 
 /* --- Getting the assembly ---
  * Two ways - the result is the same.
- * - Compiler Explorer (godbolt.org), in the browser: paste the three functions `square`, `sum_of_squares` and
- *   `increment` - no `#include`, no `main` - into the left window, choose "x86-64 gcc" as the compiler, and write `-O0`
- *   into the compiler options. Each source line and its instructions get the same color.
- * - In a terminal in this folder: `g++ -std=c++23 -S -O0 -masm=intel -I ../../utils c_assembly.cpp` writes
- *   `c_assembly.s`. It is long - `cout` pulls in a lot. Search for `_Z6squarei` (on macOS `__Z6squarei`): the labels
+ * - Compiler Explorer, e.g. godbolt.org, in the browser: paste the functions `square`, `sum_of_squares`, `increment`
+ *   and `square_c` - no `#include`, no `main` - into the left window, choose "x86-64 gcc" as the compiler, and write
+ *   `-O0` into the compiler options. Each source line and its instructions get the same color.
+ * - In a terminal in this folder: `g++ -std=c++23 -S -O0 -masm=intel -I ../../utils f_assembly.cpp` writes
+ *   `f_assembly.s`. It is long - `cout` pulls in a lot. Search for `_Z6squarei` (on macOS `__Z6squarei`): the labels
  *   are the mangled names from unit 0x04.
  * Without `-masm=intel`, `g++` writes the AT&T syntax: `movl %edi, -4(%rbp)` - the source first, a `%` before each
  * register, the size as a suffix. This course uses the Intel syntax, the default of Compiler Explorer: the destination
- * comes first, as in an assignment. On Apple silicon, `-masm=intel` is an error - you get ARM64 anyway, see below.
+ * comes first, as in an assignment. On Apple silicon, `-masm=intel` could be an error - you may get ARM64 anyway.
  */
 
 /* --- Reading x86-64 ---
@@ -88,6 +101,7 @@ namespace {
  *   squares. `lea` computes an address - here it serves as an adder.
  * - `increment` is one instruction, `add DWORD PTR [rdi], 1` (clang: `inc`) - `*p` in the machine: the memory at the
  *   address in `rdi`.
+ * - `square_c` is the same three instructions as `square`, under the label `square_c`.
  * - !![#calling-convention]
  */
 
@@ -102,6 +116,40 @@ namespace {
  *   stores. x86-64 can add to memory directly.
  * The instructions differ, the idea is the same: arguments in registers, the result in a register, the stack for
  * whatever does not fit or must have an address.
+ */
+
+/* --- Calling `square_c` from Python ---
+ * Build this file as a shared library - machine code that other programs load at run time - and call it with
+ * `ctypes`, Python's way to call C. In a terminal in this folder:
+ *   g++ -std=c++23 -shared -fPIC -I ../../utils f_assembly.cpp -o libsquare.so
+ *   python3 -c 'import ctypes; print(ctypes.CDLL("./libsquare.so").square_c(7))'
+ * It prints 49. Ask for `square` instead, and Python says `undefined symbol: square` - the library only knows
+ * `_Z6squarei`. `nm -D libsquare.so` lists both names. On macOS, the file is `libsquare.dylib` and `nm -gU` lists the
+ * names; on Windows, it is a `.dll`.
+ */
+
+/* --- One name, two calling conventions ---
+ * `extern "C"` fixes the name, not the registers. Where the argument travels is the calling convention, and x86-64
+ * has two: System V (Linux, macOS) passes the first `int` in `edi`, Microsoft x64 (Windows) in `ecx` (see future
+ * snippets). gcc and clang can generate both - paste this into Compiler Explorer, "x86-64 gcc", `-O2`:
+ *   extern "C" int square_sysv(int n) { return n * n; }
+ *   extern "C" __attribute__((ms_abi)) int square_ms(int n) { return n * n; }
+ * Two versions of `square`, three instructions each - `imul edi, edi` in the first, `imul ecx, ecx` in the second.
+ * Caller and function must agree on both, the name and the convention - otherwise the function reads its argument
+ * from a register nobody wrote to. 32-bit x86 had a whole zoo of conventions (`__cdecl`, `__stdcall`, `__fastcall`),
+ * and old Windows headers are full of them.
+ * - !![#calling-convention]
+ */
+
+/* --- Who cleans up the stack? ---
+ * A convention also says who removes the arguments from the stack after the call. On 32-bit x86, where the arguments
+ * were pushed onto the stack, the conventions differed in exactly that. With `__cdecl`, the caller cleans up: only
+ * the caller knows how many arguments it pushed - that is what makes `printf` with its variable number of arguments
+ * possible. With `__stdcall` (the Win32 API), the function cleans up as it returns: the code exists once, not after
+ * every call - but a variable number of arguments is impossible. If caller and function disagree, the stack pointer
+ * is off after every call - until a function returns to a wrong address.
+ * On x86-64 and ARM64, the caller cleans up, in every convention - and there is rarely anything to clean: the first
+ * arguments travel in registers.
  */
 
 /* --- `main` --- */

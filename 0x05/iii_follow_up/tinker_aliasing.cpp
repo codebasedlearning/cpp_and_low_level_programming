@@ -38,7 +38,16 @@ namespace {
         *a += value;
     }
 
-    /* --- `add_twice_restrict` --- The same as `add_twice`, with a promise. */
+    /* --- `add_twice_restrict` ---
+     * The same as `add_twice`, with a promise.
+    * __restrict is a promise you make to the compiler: as long as this pointer exists,
+    * the object it points to is reached only through this pointer, and no other pointer
+    * or reference touches it. In other words, the pointers don’t alias.
+    *
+    * Why the compiler cares. Take
+    *   add_twice(int* a, const int* b) { *a += *b; *a += *b; }.
+    * The compiler has to allow for a == b, so after every write through a it must load *b again.
+    */
     void add_twice_restrict(int* __restrict a, const int* __restrict b) {
         *a += *b;
         *a += *b;
