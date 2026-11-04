@@ -7,6 +7,7 @@ turns out to be the next element, not the next byte; we lose the length of an ar
 length of a text in the data, as a `'\0'`; we hand it to functions and to C libraries, and look at the machine code to
 see which registers it travels in. And we watch it go wild - null, dangling, out of bounds - and see why a program with
 a wild pointer often seems to work.
+And, overall, we show why working with pointers (used correctly) and understand the internals, are still important.
 
 ## Comments
 
