@@ -34,6 +34,7 @@ endif ()
 
 add_executable(copperview_one_solution iv_solutions/copperview_one_solution.cpp)
 add_executable(kengate_one_solution iv_solutions/kengate_one_solution.cpp)
+add_executable(mapleford_one_solution iv_solutions/mapleford_one_solution.cpp)
 add_executable(mcallenspring_one_solution iv_solutions/mcallenspring_one_solution.cpp)
 add_executable(thornbury_one_solution iv_solutions/thornbury_one_solution.cpp)
 add_executable(dontdothisorilltellyourmum_one_solution iv_solutions/dontdothisorilltellyourmum_one_solution.cpp)

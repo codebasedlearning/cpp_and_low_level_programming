@@ -14,25 +14,6 @@
 
 <hr>
 
-### 👉 Task 'Copper View'
-
-- Write a function `sum(const int* first, const int* last)` that adds up all `int`s from `first` up to, but not
-  including, `last` - with a pointer loop, without an index.
-- Write a function `reverse(int* first, int* last)` that reverses the elements in place: one pointer from the front,
-  one from the back, swapping until they meet.
-- Test both with a C array, a `std::array` and a `std::vector`. Where do you get `first` and `last` from in each case?
-- Print the addresses of the first and the last element, and `last - first`.
-
-Extension:
-
-- Write a function `find_first(const int* first, const int* last, int value)` that returns a pointer to the first
-  element equal to `value`, or `last` if there is none - like `std::find`.
-- Optional: Turn `sum` into a function template with a type parameter `It` for both parameters, and call it with pointers, with
-  `vector` iterators and with `list` iterators. Can you do the same with `reverse`? What does your version need from
-  `It`, and what does a `list` iterator not have?
-
-<hr>
-
 ### 👉 Task 'Kengate'
 
 Returning two results through pointers:
@@ -49,6 +30,48 @@ Extension:
 
 - Write a second version, `divide(int n, int d)`, that returns a `struct division` with `quotient`, `remainder` and a
   `bool ok`. 
+
+<hr>
+
+### 👉 Task 'Maple Ford'
+
+An optional value, with the value on the heap:
+
+- Write a class `optional_int` that either holds an `int` or nothing. Its only member is an `int*` to an `int` on the
+  heap - `nullptr` means "empty".
+- The default constructor creates an empty object; `explicit optional_int(int value)` creates the `int` with `new`.
+- Add the member functions `has_value()`, `value()` - which throws a `std::logic_error` if the object is empty - and
+  `reset()`, which deletes the `int` and leaves the object empty.
+- Follow the Rule of Three: a destructor, a copy constructor and a copy assignment (no move operations). In the copy
+  assignment, think of all cases: both empty, both full, only one of them full - and `a = a`.
+- Test it: copy and assign full and empty objects, print the addresses of the `int`s, and check that every object has
+  its own `int`.
+- Then turn it into a class template `heap_optional<T>`, and test it with `int` and with `std::string`. What must `T`
+  be able to do?
+
+Extension:
+
+- Compare `sizeof(optional_int)` with `sizeof(std::optional<int>)` from `<optional>`. How many `new`s does a copy of
+  yours cost, and how many a copy of a `std::optional<int>`? Where does `std::optional` keep its value?
+
+<hr>
+
+### 👉 Task 'Copper View'
+
+- Write a function `sum(const int* first, const int* last)` that adds up all `int`s from `first` up to, but not
+  including, `last` - with a pointer loop, without an index.
+- Write a function `reverse(int* first, int* last)` that reverses the elements in place: one pointer from the front,
+  one from the back, swapping until they meet.
+- Test both with a C array, a `std::array` and a `std::vector`. Where do you get `first` and `last` from in each case?
+- Print the addresses of the first and the last element, and `last - first`.
+
+Extension:
+
+- Write a function `find_first(const int* first, const int* last, int value)` that returns a pointer to the first
+  element equal to `value`, or `last` if there is none - like `std::find`.
+- Optional: Turn `sum` into a function template with a type parameter `It` for both parameters, and call it with pointers, with
+  `vector` iterators and with `list` iterators. Can you do the same with `reverse`? What does your version need from
+  `It`, and what does a `list` iterator not have?
 
 <hr>
 
@@ -73,7 +96,7 @@ Extension:
 
 <hr>
 
-### 👉 Task 'Thornbury' – If you like C-Strings
+### 👉 Optional Task 'Thornbury' – If you like C-Strings
 
 C strings by hand - without `<cstring>`, only with pointers:
 
@@ -93,7 +116,7 @@ Extension:
 
 <hr>
 
-### 👉 Task 'Glen Ferry' – If you are familiar with assembler
+### 👉 Optional Task 'Glen Ferry' – If you are familiar with assembler
 
 Where do the arguments go? For each function below, predict where its arguments and its result travel on x86-64 Linux
 or macOS - which register, or memory - then check in Compiler Explorer, x86-64 gcc, `-O1`.
@@ -152,7 +175,7 @@ Our results: [answers](../docs/answers.md#check-0x05), the point on registers.
 
 <hr>
 
-### 👉 Task 'Don't do this, or I'll tell your mum'
+### 👉 Optional Task 'Don't do this, or I'll tell your mum'
 
 Change local variables without naming them - through pointers into the stack frame. This is undefined behavior, and
 that is the point: find out what your machine does with it.
