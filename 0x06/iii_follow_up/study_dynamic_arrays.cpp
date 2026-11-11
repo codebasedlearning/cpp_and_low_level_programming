@@ -17,7 +17,6 @@
 #include <cstddef>
 #include <cstdlib>
 #include <cbl/printing.hpp>
-#include <cbl/heap_watch.hpp>
 
 using std::cout, std::vector, std::unique_ptr, std::make_unique, std::size_t;
 
@@ -38,8 +37,8 @@ namespace {
         int* zeros{new int[4]{}};
         int* some{new int[4]{1, 2}};
         unset[0] = 7;                       // writing is fine - reading before writing is not
-        cout << " 1| unset[0]=" << unset[0] << ", zeros[3]=" << zeros[3] << ", some: " << some[0] << ' ' << some[1]
-             << ' ' << some[2] << ' ' << some[3] << '\n';
+        cout << " 1| unset[0]=" << unset[0] << ", zeros[3]=" << zeros[3]
+             << ", some: " << some[0] << ' ' << some[1] << ' ' << some[2] << ' ' << some[3] << '\n';
         delete[] unset;
         delete[] zeros;
         delete[] some;
@@ -53,7 +52,6 @@ namespace {
     void use_one_block(const size_t rows, const size_t columns) {
         print_function_header();
 
-        const heap_watch heap{};
         const unique_ptr<int[]> cells{make_unique<int[]>(rows * columns)};
         int value{0};
         for (size_t row{0}; row < rows; ++row) {
@@ -66,7 +64,6 @@ namespace {
             cout << " 1|   row " << row << " at " << &cells[row * columns] << ", first element "
                  << cells[row * columns] << '\n';
         }
-        cout << " 2| allocations=" << heap.allocations() << '\n';
     }
 
     /* --- `use_one_block_per_row` ---
@@ -79,7 +76,6 @@ namespace {
     void use_one_block_per_row(const size_t rows, const size_t columns) {
         print_function_header();
 
-        const heap_watch heap{};
         int** grid{new int*[rows]};
         for (size_t row{0}; row < rows; ++row) {
             grid[row] = new int[columns]{};
@@ -88,7 +84,7 @@ namespace {
         for (size_t row{0}; row < rows; ++row) {
             cout << " 1|   row " << row << " at " << grid[row] << '\n';
         }
-        cout << " 2| grid[1][2]=" << grid[1][2] << ", allocations=" << heap.allocations() << '\n';
+        cout << " 2| grid[1][2]=" << grid[1][2] << '\n';
 
         for (size_t row{0}; row < rows; ++row) {
             delete[] grid[row];
@@ -96,7 +92,32 @@ namespace {
         delete[] grid;
     }
 
-    /* --- `grid` ---
+    /* --- `own_one_block_per_row` ---
+     * The same blocks, now owned: an array of `unique_ptr<int[]>`, owned by a `unique_ptr` itself. `grid[1][2]` is
+     * still two steps - load the address of the row, then index it. But there is no `delete` at all: at the `}`, the
+     * outer owner's `delete[]` runs the destructors of the row owners, and each of them frees its row - first the
+     * rows, then the array of pointers, as in the raw version, without anybody writing it.
+     * And it is safe on the way out. If `new` throws for the third row, the raw version leaks the first two rows and
+     * the array of pointers: its `delete` loop is never reached - the leak on the way out (see previous snippets).
+     * Here, stack unwinding destroys `grid`, and everything that exists is freed.
+     * In everyday code, `vector<vector<int>>` does the same - with sizes, copies and growth.
+     */
+    void own_one_block_per_row(const size_t rows, const size_t columns) {
+        print_function_header();
+
+        using row_type = unique_ptr<int[]>;
+        const unique_ptr<unique_ptr<int[]>[]> grid{make_unique<row_type[]>(rows)};
+        for (size_t row{0}; row < rows; ++row) {
+            grid[row] = make_unique<int[]>(columns);
+        }
+        grid[1][2] = 12;
+        for (size_t row{0}; row < rows; ++row) {
+            cout << " 1|   row " << row << " at " << grid[row].get() << '\n';
+        }
+        cout << " 2| grid[1][2]=" << grid[1][2] << '\n';
+    }
+
+    /* --- .`grid` ---
      * The one block with a size and a way to index it - owned by a `vector<int>`, the Rule of Zero. It can be copied
      * and moved, and nothing leaks.
      */
@@ -116,13 +137,11 @@ namespace {
     void use_a_grid(const size_t rows, const size_t columns) {
         print_function_header();
 
-        const heap_watch heap{};
         grid g{rows, columns};
         g.at(1, 2) = 12;
-        cout << " 1| g.at(1, 2)=" << g.at(1, 2) << ", size()=" << g.size() << ", allocations=" << heap.allocations()
-             << '\n';
+        cout << " 1| g.at(1, 2)=" << g.at(1, 2) << ", size()=" << g.size() << '\n';
 
-        /* -- .Q&A -- !![3 x 4 `int`s: how much heap memory does each of the three versions take?](#a-608) */
+        /* -- .Q&A -- !![3 x 4 `int`s: how much heap memory does each of the three versions take?](#a-607) */
     }
 
 }
@@ -132,6 +151,7 @@ int main() {
     initialize_the_elements();
     use_one_block(3, 4);
     use_one_block_per_row(3, 4);
+    own_one_block_per_row(3, 4);
     use_a_grid(3, 4);
 
     return EXIT_SUCCESS;

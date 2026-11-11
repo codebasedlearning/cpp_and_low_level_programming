@@ -19,6 +19,7 @@
 #include <limits>
 #include <cstdlib>                          // for malloc, calloc, realloc, free
 #include <cbl/printing.hpp>
+#include <cbl/tracer.hpp>
 #include <cbl/heap_watch.hpp>
 
 using std::cout, std::string, std::allocator, std::construct_at, std::destroy_at, std::bad_alloc, std::nothrow,
@@ -28,21 +29,6 @@ using std::cout, std::string, std::allocator, std::construct_at, std::destroy_at
 /* ---- Content ---- */
 
 namespace {
-
-    /* --- `tracer` --- Reports its birth and its death, with its address. */
-    class tracer {
-    public:
-        explicit tracer(const string& name) : name_{name} {
-            cout << " a|   " << name_ << ": constructed at " << this << '\n';
-        }
-
-        ~tracer() {
-            cout << " b|   " << name_ << ": destroyed at " << this << '\n';
-        }
-
-    private:
-        string name_;
-    };
 
     /* --- `new_in_two_steps` ---
      * `operator new(size)` is the function behind every `new`: it returns raw bytes, a `void*` - no object yet.

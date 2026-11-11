@@ -50,7 +50,7 @@ namespace {
         print_function_header();
 
         const naive_box a{23};
-        cout << " 1| a.address()=" << a.address() << endl;
+        cout << " 1| a.address()=" << a.address() << ", a=" << *(a.address());
         // What happens here?
         // const naive_box b{a};
         // cout << " 2| b.address()=" << b.address() << " - the same `int`" << endl;

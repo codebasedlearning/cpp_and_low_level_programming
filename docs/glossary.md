@@ -703,6 +703,11 @@ Allocate on the heap and construct; destruct and free. Every `new` needs exactly
 
 `new` throws `std::bad_alloc` rather than returning null (unless you ask for `new (std::nothrow)`).
 
+The first step can be swapped. A class can declare its own `operator new` and `operator delete`: members, implicitly
+`static`, found before the global ones. `new T` and `delete` then use them for `T`, and `::new T` and `::delete` skip
+past them to the global ones. The two pairs must not be mixed. Pools and arenas work this way; arrays need
+`operator new[]` and `operator delete[]` in addition.
+
 ### Array cookie                            <a id="array-cookie"></a>
 
 `new T[n]` for a type with a destructor asks `operator new[]` for a few bytes more than `n * sizeof(T)` and stores the

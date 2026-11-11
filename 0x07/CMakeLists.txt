@@ -5,10 +5,16 @@ add_executable(b_operators i_preparation/b_operators.cpp)
 add_executable(c_casts_and_enums i_preparation/c_casts_and_enums.cpp)
 add_executable(d_cpp_insights i_preparation/d_cpp_insights.cpp)
 
+add_executable(a_new_revisited ii_session/a_new_revisited.cpp)
+add_executable(c_heap_watch ii_session/c_heap_watch.cpp)
+
 add_executable(a_operators_are_calls ii_session/a_operators_are_calls.cpp)
 add_executable(b_casts_in_the_machine ii_session/b_casts_in_the_machine.cpp)
 add_executable(c_statics_in_memory ii_session/c_statics_in_memory.cpp)
 add_executable(d_enums_in_memory ii_session/d_enums_in_memory.cpp)
+
+add_executable(tinker_points_in_a_box iii_follow_up/tinker_points_in_a_box.cpp)
+add_executable(tinker_new_by_hand iii_follow_up/tinker_new_by_hand.cpp)
 
 add_executable(study_operator_rules iii_follow_up/study_operator_rules.cpp)
 add_executable(study_static iii_follow_up/study_static.cpp)
@@ -19,6 +25,8 @@ add_executable(study_bits_and_masks iii_follow_up/study_bits_and_masks.cpp)
 add_executable(study_bytes_in_memory iii_follow_up/study_bytes_in_memory.cpp)
 add_executable(tinker_pointer_operators iii_follow_up/tinker_pointer_operators.cpp)
 add_executable(tinker_memory_map iii_follow_up/tinker_memory_map.cpp)
+add_executable(tinker_emplace_and_forward iii_follow_up/tinker_emplace_and_forward.cpp)
+add_executable(tinker_pages_and_mmap iii_follow_up/tinker_pages_and_mmap.cpp)
 
 add_executable(heartland_one_solution iv_solutions/heartland_one_solution.cpp)
 add_executable(deerwoods_one_solution iv_solutions/deerwoods_one_solution.cpp)

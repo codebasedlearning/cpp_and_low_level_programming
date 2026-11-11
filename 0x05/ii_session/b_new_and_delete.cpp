@@ -16,6 +16,7 @@
 #include <memory>                           // for unique_ptr, make_unique
 #include <cstdlib>
 #include <cbl/printing.hpp>
+#include <cbl/tracer.hpp>                   // a probe: reports its birth and its death, with its address
 
 using std::cout, std::string, std::unique_ptr, std::make_unique;
 
@@ -43,22 +44,6 @@ namespace {
         // cout << *p;                      // undefined behavior: the `int` is gone
     }
 
-    /* --- `tracer` --- Reports its birth and its death, as in unit 0x03. */
-    class tracer {
-    public:
-        explicit tracer(const string& name) : name_{name} {
-            cout << " a|   '" << name_ << "' constructed at " << this << '\n';
-        }
-
-        ~tracer() {
-            cout << " b|   '" << name_ << "' destroyed at " << this << '\n';
-        }
-
-        const string& name() const { return name_; }
-
-    private:
-        string name_;
-    };
 
     /* --- `allocate_an_object` ---
      * `new` calls the constructor, `delete` calls the destructor - the same two as for a local object, only the moment

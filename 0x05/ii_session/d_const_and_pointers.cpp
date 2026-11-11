@@ -83,7 +83,7 @@ namespace {
      * written. The `const` after the `*` in `int* const values` would be like `const int count` - it only concerns the
      * function's own copy of the address. The caller does not care, and in a pure declaration it can be left out.
      */
-    double average(const int* values, const int count) {
+    double average(const int* const values, const int count) {
         double sum{0.0};
         for (int i{0}; i < count; ++i) {
             sum += values[i];

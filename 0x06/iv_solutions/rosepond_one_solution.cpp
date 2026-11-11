@@ -7,7 +7,6 @@
 #include <memory>
 #include <unordered_map>
 #include <cstdlib>
-#include <cbl/heap_watch.hpp>               // in your project: a copy of `heap_watch.hpp`
 
 using std::cout, std::string, std::unique_ptr, std::make_unique, std::unordered_map;
 
@@ -17,7 +16,6 @@ struct address {
 };
 
 int main() {
-    const heap_watch heap{};
     {
         unordered_map<int, address*> book;
         book[1] = new address{"Max", "112"};
@@ -33,9 +31,7 @@ int main() {
 
         // Extension: 3 addresses, 3 nodes of the map (the key, the pointer and the link to the next node) and the array
         // of buckets - 7 allocations with gcc's library, 8 with clang's. The short strings need none (SSO).
-        cout << "allocations in the block: " << heap.allocations() << '\n';
     }
-    cout << "raw pointers: live=" << heap.live() << '\n';
 
     // Extension: the map owns the addresses. No `delete` loop, and `erase` or `clear` destroys the address together
     // with its node. The map cannot be copied any more - a `unique_ptr` cannot.
@@ -50,7 +46,6 @@ int main() {
         }
         // const unordered_map<int, unique_ptr<address>> copy{book};  // compiler error
     }
-    cout << "unique_ptr: live=" << heap.live() << '\n';
 
     return EXIT_SUCCESS;
 }

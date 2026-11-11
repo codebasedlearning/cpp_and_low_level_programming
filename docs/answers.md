@@ -293,7 +293,7 @@ of columns is part of the type.
 ## A-601                                    <a id="a-601"></a>
 `u` does - or rather its destructor. `u` is a local object, so it dies at the `}` of `own_with_a_unique_ptr`, after
 ` 2| end of function`; its destructor calls `delete` for the address it holds, and `delete` runs the destructor of the
-`tracer`: the ` b|` line comes last. No line of the function says `delete` - the compiler inserted the call of the
+`tracer`: its `destroyed` line comes last. No line of the function says `delete` - the compiler inserted the call of the
 `unique_ptr` destructor at the `}`, as for every local object.
 <br> - !![unique_ptr](glossary.md#unique-ptr)
 
@@ -333,14 +333,6 @@ handle.
 <br> - !![std::move](glossary.md#std-move)
 
 ## A-606                                    <a id="a-606"></a>
-Because `std::move` moves nothing. It is a cast: it turns the expression `a` into an rvalue, and that selects the `&&`
-overload of `describe`. Whether anything is moved is up to the function that receives it - and `describe(int_buffer&&)`
-only reads `b.size()`. A move happens only where a move constructor or a move assignment - or a function that does the
-same - takes the object's resources. Still, after `std::move(a)`, treat `a` as moved-from: the caller cannot know what
-the function did, only what it was allowed to do.
-<br> - !![Value categories](glossary.md#value-categories)
-
-## A-607                                    <a id="a-607"></a>
 Only the control block. `shared_ptr{new tracer{...}}` has two blocks: the `tracer` and the control block. When the last
 owner goes, the destructor of the `tracer` runs and its block is released at once; the control block stays, because
 the `weak_ptr` still needs it - for `expired()`, `lock()` and its own count - until the last `weak_ptr` is gone. With
@@ -349,7 +341,7 @@ now the object's bytes are gone at once. With `make_shared`, they are part of th
 large object observed by a long-lived `weak_ptr` keeps all its memory.
 <br> - !![shared_ptr and weak_ptr](glossary.md#shared-ptr)
 
-## A-608                                    <a id="a-608"></a>
+## A-607                                    <a id="a-607"></a>
 The data are 48 bytes in each case. With glibc (x86-64 and ARM64 Linux), a block takes its size plus 8, rounded up to a
 multiple of 16, and at least 32 bytes:
 
@@ -363,7 +355,7 @@ multiple of 16, and at least 32 bytes:
 differently.
 <br> - !![Stack and heap](glossary.md#stack-and-heap)
 
-## A-609                                    <a id="a-609"></a>
+## A-608                                    <a id="a-608"></a>
 The move constructor is generated only if the class declares none of: copy constructor, copy assignment, move
 assignment, destructor; the move assignment only if it declares none of: copy constructor, copy assignment, move
 constructor, destructor. `= default` counts as declared. So a destructor alone - for a log line, as in

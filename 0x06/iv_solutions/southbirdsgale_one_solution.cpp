@@ -7,7 +7,6 @@
 #include <cstring>
 #include <cstddef>
 #include <cstdlib>
-#include <cbl/heap_watch.hpp>               // in your project: a copy of `heap_watch.hpp`
 
 using std::cout, std::unique_ptr, std::make_unique, std::strlen, std::size_t;
 
@@ -40,20 +39,17 @@ unique_ptr<char[]> make_reverse_by_wrapping(const char* text) {
 }
 
 int main() {
-    const heap_watch heap{};
     for (const char* text : {"stressed", "Sei fein, nie fies", "a", ""}) {
         char* reversed{reverse(text)};
         cout << "reverse('" << text << "') = '" << reversed << "'\n";
         delete[] reversed;                  // forget this, and live() below is 4
     }
-    cout << "after reverse: live=" << heap.live() << '\n';
 
     {
         const unique_ptr<char[]> r{make_reverse("desserts")};
         const unique_ptr<char[]> s{make_reverse_by_wrapping("drawer")};
         cout << "make_reverse: '" << r.get() << "', '" << s.get() << "'\n";
     }                                       // both deleted here - nothing for the caller to forget
-    cout << "after make_reverse: live=" << heap.live() << '\n';
 
     return EXIT_SUCCESS;
 }

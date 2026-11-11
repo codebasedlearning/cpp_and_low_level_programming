@@ -13,6 +13,7 @@
 #include <utility>
 #include <cstdlib>
 #include <cbl/printing.hpp>
+#include <cbl/tracer.hpp>
 #include <cbl/heap_watch.hpp>
 
 using std::cout, std::string, std::vector, std::unique_ptr, std::make_unique, std::shared_ptr, std::make_shared;
@@ -21,21 +22,6 @@ using std::cout, std::string, std::vector, std::unique_ptr, std::make_unique, st
 /* ---- Content ---- */
 
 namespace {
-
-    /* --- `tracer` --- Reports its birth and its death. */
-    class tracer {
-    public:
-        explicit tracer(const string& name) : name_{name} {
-            cout << " a|   " << name_ << ": constructed\n";
-        }
-
-        ~tracer() {
-            cout << " b|   " << name_ << ": destroyed\n";
-        }
-
-    private:
-        string name_;
-    };
 
     /* --- `recall_new_and_delete` ---
      * Every `new` needs an owner. `new` is two steps - `operator new` asks the allocator for bytes, the constructor

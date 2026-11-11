@@ -55,7 +55,7 @@ namespace {
 
     /* --- `show` --- Takes the pointer by value, as one would for a cheap handle. */
     void show(const stealing_ptr p) {
-        cout << " a|   show: " << *p.get() << '\n';
+        cout << " a| - show: " << *p.get() << '\n';
     }
 
     /* --- `copy_and_lose` ---
@@ -80,7 +80,7 @@ namespace {
      * goes.
      */
     void show_unique(const unique_ptr<int> p) {
-        cout << " b|   show_unique: " << *p << '\n';
+        cout << " b| - show_unique: " << *p << '\n';
     }
 
     void move_and_see_it() {

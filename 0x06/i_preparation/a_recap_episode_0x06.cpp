@@ -34,8 +34,8 @@ namespace {
         cout << " 1| p=" << p << ", p+1=" << p + 1 << ", p[2]=" << p[2] << ", end-begin=" << end(a) - begin(a) << '\n';
     }
 
-    /* --- `sum_all` --- The C way to pass an array: the address, and the count. */
-    int sum_all(const int* values, const size_t count) {
+    /* --- .`sum_all` --- The C way to pass an array: the address, and the count. */
+    int sum_all(const int* const values, const size_t count) {
         int sum{0};
         for (size_t i{0}; i < count; ++i) {
             sum += values[i];
@@ -75,30 +75,6 @@ namespace {
     }
 
 }
-
-/* --- Calling convention ---
- * Arguments and results travel in registers while they are small: on x86-64 Linux and macOS the first integers and
- * addresses in `rdi`, `rsi`, ..., the result in `rax`; on ARM64 in `x0`, `x1`, ... A small struct by value costs no
- * more than its members, a large one is copied by the caller - pass it by `const&`. A type with a copy constructor of
- * its own is always passed via an address.
- */
-
-/* --- Toolbox ---
- * What you can use by now to look at the machine:
- * - Debug (`-O0`) vs. Release (`-O2`).
- * - The debugger: breakpoints, the memory view, stepping and the call stack.
- * - `sizeof`, `alignof`, `offsetof` and printed addresses.
- * - `stopwatch` - measure, as Release, instead of guessing.
- * - `nm`, `nm -C` and `c++filt` - which functions are in which object file, and under which name.
- * - `g++ -S` and Compiler Explorer (godbolt.org) - the machine code, x86-64 and ARM64.
- * - AddressSanitizer (`-fsanitize=address`), where the toolchain has it.
- */
-
-/* --- Teaser ---
- * In 'McAllen Spring', `make_node` could not return a node: it lived in the stack frame of `make_node`, and died at
- * its `}`. Where else can an object live, so that it outlives the function that created it - and who ends its life
- * then?
- */
 
 /* --- `main` --- */
 int main() {

@@ -75,7 +75,7 @@ What it does, which CLion version it needs and how to install it:
 - [Unit 0x03 – Born and Buried](0x03/README.md): Classes, objects and the cycle of life.
 - [Unit 0x04 – Recap and Looking](0x04/README.md): A view is two words: where, and how long?
 - [Unit 0x05 – Where the Wild Pointers Are](0x05/README.md): Is working with pointers still important?
-- [Unit 0x06](0x06/README.md)
+- [Unit 0x06 – I Like to Move it Move it](0x06/README.md): Smart moves and pointers.
 - [Unit 0x07](0x07/README.md)
 - [Unit 0x08](0x08/README.md)
 - [Unit 0x09](0x09/README.md)

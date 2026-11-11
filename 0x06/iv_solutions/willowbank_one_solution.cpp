@@ -7,7 +7,6 @@
 #include <vector>
 #include <memory>
 #include <cstdlib>
-#include <cbl/heap_watch.hpp>               // in your project: a copy of `heap_watch.hpp`
 
 using std::cout, std::string, std::vector, std::unique_ptr, std::make_unique, std::shared_ptr, std::make_shared;
 using std::weak_ptr;
@@ -86,7 +85,6 @@ private:
 
 int main() {
     cout << "shared_ptr for the parent:\n";
-    const heap_watch shared_heap{};
     {
         const shared_ptr<shared_folder> root{make_shared<shared_folder>("root")};
         const shared_ptr<shared_folder> docs{add(root, "docs")};
@@ -94,10 +92,8 @@ int main() {
         const shared_ptr<shared_folder> letters{add(docs, "letters")};
         cout << "  " << letters->path() << '\n';
     }
-    cout << "  no dtor at all, live=" << shared_heap.live() << '\n';     // 4 folders, 2 vector blocks
 
     cout << "weak_ptr for the parent:\n";
-    const heap_watch weak_heap{};
     {
         const shared_ptr<weak_folder> root{make_shared<weak_folder>("root")};
         const shared_ptr<weak_folder> docs{add(root, "docs")};
@@ -105,19 +101,15 @@ int main() {
         const shared_ptr<weak_folder> letters{add(docs, "letters")};
         cout << "  " << letters->path() << '\n';
     }
-    cout << "  live=" << weak_heap.live() << '\n';
 
     cout << "unique_ptr for the children, a raw pointer for the parent:\n";
-    const heap_watch unique_heap{};
     {
         unique_folder root{"root", nullptr};
         unique_folder& docs{root.add("docs")};
         root.add("music");
         const unique_folder& letters{docs.add("letters")};
-        cout << "  allocations=" << unique_heap.allocations() << '\n';
         cout << "  " << letters.path() << '\n';
     }
-    cout << "  live=" << unique_heap.live() << '\n';
 
     // Extension: `sizeof` with gcc's library on x86-64 Linux - shared_folder and weak_folder: 72 bytes (a `string`, a
     // `vector`, and 16 bytes for the parent); unique_folder: 64 (8 bytes for the parent). With clang's library, each is

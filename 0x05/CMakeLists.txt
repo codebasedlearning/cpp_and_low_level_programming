@@ -4,7 +4,7 @@ add_executable(a_recap_episode_0x05 i_preparation/a_recap_episode_0x05.cpp)
 add_executable(b_pointers_and_arrays i_preparation/b_pointers_and_arrays.cpp)
 
 add_executable(a_pointer_arithmetic ii_session/a_pointer_arithmetic.cpp)
-# target_compile_options(a_pointer_arithmetic PRIVATE -O3)
+# target_compile_options(a_pointer_arithmetic PRIVATE -O2)
 
 add_executable(b_new_and_delete ii_session/b_new_and_delete.cpp)
 add_executable(c_singly_linked_list ii_session/c_singly_linked_list.cpp)

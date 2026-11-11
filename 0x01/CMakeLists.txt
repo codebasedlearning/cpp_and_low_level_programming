@@ -29,7 +29,6 @@ endif ()
 
 add_executable(westrosecliff_one_solution iv_solutions/westrosecliff_one_solution.cpp)
 add_executable(echovalley_one_solution iv_solutions/echovalley_one_solution.cpp)
-add_executable(littleharbor_one_solution ../0x02/iv_solutions/littleharbor_one_solution.cpp)
 add_executable(bluecanyon_one_solution iv_solutions/bluecanyon_one_solution.cpp)
 add_executable(beverlyhollow_one_solution iv_solutions/beverlyhollow_one_solution.cpp)
 add_executable(pinepoint_one_solution iv_solutions/pinepoint_one_solution.cpp)
