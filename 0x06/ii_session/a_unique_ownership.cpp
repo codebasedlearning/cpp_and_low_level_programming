@@ -221,6 +221,10 @@ namespace {
         call_with_ref(make_text());         // not an lvalue => rvalue
 
         call_with_ref(std::move(s));        // it does not steal but makes it a rvalue
+
+        // Remark, here nothing is move out of `s`, it is just an example for
+        // making an lvalue-ref an rvalue-ref.
+        // cout << " 2| s: " << s << '\n';
     }
 
     /* --- `steal_with_move` ---
@@ -289,7 +293,7 @@ namespace {
      */
     void take(const unique_ptr<tracer> t) {
         cout << " f|   take: " << t->name() << '\n';
-        // Core Guidelines R.32:
+        // Core Guidelines R.32
     }
 
     /* --- `working_with_unique_pointers` ---

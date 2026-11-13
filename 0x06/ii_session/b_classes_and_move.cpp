@@ -46,6 +46,9 @@ namespace {
      * the promise, but if an exception tries to leave anyway, the program ends with std::terminate.
      * And because the promise can be asked for at compile time, with noexcept(expr) or is_nothrow_move_constructible,
      * other code can rely on it, as a growing vector does when it decides to move instead of copy.
+     *
+     * Note for `copy`: an empty range with nullptr is fine. Copying a non-empty range onto itself is UB on paper,
+     * even though it almost always “works” in practice.
      */
     class int_buffer {
     public:
