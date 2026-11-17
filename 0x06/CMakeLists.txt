@@ -1,6 +1,6 @@
 # (C) A.Voß, a.voss@fh-aachen.de, info@codebasedlearning.dev
 
-add_executable(a_recap_episode_0x06 i_preparation/a_recap_episode_0x06.cpp)
+add_executable(a_recap_unit_0x05 i_preparation/a_recap_unit_0x05.cpp)
 add_executable(b_raw_leaks i_preparation/b_raw_leaks.cpp)
 
 add_executable(a_unique_ownership ii_session/a_unique_ownership.cpp)

@@ -1,6 +1,6 @@
 # (C) A.Voß, a.voss@fh-aachen.de, info@codebasedlearning.dev
 
-add_executable(a_recap_episode_0x03 i_preparation/a_recap_episode_0x03.cpp)
+add_executable(a_recap_unit_0x02 i_preparation/a_recap_unit_0x02.cpp)
 add_executable(b_first_class i_preparation/b_first_class.cpp)
 add_executable(c_call_stack i_preparation/c_call_stack.cpp)
 

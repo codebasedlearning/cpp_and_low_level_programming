@@ -1,6 +1,6 @@
 # (C) A.Voß, a.voss@fh-aachen.de, info@codebasedlearning.dev
 
-add_executable(a_recap_so_far_episode_0x04 i_preparation/a_recap_so_far_episode_0x04.cpp)
+add_executable(a_recap_so_far_units_0x01_0x03 i_preparation/a_recap_so_far_units_0x01_0x03.cpp)
 add_executable(b_print_and_view i_preparation/b_print_and_view.cpp)
 
 add_executable(a_views_in_memory ii_session/a_views_in_memory.cpp)

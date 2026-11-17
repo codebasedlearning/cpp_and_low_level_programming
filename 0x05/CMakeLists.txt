@@ -1,6 +1,6 @@
 # (C) A.Voß, a.voss@fh-aachen.de, info@codebasedlearning.dev
 
-add_executable(a_recap_episode_0x05 i_preparation/a_recap_episode_0x05.cpp)
+add_executable(a_recap_unit_0x04 i_preparation/a_recap_unit_0x04.cpp)
 add_executable(b_pointers_and_arrays i_preparation/b_pointers_and_arrays.cpp)
 
 add_executable(a_pointer_arithmetic ii_session/a_pointer_arithmetic.cpp)
