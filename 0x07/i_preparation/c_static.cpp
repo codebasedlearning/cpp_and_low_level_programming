@@ -113,47 +113,6 @@ namespace {
         // const temperature t{20.0};       // compiler error: the constructor is private
     }
 
-    /* --- `instance` ---
-     * Counts its objects - the copies included: the copy constructor counts, too. `alive` is how many exist now,
-     * `created` how many were ever made.
-     */
-    class instance {
-    public:
-        instance() { count_up(); }
-        instance(const instance&) { count_up(); }
-        instance& operator=(const instance&) = default;
-        ~instance() { --alive; }
-
-        inline static int alive{0};
-        inline static int created{0};
-
-    private:
-        static void count_up() {
-            ++alive;
-            ++created;
-        }
-    };
-
-    /* --- `pass_by_value` --- A copy - and a count. */
-    void pass_by_value(const instance) {
-        cout << " a|   inside: alive=" << instance::alive << '\n';
-    }
-
-    /* --- `count_instances` --- A parameter by value is an object, too - and so is every element of a `vector`. */
-    void count_instances() {
-        print_function_header();
-
-        ++calls_in_this_file;
-        const instance a;
-        pass_by_value(a);
-        cout << " 1| alive=" << instance::alive << ", created=" << instance::created << '\n';
-        {
-            const vector<instance> three(3);
-            cout << " 2| alive=" << instance::alive << ", created=" << instance::created << '\n';
-        }
-        cout << " 3| alive=" << instance::alive << ", created=" << instance::created << '\n';
-    }
-
     /* --- `make_factorials` --- Computes 0! to 20! - the largest that fit into a `long long`. */
     vector<long long> make_factorials() {
         cout << " b|   building the table\n";
@@ -201,7 +160,6 @@ namespace {
 int main() {
     define_a_static_member();
     use_a_named_constructor();
-    count_instances();
     cache_in_a_local_static();
 
     return EXIT_SUCCESS;

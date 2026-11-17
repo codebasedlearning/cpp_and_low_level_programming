@@ -162,18 +162,6 @@ namespace {
 
 }
 
-/* --- The machine code of an enum ---
- * Paste `suit`, `points_of`, `permission`, its two operators and `combine` into Compiler Explorer, with
- * `#include <cstdint>` and `#include <utility>` and `using std::uint8_t, std::to_underlying;` in front. `-O2`:
- * - `points_of`, x86-64 gcc: `cmp dil, 3` and `ja` - is the value greater than 3? Then return 0. Otherwise
- *   `mov eax, DWORD PTR [rax+rdi*4]` - the result is read from a table, `CSWTCH`, with the numbers 12, 9, 10, 11: the
- *   `switch` has become an array lookup, indexed by the enum. The check before it is there because a `suit` may be 7.
- *   clang does the same, its table is called `switch.table`; ARM64: `cmp w0, 3`, `bhi` and an `ldr` from the table.
- * - `combine`: `mov eax, esi` and `or eax, edi` - on ARM64 `orr w0, w1, w0`. The same as for two `uint8_t`s: the
- *   `static_cast`s and `to_underlying` are nothing, the `|` is one instruction.
- * An enum is a number with names, and the names are gone when the compiler is done.
- */
-
 /* --- `main` --- */
 int main() {
     show_the_underlying_type();

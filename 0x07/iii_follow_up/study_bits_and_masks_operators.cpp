@@ -151,13 +151,6 @@ namespace {
 
 }
 
-/* --- What the compiler does with it ---
- * In Compiler Explorer, as Release (unit 0x05): `unsigned times8(unsigned x) { return x * 8; }` is a shift - `lsl` on
- * ARM64, a `lea` with a scale on x86-64. `x % 8` for an `unsigned` is `x & 7`. For an `int`, `% 8` takes a few more
- * instructions: -13 % 8 is -5, and a plain `and` would give 3. Write what you mean - `* 8`, `% 8` - and let the
- * compiler choose the bits; `unsigned` where negative numbers cannot occur makes its job simpler.
- */
-
 /* --- `main` --- */
 int main() {
     combine_bits();

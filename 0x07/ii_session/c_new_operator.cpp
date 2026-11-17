@@ -68,13 +68,12 @@ namespace {
          * there - but the object is not, the constructor makes it. That is why calling just the constructor has no
          * syntax of its own: there is no object yet to call it on. Placement `new` is the way to write it (see below).
          * The destructor can be called by name, `t->~tracer()`, because there the object still exists.
-         * Your code never calls `operator new` itself - the compiler does, around the constructor. The next topics
-         * change only these two calls.
+         * Your code never calls `operator new` itself - the compiler does, around the constructor.
          */
     }
 
     /* --- .`point` ---
-     * A little struct with an `operator new` and an `operator delete` of its own. As members they are `static`, even
+     * A little struct with an `operator new` and an `operator delete` of its own. As members, they are `static`, even
      * without the keyword: when `operator new` runs, there is no object yet - and when `operator delete` runs, there
      * is none any more. Both hand the work on to the C allocator: `malloc` returns raw bytes, a `void*`, or `nullptr`
      * if there are none - and `free` takes them back.
@@ -126,12 +125,14 @@ namespace {
         delete p;
 
         /* -- .Why a class brings its own. --
-         * The global `operator new` can be replaced, too - once, for every type of the program, as the counting tool of
-         * this unit does. A class does it for itself: to get its blocks from somewhere else - a pool of slots of equal
-         * size (next topic), an arena that is given back in one piece, memory with a special alignment - or just to
-         * count its own objects. The size is a parameter because a derived class inherits `operator new` and asks for
-         * more bytes. And `new point[2]` does not use it: arrays go to `operator new[]`, and a class must bring that
-         * one, too.
+         * The global `operator new` can be replaced, too - once, for every type of the program. A class does it for
+         * itself: to get its blocks from somewhere else - a pool of slots of equal size (next topic), an arena that
+         * is given back in one piece, memory with a special alignment - or just to count its own objects.
+         * The size is a parameter because a derived class inherits `operator new` and asks for more bytes.
+         * And `new point[2]` does not use it: arrays go to `operator new[]`, and a class must bring that one, too.
+         *
+         * Btw. `new T[n]` leads to one allocation. It calls operator new[](size) once, and in libstdc++ that ends in
+         * a single malloc and n constructor calls into that block.
          */
     }
 
@@ -160,18 +161,12 @@ namespace {
      * `bytes` while a `T` lives in it - and it is as big as the bigger of the two, at least a pointer. `byte` is the
      * type for raw memory: no number, no character, just bits - and an array of `byte` may hold objects of any other
      * type. `alignas` gives it the alignment of a `T`.
-     * The bytes do not say which of the two they are - a `union` keeps no record of that. Who holds the slot says it:
-     * a slot in the list belongs to the pool, and only the pool reads its `next`; a slot handed out by `allocate`
-     * belongs to its owner, and only the owner reads the `T` in it. `allocate` and `deallocate` hand a slot from one
-     * side to the other - and they are the only ones that touch the list: `slots_` and `first_free_` are private.
      * Every slot is on one side or the other - so at most `N` are in use, without counting.
      * - `allocate` takes the head of the list - the slot given back last, or at first slot 0 - and its `next` becomes
      *   the head. If the list is empty, all `N` slots are taken: `bad_alloc`.
      * - `deallocate` puts the slot back in front: its first bytes - where the `T` was - now hold the link to the old
      *   head. `static_cast<slot*>(raw)` says "this address is a slot" - casts are the topic of a future unit.
      *   `nullptr` is no slot: nothing to do.
-     * No search - a few instructions, however many slots there are. The names are those of `std::allocator` (see
-     * future snippets): a class that brings its own `operator new` usually hands the work on to such an object.
      * At the start, all slots are free: the constructor pushes them onto the empty list, as `deallocate` would - the
      * last one first, so that slot 0 ends up at the head, and the chain runs slot 0, 1, ... to `nullptr`. No special
      * case for the end: the last slot gets its `nullptr` from the empty list, like the first slot ever given back.
@@ -236,30 +231,10 @@ namespace {
     }
 
     /* -- .Kept simple - and what it risks. --
-     * The size is ignored: a class derived from `connection` inherits its `operator new` and asks for more bytes than a
-     * slot has. A real pool checks `size`, and hands larger requests on to `::operator new`.
-     * The pool trusts its users, as every heap does - and the `union` makes that trust cheap and dangerous at once:
-     * the bookkeeping lives in the very bytes the users get.
-     * - Use after `delete`: the slot is back in the list, its first bytes are the link. Remove the `//` in
-     *   `use_a_pool`: `id` is the first 4 bytes of the slot - on x86-64 and ARM64 the lower half of the address in
-     *   `next` - so the link becomes something like `0x000055f10000002a`. The next `new` still gets slot 3; the one
-     *   after it follows the broken link and reads `next` there - a segmentation fault, exit status 139, inside
-     *   `pool::allocate`, far away from the line that did it.
-     * - A double `delete`: the slot is in the list twice, and two `new`s return the same slot - two connections in the
-     *   same 8 bytes, and nothing crashes.
-     * - A foreign address: `deallocate` takes any address for a slot - one from `::new`, or from the middle of a
-     *   connection - and the next `new` hands it out.
-     * The professional ones spend a little to catch some of it. glibc puts a second value next to the link in a free
-     * block, a random key: a block that already carries it is probably freed twice (see previous snippets); and it
-     * stores the link scrambled with its own address, so that a stray write like the `42` is usually noticed on the
-     * next `malloc` ("safe-linking"). jemalloc keeps the state outside the slots, one bit per slot in a bitmap - a
-     * stray write cannot fake it, and a double free is certain. Neither sees the write itself: that takes a check on
-     * every access - AddressSanitizer, with a table of its own for every 8 bytes, and freed blocks kept out of use for
-     * a while.
      * Chaining all slots at the start is fine for five. A real heap does not do it: writing into every slot makes every
-     * page of it resident - the system must give it physical memory (see future snippets) - even if the program never
-     * needs most of it. glibc carves new blocks from the untouched rest only when they are asked for, and only blocks
-     * that were given back go into its lists.
+     * page of it resident - the system must give it physical memory - even if the program never needs most of it.
+     * glibc carves new blocks from the untouched rest only when they are asked for, and only blocks that were given
+     * back go into its lists.
      * A real connection pool goes one step further: it keeps the connections themselves open and hands them out
      * again. Here, only the memory for them is pooled - and the limit is real.
      */
@@ -293,7 +268,7 @@ namespace {
      *
      * Placement `new`
      *      void* raw{std::malloc(sizeof(point))};
-     *      point* q{::new (raw) point{5, 6}};
+     *      point* q{::new (raw) point{5, 6}};                  // <- here note the (raw)
      *      ...
      *      q->~point();
      *      std::free(raw);

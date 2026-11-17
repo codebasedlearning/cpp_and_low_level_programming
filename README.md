@@ -76,7 +76,7 @@ What it does, which CLion version it needs and how to install it:
 - [Unit 0x04 – Recap and Looking](0x04/README.md): A view is two words: where, and how long?
 - [Unit 0x05 – Where the Wild Pointers Are](0x05/README.md): Is working with pointers still important?
 - [Unit 0x06 – I Like to Move it Move it](0x06/README.md): Smart moves and pointers.
-- [Unit 0x07](0x07/README.md)
+- [Unit 0x07 – Sugar Coated](0x07/README.md): a+b = b+a, or not?
 - [Unit 0x08](0x08/README.md)
 - [Unit 0x09](0x09/README.md)
 - [Unit 0x0a](0x0a/README.md)

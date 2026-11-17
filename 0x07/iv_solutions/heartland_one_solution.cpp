@@ -118,13 +118,6 @@ int main() {
     // 24 bytes: three `double`s, the operators are not in the object.
     cout << "sizeof(vec3) = " << sizeof(vec3) << '\n';
 
-    // Extension: `add(a, b)` as Release returns its 24 bytes in memory - at the address the caller passes in `rdi`,
-    // with `a` and `b` arriving by address in `rsi` and `rdx` (unit 0x05: larger than 16 bytes). The loops are unrolled
-    // and the `at` checks are gone: the indexes are known. The hand-written version adds the first two `double`s with
-    // one `addpd` and the third with an `addsd`, 8 instructions. clang 18 makes exactly that of `add`, too. gcc 13
-    // adds the same way, but takes the third `double` on a detour through the stack - the copy of `a` that
-    // `operator+` takes by value - 4 instructions more. Zero overhead is a promise the optimizer usually keeps: look.
-
     vec<int, 2> p{};
     p[0] = 3;
     p[1] = 4;

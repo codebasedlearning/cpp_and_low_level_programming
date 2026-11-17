@@ -37,7 +37,7 @@ namespace {
         const int count{4};
         const double average{sum / count};
         const double scaled{count * 1.5};
-        cout << " 1| sum / count=" << sum / count << ", average=" << average << ", count * 1.5=" << scaled << '\n';
+        cout << " 1| sum/count=" << sum / count << ", average=" << average << ", count*1.5=" << scaled << '\n';
 
         // const int n = 2.9;               // compiles: n is 2 - with `-Wconversion`, a warning
         // const int m{2.9};                // compiler error: narrowing conversion
@@ -60,25 +60,25 @@ namespace {
         const double price{2.99};
         cout << " 2| static_cast<int>(2.99)=" << static_cast<int>(price) << ", static_cast<int>(-2.99)="
              << static_cast<int>(-price) << '\n';
-        cout << " 3| static_cast<char>(65)=" << static_cast<char>(65) << ", static_cast<int>('A')="
+        cout << " 3| static_cast<char>(65)='" << static_cast<char>(65) << "', static_cast<int>('A')="
              << static_cast<int>('A') << '\n';
 
         /* -- .The C-style cast. --
          * In C code and in old C++, you will see `(double)sum` or `(int)price`. It works here - but it may do much more
-         * than you asked for, see next snippets. In this course: `static_cast`, and the other named casts, only.
+         * than you asked for, e.g. remove const. In this course: `static_cast`, and the other named casts, only.
          */
 
         /* -- .Q&A -- !![`static_cast<double>(sum / count)` - is that 2.5, too?](#a-702) */
     }
 
-    /* --- `suit` ---
+    /* --- .`suit` ---
      * An `enum class` - a scoped enumeration: a type of its own, with four named values. The compiler numbers them
      * from 0: `clubs` is 0, `spades` is 3. The names belong to the type: `suit::hearts`, not `hearts`.
      * - !![#enum-class]
      */
     enum class suit { clubs, diamonds, hearts, spades };
 
-    /* --- `name_of` --- A `switch` over an enum: one `case` per value. */
+    /* --- .`name_of` --- A `switch` over an enum: one `case` per value. */
     string_view name_of(const suit s) {
         switch (s) {
             case suit::clubs:    return "clubs";
@@ -86,27 +86,27 @@ namespace {
             case suit::hearts:   return "hearts";
             case suit::spades:   return "spades";
         }
-        return "?";                         // not reached - as long as nobody makes a `suit` from 7, see next snippets
+        return "?";                         // not reached - as long as nobody makes a `suit` from 7
     }
 
     /* --- `use_an_enum` ---
-     * A `suit` is not an `int`: `cout << trump` does not compile, and neither does `int n{suit::hearts}`. To get the
+     * A `suit` is not an `int`: `cout << suit` does not compile, and neither does `int n{suit::hearts}`. To get the
      * number, ask for it with `static_cast<int>`; to get a `suit` from a number, `static_cast<suit>`.
      */
     void use_an_enum() {
         print_function_header();
 
-        const suit trump{suit::hearts};
-        cout << " 1| trump=" << name_of(trump) << ", number " << static_cast<int>(trump) << '\n';
+        const suit sh{suit::hearts};
+        cout << " 1| sh=" << name_of(sh) << ", number " << static_cast<int>(sh) << '\n';
 
         const suit last{static_cast<suit>(3)};
-        cout << " 2| static_cast<suit>(3)=" << name_of(last) << ", trump == last: " << (trump == last) << '\n';
+        cout << " 2| static_cast<suit>(3)=" << name_of(last) << ", sh == last: " << (sh == last) << '\n';
 
-        // cout << trump;                   // compiler error: no `operator<<` for a `suit`
+        // cout << sh;                      // compiler error: no `operator<<` for a `suit`
         // const int n{suit::hearts};       // compiler error: no conversion to `int`
     }
 
-    /* --- `color` --- A plain `enum`, the old kind, from C. */
+    /* --- .`color` --- A plain `enum`, the old kind, from C. */
     enum color { red, green, blue };
 
     /* --- `compare_with_a_plain_enum` ---
