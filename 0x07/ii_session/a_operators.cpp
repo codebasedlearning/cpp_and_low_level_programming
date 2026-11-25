@@ -128,6 +128,8 @@ namespace {
         long long cents_;
     };
 
+    // a+b => operator+(a,b)
+
     /* --- .`operator+` ---
      * `price + tip` changes neither of them: it returns a new amount. It is a free function with two parameters, the
      * left and the right operand. It adds nothing itself: it copies the left operand into `sum`, and lets `+=` do the
@@ -263,7 +265,7 @@ namespace {
 
         // op<< in action
         cout << " 1| price=" << price << ", tip=" << tip << '\n';
-        price += tip;                       // op+=
+        price += tip;                       // op+= or price.operator+=(tip)
         cout << " 2| price with tip: " << price << '\n';
         price = price + tip;                // op+
         cout << " 3| price with double tip: " << price << '\n';

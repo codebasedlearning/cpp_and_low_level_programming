@@ -1,18 +1,15 @@
 # (C) A.Voß, a.voss@fh-aachen.de, info@codebasedlearning.dev
 
 add_executable(a_recap_episode_0x08 i_preparation/a_recap_episode_0x08.cpp)
-add_executable(b_inheritance i_preparation/b_inheritance.cpp)
-add_executable(c_class_layout i_preparation/c_class_layout.cpp)
 
-add_executable(a_derived_in_memory ii_session/a_derived_in_memory.cpp)
-add_executable(b_virtual_in_the_machine ii_session/b_virtual_in_the_machine.cpp)
-add_executable(c_born_and_buried_revisited ii_session/c_born_and_buried_revisited.cpp)
-add_executable(d_multiple_bases_in_memory ii_session/d_multiple_bases_in_memory.cpp)
+add_executable(a_function_ptrs ii_session/a_function_ptrs.cpp)
+add_executable(b_inheritance ii_session/b_inheritance.cpp)
+add_executable(c_shapes ii_session/c_shapes.cpp)
+add_executable(d_interfaces ii_session/d_interfaces.cpp)
 
 add_executable(study_inheritance_rules iii_follow_up/study_inheritance_rules.cpp)
-add_executable(study_virtual_functions iii_follow_up/study_virtual_functions.cpp)
-add_executable(study_polymorphic_objects iii_follow_up/study_polymorphic_objects.cpp)
-add_executable(tinker_vtable_by_hand iii_follow_up/tinker_vtable_by_hand.cpp)
+add_executable(study_polymorphic_exceptions iii_follow_up/study_polymorphic_exceptions.cpp)
+add_executable(tinker_virtual_functions iii_follow_up/tinker_virtual_functions.cpp)
 add_executable(tinker_dispatch_by_hand iii_follow_up/tinker_dispatch_by_hand.cpp)
 
 add_executable(kestrelpoint_one_solution iv_solutions/kestrelpoint_one_solution.cpp)

@@ -40,7 +40,7 @@ namespace {
         cout << " 1| m.n: " << m.n << '\n';
 
         number* p{&m};
-        //cout << " 2| p->n: " << p->n << '\n';
+        cout << " 2| p->n: " << p->n << '\n';
     }
 
     /* --- `celsius` and its `operator<<` ---

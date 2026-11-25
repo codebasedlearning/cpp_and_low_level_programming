@@ -75,7 +75,7 @@ private:
 // The first 8 bytes of an object - what the debugger shows as `_vptr.shape` (gdb) or in the memory view.
 const void* first_bytes_of(const shape& s) {
     const void* p{nullptr};
-    std::memcpy(&p, static_cast<const void*>(&s), sizeof p);
+    std::memcpy(&p, static_cast<const void*>(&s), sizeof(p));
     return p;
 }
 

@@ -112,7 +112,7 @@ namespace {
      */
     const void* address_inside(const void* object) {
         const void* address{nullptr};
-        std::memcpy(&address, object, sizeof address);
+        std::memcpy(&address, object, sizeof(address));
         return address;
     }
 

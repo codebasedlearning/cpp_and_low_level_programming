@@ -61,11 +61,3 @@ int main() {
 }                               // ~base() base     - `copy`, the last one created, is destroyed first
                                 // ~derived() derived
                                 // ~base() base     - in the destructor of `base`, the object is a `base` again
-
-// Virtual calls in the machine code, `-O0`, x86-64 gcc: only two, each a `call rdx` - `r.g()` in `main`, and `b.g()` in
-// `by_reference`. The calls of `who()` in the constructors and destructors are direct: while `base()` runs, the object
-// is a `base`, and the compiler knows it. `b.g()` in `by_value`, `p->base::g()` and `copy.g()` are direct, too - the
-// type is known, or the call names the class. With `-O2`, gcc sees that `r` refers to `d` and calls `derived::g()`
-// directly as well.
-// Extension: `sizeof(base)` and `sizeof(derived)` are 8 - the vptr, one for both. An `int` in `derived` makes it 16:
-// 8 + 4 + 4 bytes of padding. `base` stays 8.

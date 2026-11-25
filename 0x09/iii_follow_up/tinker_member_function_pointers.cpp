@@ -59,7 +59,7 @@ namespace {
     array<uintptr_t, 2> raw(const P p) {
         static_assert(sizeof(P) == 2 * sizeof(uintptr_t), "Itanium ABI expected");
         array<uintptr_t, 2> words{};
-        std::memcpy(words.data(), &p, sizeof p);
+        std::memcpy(words.data(), &p, sizeof(p));
         return words;
     }
 
