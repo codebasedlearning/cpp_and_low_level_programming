@@ -54,8 +54,11 @@ namespace java_like {
     void print_instance(const object& b) {
         cout << " P| to_string: " << b.to_string() << '\n';
     }
+    void print_instance(const object* pb) {
+        cout << " P| to_string: " << pb->to_string() << '\n';
+    }
 
-    /* --- `compare_behaviour` --- */
+    /* --- `compare_behaviour` with Java --- */
     void compare_behaviour() {
         print_function_header();
 
@@ -101,6 +104,9 @@ namespace {
     void print_instance(const object& b) {
         cout << " Q| to_string: " << b.to_string() << '\n';
     }
+    void print_instance(const object* pb) {
+        cout << " Q| to_string: " << pb->to_string() << '\n';
+    }
 
     /* --- `virtual_in_action` --- */
     void virtual_in_action() {
@@ -116,15 +122,17 @@ namespace {
         print_instance(o);
         print_instance(d);
 
+        // => How does this work?
+
         // classes contain ints
-        cout << " 3| sizeof(java_like::object)=" << sizeof(java_like::object)
+        cout << "\n 3| sizeof(java_like::object)=" << sizeof(java_like::object)
              << ", sizeof(java_like::derived)=" << sizeof(java_like::derived) << '\n';
         // classes contain ints, ... and more? (remember padding)
         cout << " 4| sizeof(object)=" << sizeof(object)
              << ", sizeof(derived)=" << sizeof(derived) << '\n';
     }
 
-    /* --- `offset_of` --- As in the previous snippet: the distance in bytes. */
+    /* --- `offset_of` --- The distance in bytes. */
     ptrdiff_t offset_of(const void* member, const void* object) {
         return static_cast<const byte*>(member) - static_cast<const byte*>(object);
     }

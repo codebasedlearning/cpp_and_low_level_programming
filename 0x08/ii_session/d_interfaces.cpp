@@ -16,11 +16,12 @@
  */
 
 #include <iostream>
+#include <string_view>
 #include <cstddef>
 #include <cstdlib>
 #include <cbl/printing.hpp>
 
-using std::cout, std::ptrdiff_t;
+using std::cout, std::ptrdiff_t, std::string_view;
 
 
 /* ---- Content ---- */
@@ -44,7 +45,7 @@ namespace {
     class printable {
     public:
         virtual ~printable() = default;
-        virtual const char* text() const = 0;
+        virtual string_view text() const = 0;
     };
 
     class movable {
@@ -58,7 +59,7 @@ namespace {
     public:
         sprite(const int x, const int y) : x_{x}, y_{y} {}
 
-        const char* text() const override { return "sprite"; }
+        string_view text() const override { return "sprite"; }
 
         void move_by(const int dx, const int dy) override {
             x_ += dx;

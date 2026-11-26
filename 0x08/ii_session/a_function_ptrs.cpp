@@ -3,6 +3,7 @@
 /* ---- Preamble ----
  *
  * Teaching Focus
+ * - The motivation: Newton's method finds the zero of any function - so the function is a parameter.
  * - A function is code, and code is in memory: every function has an address. A function pointer holds it - and a
  *   call through it is an indirect call: which code runs is decided at run time, by the value of a variable.
  * - `using unary = int (*)(int);` gives the type a name, `unary f{&twice};` declares one - written out, it is
@@ -16,6 +17,8 @@
 #include <vector>
 #include <cstdlib>
 #include <array>
+#include <functional>
+#include <cmath>
 #include <cbl/printing.hpp>
 
 using std::cout, std::vector, std::array;
@@ -25,6 +28,60 @@ using std::cout, std::vector, std::array;
 
 namespace {
 
+    /* --- Newton's method for finding roots  ---
+     * https://de.wikipedia.org/wiki/Newtonverfahren
+     * https://en.wikipedia.org/wiki/Newton%27s_method
+     *
+     * x_n+1 = x_n - f(x_n) / f'(x_n)
+     *
+     * Example: `sqrt(2)` is a solution of `x*x-2 = 0`, `f(x)=x*x-2`
+     *
+     * Idea: Newton knows the method, not the problem: f and its derivative f' are parameters
+     *
+     *  double newton(function f, function f', double x, const int steps) {
+     *      for (int i=1; i <= steps; ++i) {
+     *          x -= f(x) / f'(x);
+     *      }
+     *      return x;
+     *  }
+     *
+     * Two functions f and f' needed - but what is the type of the parameter?
+     * => function pointers (address of a function in memory = start of the function in memory)
+     */
+
+    /* --- .`f` and `df` --- A function with a zero at `sqrt(2)`, and its derivative. */
+    double f(const double x) { return x * x - 2.0; }
+    double df(const double x) { return 2.0 * x; }
+
+    /* --- .`real_function` --- The type, with a name. Read it as: a pointer to a function, `double` in, `double` out. */
+    using real_function = double (*)(double);
+
+    double newton(const real_function f, const real_function df, double x, const int steps) {
+        for (int i{1}; i <= steps; ++i) {
+            x -= f(x) / df(x);
+            cout << " a| - step " << i << ": x=" << x << '\n';
+        }
+        return x;
+    }
+
+    /* --- `solve_with_newton` ---
+     * The motivation: many problems, one method. Without function pointers, `newton` would be written once per problem,
+     * or with a `switch` over every problem it knows.
+     * Look at the digits of `sqrt(2)`: 1, 3, 6, 12, then all 16 correct - near the zero, every step doubles them.
+     * After five steps, the result is exactly `std::sqrt(2.0)`.
+     */
+    void solve_with_newton() {
+        print_function_header();
+
+        const std::streamsize old_precision{cout.precision(16)};
+
+        cout << " 1| sqrt(2), starting at 1:\n";
+        const double root_of_2{newton(f, df, 1.0, 5)};
+        cout << " 2| newton=" << root_of_2 << ", std::sqrt=" << std::sqrt(2.0) << '\n';
+
+        cout.precision(old_precision);
+    }
+
     /* --- .`half`, `square` and `negate` --- Three functions of the same type: an `int` in, an `double` out. */
     double half(const int n) { return n * 0.5; }
     double square(const int n) { return n * n; }
@@ -32,6 +89,8 @@ namespace {
 
     /* --- .`operation` --- The type, with a name. Read it as: a pointer to a function, `int` in, `double` out. */
     using operation = double (*)(int);
+    // preview: std::function<double(int)>
+    // old:     typedef double(*operation)(int);
 
     /* --- `use_a_function_pointer` ---
      * `operation f` is a variable that holds the address of a function taking an `int` and returning a `double`.
@@ -45,10 +104,10 @@ namespace {
     void use_a_function_pointer() {
         print_function_header();
 
-        operation f{half};                  // same as: f{&half}
+        operation f{half};                  // same as f{&half}
         // double (*f)(int){&half};         // also the same - that's why we use a typedef or using
         cout << " 1| half:   f(3)=" << f(3) << '\n';
-        f = square;
+        f = square;                         // same as &square
         cout << " 2| square: f(3)=" << f(3) << '\n';
 
         // operation g{nullptr};
@@ -63,7 +122,7 @@ namespace {
     void pick_from_a_table() {
         print_function_header();
 
-        constexpr array<operation,3> table{half, square, negate};
+        const array<operation,3> table{half, square, negate};
         for (int i{0}; i < 3; ++i) {
             cout << ' ' << i + 1 << "| table[" << i << "](5)=" << table[i](5) << '\n';
         }
@@ -161,6 +220,7 @@ namespace {
 
 /* --- `main` --- */
 int main() {
+    solve_with_newton();
     use_a_function_pointer();
     pick_from_a_table();
     pass_a_function();
