@@ -14,6 +14,5 @@ add_executable(tinker_dispatch_by_hand iii_follow_up/tinker_dispatch_by_hand.cpp
 
 add_executable(kestrelpoint_one_solution iv_solutions/kestrelpoint_one_solution.cpp)
 add_executable(cedargap_one_solution iv_solutions/cedargap_one_solution.cpp)
-add_executable(ironmill_one_solution iv_solutions/ironmill_one_solution.cpp)
 add_executable(unionbeach_one_solution iv_solutions/unionbeach_one_solution.cpp)
 add_executable(petersmines_one_solution iv_solutions/petersmines_one_solution.cpp)

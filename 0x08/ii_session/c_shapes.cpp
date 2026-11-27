@@ -87,7 +87,7 @@ namespace {
             cout << " c| - CIRCLE '" << name() << "' constructed, vptr=" << vptr_of(this) << '\n';
         }
 
-        ~circle() override {
+        ~circle() { // override
             cout << " d| - CIRCLE '" << name() << "' destroyed, vptr=" << vptr_of(this) << '\n';
         }
 
@@ -105,7 +105,7 @@ namespace {
             cout << " e| - SQUARE '" << name() << "' constructed, vptr=" << vptr_of(this) << '\n';
         }
 
-        ~square() override { //
+        ~square()  { // override
             cout << " f| - SQUARE '" << name() << "' destroyed, vptr=" << vptr_of(this) << '\n';
         }
 

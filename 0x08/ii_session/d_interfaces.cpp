@@ -135,7 +135,7 @@ namespace {
              << ", s.serial=" << s.serial
              << " at offset " << offset_of(&s.serial, &c) << '\n';
         cout << " 4| c.printer::serial=" << c.printer::serial
-             << ", s.serial=" << p.serial
+             << ", p.serial=" << p.serial
              << " at offset " << offset_of(&p.serial, &c) << '\n';
         // cout << c.serial;                // compiler error: `serial` is ambiguous
     }
